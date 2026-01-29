@@ -1,0 +1,12 @@
+*.http
+
+.env.production
+.env.staging
+.env
+.env.local
+
+.idea
+.vscode
+
+# .air.toml
+tmp
