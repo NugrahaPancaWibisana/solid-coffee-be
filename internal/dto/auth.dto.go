@@ -7,3 +7,7 @@ type JWTClaims struct {
 	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
+
+type JWT struct {
+	Token string `json:"token"`
+}

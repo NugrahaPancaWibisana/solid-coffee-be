@@ -10,3 +10,8 @@ type ResponseError struct {
 	Message string `json:"message" example:"Failed get data"`
 	Error   string `json:"errors,omitempty" example:"failed get data"`
 }
+
+type LoginResponse struct {
+	ResponseSuccess
+	Data JWT `json:"data"`
+}
