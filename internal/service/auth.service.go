@@ -58,6 +58,11 @@ func (as *AuthService) Login(ctx context.Context, req dto.LoginRequest) (dto.Use
 		return dto.User{}, err
 	}
 
+	if e := tx.Commit(ctx); e != nil {
+		log.Println("failed to commit", e.Error())
+		return dto.User{}, e
+	}
+
 	res := dto.User{
 		ID:        data.ID,
 		Email:     data.Email,
