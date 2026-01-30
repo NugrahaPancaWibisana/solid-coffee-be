@@ -72,6 +72,15 @@ definitions:
         example: Error
         type: string
     type: object
+  dto.ResponseSuccess:
+    properties:
+      message:
+        example: Data retrieved successfully
+        type: string
+      status:
+        example: Success
+        type: string
+    type: object
 host: 192.168.50.221:8080
 info:
   contact: {}
@@ -80,6 +89,29 @@ info:
   version: "1.0"
 paths:
   /auth/:
+    delete:
+      description: Logout user and invalidate token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      - BearerAuth: []
+      summary: User logout
+      tags:
+      - auth
     post:
       consumes:
       - application/json
