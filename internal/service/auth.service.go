@@ -108,3 +108,7 @@ func (as *AuthService) Register(ctx context.Context, req dto.RegisterRequest) er
 
 	return nil
 }
+
+func (as *AuthService) Logout(ctx context.Context, userID int) error {
+	return cache.DeleteToken(ctx, as.redis, userID)
+}
