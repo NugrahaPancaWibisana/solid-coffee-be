@@ -123,3 +123,120 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 		},
 	})
 }
+
+// Register godoc
+//
+//	@Summary		Register new user
+//	@Description	Create a new user account
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.RegisterRequest	true	"User registration data"
+//	@Success		201		{object}	dto.RegisterResponse
+//	@Failure		400		{object}	dto.ResponseError
+//	@Failure		500		{object}	dto.ResponseError
+//	@Router			/auth/new/ [post]
+func (ac *AuthController) Register(ctx *gin.Context) {
+	var req dto.RegisterRequest
+
+	if err := ctx.ShouldBindWith(&req, binding.JSON); err != nil {
+		errStr := err.Error()
+
+		if strings.Contains(errStr, "Fullname") && strings.Contains(errStr, "required") {
+			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
+				Error:   "Bad Request",
+				Message: "Fullname field cannot be empty",
+				Status:  "error",
+			})
+			return
+		}
+
+		if strings.Contains(errStr, "Fullname") && strings.Contains(errStr, "min") {
+			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
+				Error:   "Bad Request",
+				Message: "Fullname must be at least 3 characters",
+				Status:  "error",
+			})
+			return
+		}
+
+		if strings.Contains(errStr, "Email") && strings.Contains(errStr, "required") {
+			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
+				Error:   "Bad Request",
+				Message: "Email field cannot be empty",
+				Status:  "error",
+			})
+			return
+		}
+
+		if strings.Contains(errStr, "Email") && strings.Contains(errStr, "email") {
+			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
+				Error:   "Bad Request",
+				Message: "Email must be a valid email address",
+				Status:  "error",
+			})
+			return
+		}
+
+		if strings.Contains(errStr, "Password") && strings.Contains(errStr, "required") {
+			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
+				Error:   "Bad Request",
+				Message: "Password field cannot be empty",
+				Status:  "error",
+			})
+			return
+		}
+
+		if strings.Contains(errStr, "Password") && strings.Contains(errStr, "min") {
+			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
+				Error:   "Bad Request",
+				Message: "Password must be at least 8 characters",
+				Status:  "error",
+			})
+			return
+		}
+
+		if strings.Contains(errStr, "ConfirmPassword") && strings.Contains(errStr, "eqfield") {
+			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
+				Error:   "Bad Request",
+				Message: "Your password and confirmation password do not match.",
+				Status:  "error",
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, dto.ResponseError{
+			Status:  "error",
+			Message: "Internal Server Error",
+			Error:   "internal server error",
+		})
+		return
+	}
+
+	err := ac.authService.Register(ctx, req)
+
+	if err != nil {
+		if errors.Is(err, apperror.ErrEmailAlreadyExists) || errors.Is(err, apperror.ErrInvalidEmailFormat) || errors.Is(err, apperror.ErrRegisterUser) {
+			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
+				Error:   "Bad Request",
+				Message: err.Error(),
+				Status:  "error",
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, dto.ResponseError{
+			Status:  "error",
+			Message: "Internal Server Error",
+			Error:   "internal server error",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, dto.RegisterResponse{
+		ResponseSuccess: dto.ResponseSuccess{
+			Status:  "success",
+			Message: "Registration successful",
+		},
+	})
+}
