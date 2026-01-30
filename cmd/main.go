@@ -13,7 +13,7 @@ import (
 // @title						Solid Coffee Backend
 // @version						1.0
 // @description					Solid Coffee Backend RESTful API
-// @host						192.168.50.221:8080
+// @host						localhost:8002
 // @BasePath					/
 // @securityDefinitions.apikey	BearerAuth
 // @in							header
@@ -40,5 +40,5 @@ func main() {
 
 	router.Init(app, db, rdb)
 
-	app.Run()
+	app.Run(":8002")
 }
