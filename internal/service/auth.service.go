@@ -9,7 +9,7 @@ import (
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/cache"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/repository"
-	"github.com/NugrahaPancaWibisana/solid-coffee-be/pkg/hash"
+	hashutil "github.com/NugrahaPancaWibisana/solid-coffee-be/pkg/hash"
 	jwtutil "github.com/NugrahaPancaWibisana/solid-coffee-be/pkg/jwt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
@@ -31,7 +31,7 @@ func (as *AuthService) Login(ctx context.Context, req dto.LoginRequest) (dto.Use
 	if !matched {
 		return dto.User{}, apperror.ErrInvalidEmailFormat
 	}
-	
+
 	tx, err := as.db.Begin(ctx)
 	if err != nil {
 		log.Println(err.Error())
@@ -44,7 +44,7 @@ func (as *AuthService) Login(ctx context.Context, req dto.LoginRequest) (dto.Use
 		return dto.User{}, err
 	}
 
-	hasher := hash.Default()
+	hasher := hashutil.Default()
 	isValid, err := hasher.Verify(req.Password, data.Password)
 	if err != nil {
 		return dto.User{}, err
@@ -84,4 +84,27 @@ func (as *AuthService) GenerateJWT(ctx context.Context, user dto.User) (string, 
 
 func (as *AuthService) WhitelistToken(ctx context.Context, id int, token string) {
 	cache.SetToken(ctx, as.redis, id, token)
+}
+
+func (as *AuthService) Register(ctx context.Context, req dto.RegisterRequest) error {
+	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	matched, _ := regexp.MatchString(emailRegex, req.Email)
+	if !matched {
+		return apperror.ErrInvalidEmailFormat
+	}
+
+	hasher := hashutil.Default()
+	hashedPassword, err := hasher.Hash(req.Password)
+	if err != nil {
+		return err
+	}
+
+	req.Password = hashedPassword
+
+	err = as.authRepository.Register(ctx, as.db, req)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
