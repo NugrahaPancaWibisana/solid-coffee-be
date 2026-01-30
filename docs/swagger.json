@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "192.168.50.221:8080",
     "basePath": "/",
     "paths": {
         "/auth/": {

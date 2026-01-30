@@ -72,7 +72,7 @@ definitions:
         example: Error
         type: string
     type: object
-host: localhost:8080
+host: 192.168.50.221:8080
 info:
   contact: {}
   description: Solid Coffee Backend RESTful API
