@@ -15,3 +15,7 @@ type LoginResponse struct {
 	ResponseSuccess
 	Data JWT `json:"data"`
 }
+
+type RegisterResponse struct {
+	ResponseSuccess
+}
