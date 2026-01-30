@@ -6,11 +6,13 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	_ "github.com/NugrahaPancaWibisana/solid-coffee-be/docs"
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/middleware"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func Init(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
+	app.Use(middleware.CORSMiddleware())
 	AuthRouter(app, db, rdb)
 
 	app.Static("/static/img", "public")
