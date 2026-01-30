@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"strings"
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/apperror"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
@@ -79,6 +80,26 @@ func (ar *AuthRepository) UpdateLastLogin(ctx context.Context, db DBTX, id int) 
 	if err != nil {
 		log.Println(err.Error())
 		return apperror.ErrUpdateLastLogin
+	}
+
+	return nil
+}
+
+func (ar *AuthRepository) Register(ctx context.Context, db DBTX, req dto.RegisterRequest) error {
+	query := `
+		INSERT INTO
+		    public.users (fullname, email, password)
+		VALUES
+		    ($1, $2, $3)
+	`
+
+	_, err := db.Exec(ctx, query, req.Fullname, req.Email, req.Password)
+	if err != nil {
+		log.Println(err.Error())
+		if strings.Contains(err.Error(), "duplicate") {
+			return apperror.ErrEmailAlreadyExists
+		}
+		return apperror.ErrRegisterUser
 	}
 
 	return nil
