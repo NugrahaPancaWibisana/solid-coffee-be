@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/controller"
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/middleware"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/repository"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/service"
 	"github.com/gin-gonic/gin"
@@ -18,4 +19,5 @@ func AuthRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 
 	authRouter.POST("/", authController.Login)
 	authRouter.POST("/new", authController.Register)
+	authRouter.DELETE("/", middleware.AuthMiddleware(), middleware.RBACMiddleware("user"), authController.Logout)
 }
