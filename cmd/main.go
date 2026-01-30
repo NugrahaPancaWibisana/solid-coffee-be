@@ -13,7 +13,7 @@ import (
 // @title						Solid Coffee Backend
 // @version						1.0
 // @description					Solid Coffee Backend RESTful API
-// @host						localhost:8080
+// @host						192.168.50.221:8080
 // @BasePath					/
 // @securityDefinitions.apikey	BearerAuth
 // @in							header
