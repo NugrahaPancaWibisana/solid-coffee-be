@@ -19,3 +19,16 @@ type LoginResponse struct {
 type RegisterResponse struct {
 	ResponseSuccess
 }
+
+type ProductResponse struct {
+	ResponseSuccess
+	Data []Products     `json:"data"`
+	Meta PaginationMeta `json:"meta"`
+}
+
+type PaginationMeta struct {
+	Page      int    `json:"page,omitempty"`
+	TotalPage int    `json:"total_page,omitempty"`
+	NextPage  string `json:"next_page,omitempty"`
+	PrevPage  string `json:"prev_page,omitempty"`
+}

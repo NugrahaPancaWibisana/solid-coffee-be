@@ -29,6 +29,21 @@ definitions:
         example: Success
         type: string
     type: object
+  dto.Products:
+    properties:
+      discount:
+        type: number
+      id:
+        type: integer
+      image_products:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      rating_product:
+        type: number
+    type: object
   dto.RegisterRequest:
     properties:
       confirm_password:
@@ -72,7 +87,7 @@ definitions:
         example: Error
         type: string
     type: object
-host: 192.168.50.221:8080
+host: localhost:8002
 info:
   contact: {}
   description: Solid Coffee Backend RESTful API
@@ -139,6 +154,28 @@ paths:
       summary: Register new user
       tags:
       - auth
+  /products/:
+    get:
+      parameters:
+      - description: Pages
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Products'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      summary: Get All Products
+      tags:
+      - products
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.
