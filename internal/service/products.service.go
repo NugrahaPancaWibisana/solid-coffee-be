@@ -2,6 +2,9 @@ package service
 
 import (
 	"context"
+	"encoding/json"
+	"log"
+	"time"
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/repository"
@@ -21,26 +24,25 @@ func NewProductService(productRepository *repository.ProductRepository, rdb *red
 }
 
 func (p ProductService) GetAllProducts(ctx context.Context, page int) ([]dto.Products, error) {
-	//cek cache
-	// rkey := "ari:tickitz:movies"
-	// rsc := m.redis.Get(ctx, rkey)
-	// if rsc.Err() == nil {
-	// 	var result []dto.Movies
-	// 	cache, err := rsc.Bytes()
-	// 	if err != nil {
-	// 		log.Println(err)
-	// 	} else {
-	// 		if err := json.Unmarshal(cache, &result); err != nil {
-	// 			log.Println(err.Error())
-	// 		} else {
-	// 			return result, nil
-	// 		}
-	// 	}
-	// }
+	rkey := "solid:products"
+	rsc := p.redis.Get(ctx, rkey)
+	if rsc.Err() == nil {
+		var result []dto.Products
+		cache, err := rsc.Bytes()
+		if err != nil {
+			log.Println(err)
+		} else {
+			if err := json.Unmarshal(cache, &result); err != nil {
+				log.Println(err.Error())
+			} else {
+				return result, nil
+			}
+		}
+	}
 
-	// if rsc.Err() == redis.Nil {
-	// 	log.Println("movies cache miss")
-	// }
+	if rsc.Err() == redis.Nil {
+		log.Println("movies cache miss")
+	}
 
 	var response []dto.Products
 
@@ -59,17 +61,17 @@ func (p ProductService) GetAllProducts(ctx context.Context, page int) ([]dto.Pro
 		})
 	}
 
-	// cacheStr, err := json.Marshal(response)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	log.Println("failed to marshal")
-	// }
+	cacheStr, err := json.Marshal(response)
+	if err != nil {
+		log.Println(err)
+		log.Println("failed to marshal")
+	}
 
-	// rdsStatus := m.redis.Set(ctx, rkey, string(cacheStr), time.Minute*10)
-	// if rdsStatus.Err() != nil {
-	// 	log.Println("caching failed")
-	// 	log.Println(rdsStatus.Err().Error())
-	// }
+	rdsStatus := p.redis.Set(ctx, rkey, string(cacheStr), time.Minute*10)
+	if rdsStatus.Err() != nil {
+		log.Println("caching failed")
+		log.Println(rdsStatus.Err().Error())
+	}
 
 	return response, nil
 }

@@ -20,12 +20,10 @@ type RegisterResponse struct {
 	ResponseSuccess
 }
 
-type Response struct {
-	Msg     string         `json:"msg"`
-	Success bool           `json:"success"`
-	Data    []any          `json:"data"`
-	Error   string         `json:"error,omitempty"`
-	Meta    PaginationMeta `json:"meta"`
+type ProductResponse struct {
+	ResponseSuccess
+	Data []Products     `json:"data"`
+	Meta PaginationMeta `json:"meta"`
 }
 
 type PaginationMeta struct {

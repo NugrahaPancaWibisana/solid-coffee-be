@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"log"
+	"math"
 	"strconv"
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/model"
@@ -70,8 +71,6 @@ func (p ProductRepository) GetAllProduct(ctx context.Context, page int) ([]model
 }
 
 func (p ProductRepository) GetTotalPage(ctx context.Context) (int, error) {
-	var count int
-
 	sqlStr :=
 		`WITH avg_rating AS (
   		SELECT AVG(r.rating) AS "rating_product",
@@ -115,7 +114,8 @@ func (p ProductRepository) GetTotalPage(ctx context.Context) (int, error) {
 		products = append(products, product)
 	}
 
-	count = len(products)
+	count := len(products)
+	totalPage := math.Ceil(float64(count) / float64(6))
 
-	return count, nil
+	return int(totalPage), nil
 }

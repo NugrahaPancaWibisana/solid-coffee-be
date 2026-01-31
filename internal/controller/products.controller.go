@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -28,8 +29,10 @@ func NewProductsController(productService *service.ProductService) *ProductsCont
 // @Failure 		 500 {object} dto.ResponseError
 // @Router       /products/ [get]
 func (p ProductsController) GetAllProducts(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Query("page"))
-	data, err := p.productService.GetAllProducts(c.Request.Context(), id)
+	page, _ := strconv.Atoi(c.Query("page"))
+	var nextPage string
+	var prevPage string
+	data, err := p.productService.GetAllProducts(c.Request.Context(), page)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ResponseError{
 			Message: "Internal Server Error",
@@ -49,13 +52,22 @@ func (p ProductsController) GetAllProducts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.Response{
-		Msg:     "OK",
-		Success: true,
-		Data:    []any{data},
+	if page < totalPage {
+		nextPage = fmt.Sprintf("/products?page=%d", page+1)
+		prevPage = fmt.Sprintf("/products?page=%d", page-1)
+	}
+
+	c.JSON(http.StatusOK, dto.ProductResponse{
+		ResponseSuccess: dto.ResponseSuccess{
+			Message: "Products Retrieved Successfully",
+			Status:  "Success",
+		},
+		Data: data,
 		Meta: dto.PaginationMeta{
-			Page:      id,
+			Page:      page,
 			TotalPage: totalPage,
+			NextPage:  nextPage,
+			PrevPage:  prevPage,
 		},
 	})
 }
