@@ -87,16 +87,7 @@ definitions:
         example: Error
         type: string
     type: object
-  dto.ResponseSuccess:
-    properties:
-      message:
-        example: Data retrieved successfully
-        type: string
-      status:
-        example: Success
-        type: string
-    type: object
-host: 192.168.50.221:8080
+host: localhost:8002
 info:
   contact: {}
   description: Solid Coffee Backend RESTful API
