@@ -6,21 +6,24 @@ import (
 	"math"
 	"strconv"
 
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/model"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
+type ProductRepo interface {
+	GetAllProduct(ctx context.Context, db DBTX, page int) ([]model.Products, error)
+	GetTotalPage(ctx context.Context, db DBTX) (int, error)
+	PostProduct(ctx context.Context, db DBTX, post dto.PostProductsRequest) (dto.PostProductResponse, error)
+}
 type ProductRepository struct {
-	db *pgxpool.Pool
 }
 
-func NewProductRepository(db *pgxpool.Pool) *ProductRepository {
-	return &ProductRepository{
-		db: db,
-	}
+func NewProductRepository() *ProductRepository {
+	return &ProductRepository{}
 }
 
-func (p ProductRepository) GetAllProduct(ctx context.Context, page int) ([]model.Products, error) {
+func (p ProductRepository) GetAllProduct(ctx context.Context, db DBTX, page int) ([]model.Products, error) {
 	sqlStr :=
 		`WITH avg_rating AS (
   		SELECT AVG(r.rating) AS "rating_product",
@@ -47,10 +50,9 @@ func (p ProductRepository) GetAllProduct(ctx context.Context, page int) ([]model
 
 	offset := (page * 6) - 6
 	spt := sqlStr + strconv.Itoa(offset)
-	//spt := fmt.Sprintf(sqlStr, "%v", strconv.Itoa(offset))
 	sql := spt
 
-	rows, err := p.db.Query(ctx, sql)
+	rows, err := db.Query(ctx, sql)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, err
@@ -70,7 +72,7 @@ func (p ProductRepository) GetAllProduct(ctx context.Context, page int) ([]model
 	return products, nil
 }
 
-func (p ProductRepository) GetTotalPage(ctx context.Context) (int, error) {
+func (p ProductRepository) GetTotalPage(ctx context.Context, db DBTX) (int, error) {
 	sqlStr :=
 		`WITH avg_rating AS (
   		SELECT AVG(r.rating) AS "rating_product",
@@ -95,7 +97,7 @@ func (p ProductRepository) GetTotalPage(ctx context.Context) (int, error) {
   	GROUP BY p.id, m.id, ar."rating_product"
 	`
 
-	rows, err := p.db.Query(ctx, sqlStr)
+	rows, err := db.Query(ctx, sqlStr)
 	if err != nil {
 		log.Println(err.Error())
 		return 0, err
@@ -118,4 +120,26 @@ func (p ProductRepository) GetTotalPage(ctx context.Context) (int, error) {
 	totalPage := math.Ceil(float64(count) / float64(6))
 
 	return int(totalPage), nil
+}
+
+func (p ProductRepository) PostProduct(ctx context.Context, db DBTX, post dto.PostProductsRequest) (dto.PostProductResponse, error) {
+	var idProduct int
+	sqlStr := "INSERT INTO products (name, price, description) VALUES (($1), ($2), ($3)) RETURNING id"
+	values := []any{post.ProductName, post.Price, post.Description}
+
+	row := db.QueryRow(ctx, sqlStr, values...)
+	if err := row.Scan(&idProduct); err != nil {
+		log.Println(err.Error())
+		return dto.PostProductResponse{}, err
+	}
+
+	return dto.PostProductResponse{
+		Id: idProduct,
+	}, nil
+}
+
+func (p ProductRepository) PostImages(ctx context.Context, db DBTX, idProduct int, postImages string) (pgconn.CommandTag, error) {
+	sqlStr := "INSERT INTO product_images (image, product_id) VALUES (($1), ($2))"
+	values := []any{postImages, idProduct}
+	return db.Exec(ctx, sqlStr, values...)
 }

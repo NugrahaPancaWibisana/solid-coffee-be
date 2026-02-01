@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/controller"
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/middleware"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/repository"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/service"
 	"github.com/gin-gonic/gin"
@@ -11,10 +12,12 @@ import (
 
 func ProductRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	productsRouter := app.Group("/products")
-
-	productRepository := repository.NewProductRepository(db)
-	productService := service.NewProductService(productRepository, rdb)
+	productRepository := repository.NewProductRepository()
+	productService := service.NewProductService(productRepository, db, rdb)
 	productController := controller.NewProductsController(productService)
 
 	productsRouter.GET("", productController.GetAllProducts)
+
+	productsRouter.Use(middleware.AuthMiddleware())
+	productsRouter.POST("", middleware.RBACMiddleware("admin"), productController.PostProducts)
 }

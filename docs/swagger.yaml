@@ -185,6 +185,57 @@ paths:
       summary: Get All Products
       tags:
       - products
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - collectionFormat: csv
+        description: Product Images
+        in: formData
+        items:
+          type: file
+        name: images_file
+        required: true
+        type: array
+      - description: Products Name
+        in: formData
+        name: product_name
+        required: true
+        type: string
+      - description: Price
+        in: formData
+        name: price
+        required: true
+        type: number
+      - description: Description
+        in: formData
+        name: description
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Post Products
+      tags:
+      - products
   /user/:
     patch:
       consumes:
