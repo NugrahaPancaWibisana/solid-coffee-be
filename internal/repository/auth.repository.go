@@ -10,22 +10,14 @@ import (
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/model"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 )
 
-type OrderRepo interface {
+type AuthRepo interface {
 	Login(ctx context.Context, req dto.LoginRequest, db DBTX) (model.User, error)
 	UpdateLastLogin(ctx context.Context, db DBTX, id int) error
 }
 
-type DBTX interface {
-	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
-	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
-	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
-}
-
-type AuthRepository struct {
-}
+type AuthRepository struct{}
 
 func NewAuthRepository() *AuthRepository {
 	return &AuthRepository{}
