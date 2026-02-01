@@ -96,3 +96,27 @@ func (us *UserService) UpdatePassword(ctx context.Context, req dto.UpdatePasswor
 
 	return nil
 }
+
+func (us *UserService) GetProfile(ctx context.Context, id int, token string) (dto.User, error) {
+	err := cache.CheckToken(ctx, us.redis, id, token)
+	if err != nil {
+		return dto.User{}, err
+	}
+
+	data, err := us.userRepository.GetProfile(ctx, us.db, id)
+	if err != nil {
+		return dto.User{}, err
+	}
+
+	res := dto.User{
+		ID:        data.ID,
+		Fullname:  data.Fullname,
+		Email:     data.Email,
+		Photo:     data.Photo,
+		Phone:     data.Phone,
+		Address:   data.Address,
+		CreatedAt: data.CreatedAt,
+	}
+
+	return res, nil
+}
