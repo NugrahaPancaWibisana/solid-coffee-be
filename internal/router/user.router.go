@@ -19,4 +19,5 @@ func UserRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	userController := controller.NewUserController(userService)
 
 	userRouter.PATCH("/", userController.UpdateProfile)
+	userRouter.PATCH("/password", userController.UpdatePassword)
 }

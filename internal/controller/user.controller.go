@@ -136,3 +136,73 @@ func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 
 	response.Success(ctx, http.StatusOK, "Profile updated successfully", nil)
 }
+
+// UpdatePassword godoc
+//
+//	@Summary		Change user password
+//	@Description	Update authenticated user's password
+//	@Tags			user
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.UpdatePasswordRequest	true	"Edit password data"
+//	@Success		200		{object}	dto.ResponseSuccess
+//	@Failure		400		{object}	dto.ResponseError
+//	@Failure		401		{object}	dto.ResponseError
+//	@Router			/user/password/ [patch]
+//	@Security		BearerAuth
+func (uc *UserController) UpdatePassword(ctx *gin.Context) {
+	var req dto.UpdatePasswordRequest
+	if err := ctx.ShouldBindWith(&req, binding.JSON); err != nil {
+		errStr := err.Error()
+
+		if strings.Contains(errStr, "OldPassword") && strings.Contains(errStr, "required") {
+			response.Error(ctx, http.StatusBadRequest, "Old password field cannot be empty")
+			return
+		}
+
+		if strings.Contains(errStr, "OldPassword") && strings.Contains(errStr, "min") {
+			response.Error(ctx, http.StatusBadRequest, "Old password must be at least 8 characters")
+			return
+		}
+
+		if strings.Contains(errStr, "NewPassword") && strings.Contains(errStr, "required") {
+			response.Error(ctx, http.StatusBadRequest, "New password field cannot be empty")
+			return
+		}
+
+		if strings.Contains(errStr, "NewPassword") && strings.Contains(errStr, "min") {
+			response.Error(ctx, http.StatusBadRequest, "New password must be at least 8 characters")
+			return
+		}
+
+		if strings.Contains(errStr, "NewPassword") && strings.Contains(errStr, "nefield") {
+			response.Error(ctx, http.StatusBadRequest, "The new password must be different from the current password")
+			return
+		}
+
+		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return
+	}
+
+	token := strings.Split(ctx.GetHeader("Authorization"), " ")
+	if len(token) != 2 {
+		response.Error(ctx, http.StatusUnauthorized, "Invalid Token")
+		return
+	}
+	if token[0] != "Bearer" {
+		response.Error(ctx, http.StatusUnauthorized, "Invalid Token")
+		return
+	}
+
+	tokenData, _ := ctx.Get("token")
+	accessToken, _ := tokenData.(jwtutil.JwtClaims)
+	if err := uc.userService.UpdatePassword(ctx, req, accessToken.UserID, token[1]); err != nil {
+		if errors.Is(err, apperror.ErrGetPassword) || errors.Is(err, apperror.ErrUpdatePassword) || errors.Is(err, apperror.ErrVerifyPassword) {
+			response.Error(ctx, http.StatusBadRequest, err.Error())
+			return
+		}
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "Password updated successfully", nil)
+}

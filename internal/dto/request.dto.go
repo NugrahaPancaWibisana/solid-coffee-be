@@ -21,6 +21,11 @@ type UpdateProfileRequest struct {
 	Address  string                `form:"address" binding:"omitempty,min=3" example:"Jakarta"`
 }
 
+type UpdatePasswordRequest struct {
+	OldPassword string `json:"old_password" binding:"required,min=8" example:"example123"`
+	NewPassword string `json:"new_password" binding:"required,min=8,nefield=OldPassword" example:"example321"`
+}
+
 type PostProductsRequest struct {
 	ProductName string  `form:"product_name,omitempty" json:"product_name"`
 	Price       float32 `form:"price,omitempty" json:"price"`
