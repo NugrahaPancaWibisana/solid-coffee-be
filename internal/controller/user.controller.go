@@ -201,8 +201,42 @@ func (uc *UserController) UpdatePassword(ctx *gin.Context) {
 			response.Error(ctx, http.StatusBadRequest, err.Error())
 			return
 		}
+
+		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
 
 	response.Success(ctx, http.StatusOK, "Password updated successfully", nil)
+}
+
+// GetProfile godoc
+//
+//	@Summary		Get user profile
+//	@Description	Get authenticated user's profile information
+//	@Tags			user
+//	@Produce		json
+//	@Success		200	{object}	dto.UserProfileResponse
+//	@Failure		401	{object}	dto.ResponseError
+//	@Router			/user/ [get]
+//	@Security		BearerAuth
+func (uc *UserController) GetProfile(ctx *gin.Context) {
+	token := strings.Split(ctx.GetHeader("Authorization"), " ")
+	if len(token) != 2 {
+		response.Error(ctx, http.StatusUnauthorized, "Invalid Token")
+		return
+	}
+	if token[0] != "Bearer" {
+		response.Error(ctx, http.StatusUnauthorized, "Invalid Token")
+		return
+	}
+
+	tokenData, _ := ctx.Get("token")
+	accessToken, _ := tokenData.(jwtutil.JwtClaims)
+	data, err := uc.userService.GetProfile(ctx, accessToken.UserID, token[1])
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "Profile retrieved successfully", data)
 }
