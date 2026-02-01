@@ -32,3 +32,12 @@ type PaginationMeta struct {
 	NextPage  string `json:"next_page,omitempty"`
 	PrevPage  string `json:"prev_page,omitempty"`
 }
+
+type PostProductResponse struct {
+	Id int `json:"id,omitempty"`
+}
+
+type PostResponse struct {
+	Message string `json:"message,omitempty"`
+	Error   string `json:"error,omitempty"`
+}

@@ -8,18 +8,21 @@ import (
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/repository"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 )
 
 type ProductService struct {
 	productRepository *repository.ProductRepository
 	redis             *redis.Client
+	db                *pgxpool.Pool
 }
 
-func NewProductService(productRepository *repository.ProductRepository, rdb *redis.Client) *ProductService {
+func NewProductService(productRepository *repository.ProductRepository, db *pgxpool.Pool, rdb *redis.Client) *ProductService {
 	return &ProductService{
 		productRepository: productRepository,
 		redis:             rdb,
+		db:                db,
 	}
 }
 
@@ -84,3 +87,65 @@ func (p ProductService) GetTotalPage(ctx context.Context) (int, error) {
 
 	return data, nil
 }
+
+func (p ProductService) PostProduct(ctx context.Context, post dto.PostProducts, images dto.PostImages) (dto.PostProductResponse, error) {
+	tx, err := p.db.Begin(ctx)
+	if err != nil {
+		log.Println(err)
+		return dto.PostProductResponse{}, err
+	}
+
+	data, err := p.productRepository.PostProduct(ctx, tx, post)
+	if err != nil {
+		return dto.PostProductResponse{}, err
+	}
+	defer tx.Rollback(ctx)
+
+	for i := range len(images.Images_Name) {
+		_, err := p.productRepository.PostImages(ctx, tx, data.Id, images.Images_Name[i])
+		if err != nil {
+			return dto.PostProductResponse{}, err
+		}
+	}
+
+	if e := tx.Commit(ctx); e != nil {
+		log.Println("failed to commit", e.Error())
+		return dto.PostProductResponse{}, e
+	}
+
+	response := dto.PostProductResponse{
+		Id: data.Id,
+	}
+
+	return response, nil
+}
+
+// func (p ProductService) PostProduct(ctx context.Context, post dto.PostProducts, images dto.PostImages) (dto.PostProductResponse, error) {
+// 	tx, err := p.db.Begin(ctx)
+// 	if err != nil {
+// 		log.Println(err)
+// 		return dto.PostProductResponse{}, err
+// 	}
+
+// 	data, err := p.productRepository.PostProduct(ctx, tx, post)
+// 	if err != nil {
+// 		return dto.PostProductResponse{}, err
+// 	}
+// 	defer tx.Rollback(ctx)
+
+// 	_, err := p.productRepository.PostImages(ctx, tx, data.Id, images.Images_Name[i])
+// 	if err != nil {
+// 		return dto.PostProductResponse{}, err
+// 	}
+
+// 	if e := tx.Commit(ctx); e != nil {
+// 		log.Println("failed to commit", e.Error())
+// 		return dto.PostProductResponse{}, e
+// 	}
+
+// 	response := dto.PostProductResponse{
+// 		Id: data.Id,
+// 	}
+
+// 	return response, nil
+// }
