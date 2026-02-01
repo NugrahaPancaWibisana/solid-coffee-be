@@ -50,6 +50,11 @@ func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 	if err := ctx.ShouldBindWith(&req, binding.FormMultipart); err != nil {
 		errStr := err.Error()
 
+		if strings.Contains(errStr, "no multipart boundary param in Content-Type") {
+			response.Error(ctx, http.StatusBadRequest, "No fields to update")
+			return
+		}
+
 		if strings.Contains(errStr, "Fullname") && strings.Contains(errStr, "min") {
 			response.Error(ctx, http.StatusBadRequest, "Fullname must be at least 3 characters")
 			return
