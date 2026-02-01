@@ -20,3 +20,8 @@ type UpdateProfileRequest struct {
 	Phone    string                `form:"phone" binding:"omitempty,min=3" example:"08123456789"`
 	Address  string                `form:"address" binding:"omitempty,min=3" example:"Jakarta"`
 }
+
+type UpdatePasswordRequest struct {
+	OldPassword string `json:"old_password" binding:"required,min=8" example:"example123"`
+	NewPassword string `json:"new_password" binding:"required,min=8,nefield=OldPassword" example:"example321"`
+}
