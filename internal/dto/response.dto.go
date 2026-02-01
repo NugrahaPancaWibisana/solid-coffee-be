@@ -36,8 +36,3 @@ type PaginationMeta struct {
 type PostProductResponse struct {
 	Id int `json:"id,omitempty"`
 }
-
-type PostResponse struct {
-	Message string `json:"message,omitempty"`
-	Error   string `json:"error,omitempty"`
-}

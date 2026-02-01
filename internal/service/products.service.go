@@ -49,7 +49,7 @@ func (p ProductService) GetAllProducts(ctx context.Context, page int) ([]dto.Pro
 
 	var response []dto.Products
 
-	data, err := p.productRepository.GetAllProduct(ctx, page)
+	data, err := p.productRepository.GetAllProduct(ctx, p.db, page)
 	if err != nil {
 		return []dto.Products{}, err
 	}
@@ -80,7 +80,7 @@ func (p ProductService) GetAllProducts(ctx context.Context, page int) ([]dto.Pro
 }
 
 func (p ProductService) GetTotalPage(ctx context.Context) (int, error) {
-	data, err := p.productRepository.GetTotalPage(ctx)
+	data, err := p.productRepository.GetTotalPage(ctx, p.db)
 	if err != nil {
 		return 0, err
 	}
@@ -88,7 +88,7 @@ func (p ProductService) GetTotalPage(ctx context.Context) (int, error) {
 	return data, nil
 }
 
-func (p ProductService) PostProduct(ctx context.Context, post dto.PostProducts, images dto.PostImages) (dto.PostProductResponse, error) {
+func (p ProductService) PostProduct(ctx context.Context, post dto.PostProductsRequest, images dto.PostImagesRequest) (dto.PostProductResponse, error) {
 	tx, err := p.db.Begin(ctx)
 	if err != nil {
 		log.Println(err)
@@ -119,33 +119,3 @@ func (p ProductService) PostProduct(ctx context.Context, post dto.PostProducts, 
 
 	return response, nil
 }
-
-// func (p ProductService) PostProduct(ctx context.Context, post dto.PostProducts, images dto.PostImages) (dto.PostProductResponse, error) {
-// 	tx, err := p.db.Begin(ctx)
-// 	if err != nil {
-// 		log.Println(err)
-// 		return dto.PostProductResponse{}, err
-// 	}
-
-// 	data, err := p.productRepository.PostProduct(ctx, tx, post)
-// 	if err != nil {
-// 		return dto.PostProductResponse{}, err
-// 	}
-// 	defer tx.Rollback(ctx)
-
-// 	_, err := p.productRepository.PostImages(ctx, tx, data.Id, images.Images_Name[i])
-// 	if err != nil {
-// 		return dto.PostProductResponse{}, err
-// 	}
-
-// 	if e := tx.Commit(ctx); e != nil {
-// 		log.Println("failed to commit", e.Error())
-// 		return dto.PostProductResponse{}, e
-// 	}
-
-// 	response := dto.PostProductResponse{
-// 		Id: data.Id,
-// 	}
-
-// 	return response, nil
-// }

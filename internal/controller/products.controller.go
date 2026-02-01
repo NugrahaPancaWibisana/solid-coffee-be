@@ -97,7 +97,7 @@ func (p ProductsController) GetAllProducts(c *gin.Context) {
 // @Security			BearerAuth
 func (p ProductsController) PostProducts(c *gin.Context) {
 	const maxSize = 2 * 1024 * 1024
-	var postImages dto.PostImages
+	var postImages dto.PostImagesRequest
 
 	token, isExist := c.Get("token")
 	if !isExist {
@@ -158,7 +158,7 @@ func (p ProductsController) PostProducts(c *gin.Context) {
 		}
 	}
 
-	var newProduct dto.PostProducts
+	var newProduct dto.PostProductsRequest
 
 	if err := c.ShouldBindWith(&newProduct, binding.FormMultipart); err != nil {
 		str := err.Error()

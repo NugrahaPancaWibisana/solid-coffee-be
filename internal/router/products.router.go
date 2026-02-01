@@ -12,7 +12,7 @@ import (
 
 func ProductRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	productsRouter := app.Group("/products")
-	productRepository := repository.NewProductRepository(db)
+	productRepository := repository.NewProductRepository()
 	productService := service.NewProductService(productRepository, db, rdb)
 	productController := controller.NewProductsController(productService)
 
