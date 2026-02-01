@@ -17,10 +17,15 @@ solid-coffee-be
 │   ├── middleware
 │   ├── model
 │   ├── repository
+│   ├── response
 │   ├── router
 │   └── service
 ├── pkg
 │   ├── hash
 │   └── jwt
-└── tmp
+├── Dockerfile
+├── go.mod
+├── go.sum
+├── Makefile
+└── README.md
 ```

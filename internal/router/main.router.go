@@ -15,6 +15,7 @@ func Init(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	app.Use(middleware.CORSMiddleware())
 	AuthRouter(app, db, rdb)
 	UserRouter(app, db, rdb)
+	ProductRouter(app, db, rdb)
 
 	app.Static("/static/img", "public")
 

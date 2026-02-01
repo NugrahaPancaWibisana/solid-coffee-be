@@ -106,6 +106,106 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/products/": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Get All Products",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Pages",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Products"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update authenticated user's profile information",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update user profile",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Profile photo",
+                        "name": "photo",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Full name (min 3 chars)",
+                        "name": "fullname",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Phone number (min 3 chars)",
+                        "name": "phone",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Address (min 3 chars)",
+                        "name": "address",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -148,6 +248,29 @@ const docTemplate = `{
                 "status": {
                     "type": "string",
                     "example": "Success"
+                }
+            }
+        },
+        "dto.Products": {
+            "type": "object",
+            "properties": {
+                "discount": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_products": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "rating_product": {
+                    "type": "number"
                 }
             }
         },
@@ -207,6 +330,19 @@ const docTemplate = `{
                 "status": {
                     "type": "string",
                     "example": "Error"
+                }
+            }
+        },
+        "dto.ResponseSuccess": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Data retrieved successfully"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Success"
                 }
             }
         }
