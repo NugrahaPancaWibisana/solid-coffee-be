@@ -9,6 +9,7 @@ import (
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/apperror"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/model"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -131,4 +132,42 @@ func (ur *UserRepository) UpdatePassword(ctx context.Context, db DBTX, id int, p
 	}
 
 	return nil
+}
+
+func (ur *UserRepository) GetProfile(ctx context.Context, db DBTX, id int) (model.User, error) {
+	query := `
+		SELECT
+		    id,
+		    fullname,
+		    email,
+		    photo,
+		    phone,
+		    address,
+		    created_at
+		FROM users
+		WHERE id = $1
+	`
+
+	row := db.QueryRow(ctx, query, id)
+
+	var user model.User
+	err := row.Scan(
+		&user.ID,
+		&user.Fullname,
+		&user.Email,
+		&user.Photo,
+		&user.Phone,
+		&user.Address,
+		&user.CreatedAt,
+	)
+
+	if err != nil {
+		log.Println(err.Error())
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.User{}, apperror.ErrProfileNotFound
+		}
+		return model.User{}, apperror.ErrGetProfile
+	}
+
+	return user, nil
 }
