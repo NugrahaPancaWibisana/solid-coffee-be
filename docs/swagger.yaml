@@ -110,6 +110,47 @@ definitions:
     - new_password
     - old_password
     type: object
+  dto.User:
+    properties:
+      address:
+        example: Jakarta
+        type: string
+      created_at:
+        example: "2025-01-01T09:00:00Z"
+        type: string
+      email:
+        example: user@example.com
+        type: string
+      fullname:
+        example: John Doe
+        type: string
+      id:
+        example: 1
+        type: integer
+      last_login:
+        example: "2025-01-01T10:00:00Z"
+        type: string
+      phone:
+        example: "081234567890"
+        type: string
+      photo:
+        example: avatar.png
+        type: string
+      role:
+        example: user
+        type: string
+    type: object
+  dto.UserProfileResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.User'
+      message:
+        example: Data retrieved successfully
+        type: string
+      status:
+        example: Success
+        type: string
+    type: object
 host: 192.168.50.221:8080
 info:
   contact: {}
@@ -251,6 +292,24 @@ paths:
       tags:
       - products
   /user/:
+    get:
+      description: Get authenticated user's profile information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserProfileResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get user profile
+      tags:
+      - user
     patch:
       consumes:
       - multipart/form-data

@@ -213,6 +213,35 @@
             }
         },
         "/user/": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get authenticated user's profile information",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get user profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserProfileResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "security": [
                     {
@@ -484,6 +513,63 @@
                     "type": "string",
                     "minLength": 8,
                     "example": "example123"
+                }
+            }
+        },
+        "dto.User": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "Jakarta"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2025-01-01T09:00:00Z"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "fullname": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "last_login": {
+                    "type": "string",
+                    "example": "2025-01-01T10:00:00Z"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "081234567890"
+                },
+                "photo": {
+                    "type": "string",
+                    "example": "avatar.png"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "user"
+                }
+            }
+        },
+        "dto.UserProfileResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.User"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Data retrieved successfully"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Success"
                 }
             }
         }
