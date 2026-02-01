@@ -7,6 +7,7 @@ import (
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/apperror"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/response"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -39,89 +40,49 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 		errStr := err.Error()
 
 		if strings.Contains(errStr, "Email") && strings.Contains(errStr, "required") {
-			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
-				Error:   "Bad Request",
-				Message: "Email field cannot be empty",
-				Status:  "error",
-			})
+			response.Error(ctx, http.StatusBadRequest, "Email field cannot be empty")
 			return
 		}
 
 		if strings.Contains(errStr, "Email") && strings.Contains(errStr, "email") {
-			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
-				Error:   "Bad Request",
-				Message: "Email must be a valid email address",
-				Status:  "error",
-			})
+			response.Error(ctx, http.StatusBadRequest, "Email must be a valid email address")
 			return
 		}
 
 		if strings.Contains(errStr, "Password") && strings.Contains(errStr, "required") {
-			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
-				Error:   "Bad Request",
-				Message: "Password field cannot be empty",
-				Status:  "error",
-			})
+			response.Error(ctx, http.StatusBadRequest, "Password field cannot be empty")
 			return
 		}
 
 		if strings.Contains(errStr, "Password") && strings.Contains(errStr, "min") {
-			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
-				Error:   "Bad Request",
-				Message: "Password must be at least 8 characters",
-				Status:  "error",
-			})
+			response.Error(ctx, http.StatusBadRequest, "Password must be at least 8 characters")
 			return
 		}
 
-		ctx.JSON(http.StatusInternalServerError, dto.ResponseError{
-			Status:  "error",
-			Message: "Internal Server Error",
-			Error:   "internal server error",
-		})
+		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
 
 	data, err := ac.authService.Login(ctx, req)
 	if err != nil {
 		if errors.Is(err, apperror.ErrUserNotFound) || errors.Is(err, apperror.ErrInvalidEmailFormat) {
-			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
-				Error:   "Bad Request",
-				Message: err.Error(),
-				Status:  "error",
-			})
+			response.Error(ctx, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		ctx.JSON(http.StatusUnauthorized, dto.ResponseError{
-			Status:  "error",
-			Message: "Invalid email or password",
-			Error:   err.Error(),
-		})
+		response.Error(ctx, http.StatusUnauthorized, "Invalid email or password")
 		return
 	}
 
 	token, err := ac.authService.GenerateJWT(ctx, data)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, dto.ResponseError{
-			Status:  "error",
-			Message: "Failed to generate token",
-			Error:   err.Error(),
-		})
+		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
 
 	ac.authService.WhitelistToken(ctx, data.ID, token)
 
-	ctx.JSON(http.StatusOK, dto.LoginResponse{
-		ResponseSuccess: dto.ResponseSuccess{
-			Status:  "success",
-			Message: "Login successful",
-		},
-		Data: dto.JWT{
-			Token: token,
-		},
-	})
+	response.Success(ctx, http.StatusOK, "Login successful", dto.JWT{Token: token})
 }
 
 // Register godoc
@@ -143,73 +104,41 @@ func (ac *AuthController) Register(ctx *gin.Context) {
 		errStr := err.Error()
 
 		if strings.Contains(errStr, "Fullname") && strings.Contains(errStr, "required") {
-			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
-				Error:   "Bad Request",
-				Message: "Fullname field cannot be empty",
-				Status:  "error",
-			})
+			response.Error(ctx, http.StatusBadRequest, "Fullname field cannot be empty")
 			return
 		}
 
 		if strings.Contains(errStr, "Fullname") && strings.Contains(errStr, "min") {
-			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
-				Error:   "Bad Request",
-				Message: "Fullname must be at least 3 characters",
-				Status:  "error",
-			})
+			response.Error(ctx, http.StatusBadRequest, "Fullname must be at least 3 characters")
 			return
 		}
 
 		if strings.Contains(errStr, "Email") && strings.Contains(errStr, "required") {
-			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
-				Error:   "Bad Request",
-				Message: "Email field cannot be empty",
-				Status:  "error",
-			})
+			response.Error(ctx, http.StatusBadRequest, "Email field cannot be empty")
 			return
 		}
 
 		if strings.Contains(errStr, "Email") && strings.Contains(errStr, "email") {
-			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
-				Error:   "Bad Request",
-				Message: "Email must be a valid email address",
-				Status:  "error",
-			})
+			response.Error(ctx, http.StatusBadRequest, "Email must be a valid email address")
 			return
 		}
 
 		if strings.Contains(errStr, "Password") && strings.Contains(errStr, "required") {
-			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
-				Error:   "Bad Request",
-				Message: "Password field cannot be empty",
-				Status:  "error",
-			})
+			response.Error(ctx, http.StatusBadRequest, "Password field cannot be empty")
 			return
 		}
 
 		if strings.Contains(errStr, "Password") && strings.Contains(errStr, "min") {
-			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
-				Error:   "Bad Request",
-				Message: "Password must be at least 8 characters",
-				Status:  "error",
-			})
+			response.Error(ctx, http.StatusBadRequest, "Password must be at least 8 characters")
 			return
 		}
 
 		if strings.Contains(errStr, "ConfirmPassword") && strings.Contains(errStr, "eqfield") {
-			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
-				Error:   "Bad Request",
-				Message: "Your password and confirmation password do not match.",
-				Status:  "error",
-			})
+			response.Error(ctx, http.StatusBadRequest, "Your password and confirmation password do not match.")
 			return
 		}
 
-		ctx.JSON(http.StatusInternalServerError, dto.ResponseError{
-			Status:  "error",
-			Message: "Internal Server Error",
-			Error:   "internal server error",
-		})
+		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
 
@@ -217,26 +146,13 @@ func (ac *AuthController) Register(ctx *gin.Context) {
 
 	if err != nil {
 		if errors.Is(err, apperror.ErrEmailAlreadyExists) || errors.Is(err, apperror.ErrInvalidEmailFormat) || errors.Is(err, apperror.ErrRegisterUser) {
-			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
-				Error:   "Bad Request",
-				Message: err.Error(),
-				Status:  "error",
-			})
+			response.Error(ctx, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		ctx.JSON(http.StatusInternalServerError, dto.ResponseError{
-			Status:  "error",
-			Message: "Internal Server Error",
-			Error:   "internal server error",
-		})
+		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, dto.RegisterResponse{
-		ResponseSuccess: dto.ResponseSuccess{
-			Status:  "success",
-			Message: "Registration successful",
-		},
-	})
+	response.Success(ctx, http.StatusCreated, "Registration successful", nil)
 }

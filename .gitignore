@@ -10,3 +10,6 @@
 
 # .air.toml
 tmp
+
+*/__debug_bin*
+public

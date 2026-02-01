@@ -17,7 +17,7 @@ var (
 )
 
 func CheckToken(ctx context.Context, rdb *redis.Client, id int, token string) error {
-	key := fmt.Sprintf("%s:%s%d", os.Getenv("RDB_KEY"),rkey, id)
+	key := fmt.Sprintf("%s:%s%d", os.Getenv("RDB_KEY"), rkey, id)
 	tokenCache, err := rdb.Get(ctx, key).Result()
 
 	if err == redis.Nil {
@@ -37,7 +37,7 @@ func CheckToken(ctx context.Context, rdb *redis.Client, id int, token string) er
 }
 
 func SetToken(ctx context.Context, rdb *redis.Client, id int, token string) {
-	key := fmt.Sprintf("%s:%s%d", os.Getenv("RDB_KEY"),rkey, id)
+	key := fmt.Sprintf("%s:%s%d", os.Getenv("RDB_KEY"), rkey, id)
 
 	status := rdb.Set(ctx, key, token, exp)
 	if status.Err() != nil {
@@ -47,7 +47,7 @@ func SetToken(ctx context.Context, rdb *redis.Client, id int, token string) {
 }
 
 func DeleteToken(ctx context.Context, rdb *redis.Client, id int) error {
-	key := fmt.Sprintf("%s:%s%d", os.Getenv("RDB_KEY"),rkey, id)
+	key := fmt.Sprintf("%s:%s%d", os.Getenv("RDB_KEY"), rkey, id)
 
 	_, err := rdb.Get(ctx, key).Result()
 
