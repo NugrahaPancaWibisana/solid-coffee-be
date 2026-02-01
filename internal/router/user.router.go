@@ -12,7 +12,7 @@ import (
 
 func UserRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	userRouter := app.Group("/user")
-	userRouter.Use(middleware.AuthMiddleware(), middleware.RBACMiddleware("user"))
+	userRouter.Use(middleware.AuthMiddleware(), middleware.RBACMiddleware("user", "admin"))
 
 	userRepository := repository.NewUserRepository()
 	userService := service.NewUserService(userRepository, rdb, db)
