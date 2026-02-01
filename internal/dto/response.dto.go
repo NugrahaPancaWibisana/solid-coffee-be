@@ -36,3 +36,8 @@ type PaginationMeta struct {
 type PostProductResponse struct {
 	Id int `json:"id,omitempty"`
 }
+
+type UserProfileResponse struct {
+	ResponseSuccess
+	Data User
+}
