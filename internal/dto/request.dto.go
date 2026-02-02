@@ -36,3 +36,13 @@ type PostImagesRequest struct {
 	ImagesFile  []*multipart.FileHeader `form:"images_file,omitempty" json:"images_file"`
 	Images_Name []string                `form:"images_name,omitempty" json:"images_name"`
 }
+
+type InsertUserRequest struct {
+	Photo    *multipart.FileHeader `form:"photo"`
+	Fullname string                `form:"fullname" binding:"required,min=3" example:"John Doe"`
+	Email    string                `form:"email" binding:"required,email" example:"example123@gmail.com"`
+	Phone    string                `form:"phone" binding:"required,min=3" example:"08123456789"`
+	Password string                `form:"password" binding:"required,min=8" example:"example123"`
+	Address  string                `form:"address" binding:"required,min=3" example:"Jakarta"`
+	Role     string                `form:"role" binding:"required,oneof=user admin" example:"user"`
+}
