@@ -29,6 +29,32 @@ definitions:
         example: Success
         type: string
     type: object
+  dto.PaginationMeta:
+    properties:
+      next_page:
+        type: string
+      page:
+        type: integer
+      prev_page:
+        type: string
+      total_page:
+        type: integer
+    type: object
+  dto.ProductResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.Products'
+        type: array
+      message:
+        example: Data retrieved successfully
+        type: string
+      meta:
+        $ref: '#/definitions/dto.PaginationMeta'
+      status:
+        example: Success
+        type: string
+    type: object
   dto.Products:
     properties:
       discount:
@@ -409,18 +435,36 @@ paths:
   /products/:
     get:
       parameters:
-      - description: Pages
+      - description: Page number
         in: query
         name: page
-        required: true
-        type: integer
+        type: string
+      - description: Product title search
+        in: query
+        name: title
+        type: string
+      - description: Minimum price
+        in: query
+        name: min
+        type: string
+      - description: Maximum price
+        in: query
+        name: max
+        type: string
+      - collectionFormat: csv
+        description: Categories filter
+        in: query
+        items:
+          type: string
+        name: category
+        type: array
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.Products'
+            $ref: '#/definitions/dto.ProductResponse'
         "500":
           description: Internal Server Error
           schema:
