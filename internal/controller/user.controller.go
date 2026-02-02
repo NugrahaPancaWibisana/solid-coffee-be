@@ -383,3 +383,42 @@ func (uc *UserController) InsertUser(ctx *gin.Context) {
 
 	response.Success(ctx, http.StatusCreated, "User created successfully", nil)
 }
+
+// DeleteUser godoc
+//
+//	@Summary		Delete user profile
+//	@Description	Delete authenticated user's profile information
+//	@Tags			user
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			id		path	int	false	"user id"
+//	@Success		201			{object}	dto.ResponseSuccess
+//	@Failure		401			{object}	dto.ResponseError
+//	@Router			/admin/user/{id} [delete]
+//	@Security		BearerAuth
+func (uc *UserController) DeleteUser(ctx *gin.Context) {
+	var param dto.UserParams
+	if err := ctx.ShouldBindUri(&param); err != nil {
+		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return
+	}
+
+	token := strings.Split(ctx.GetHeader("Authorization"), " ")
+	if len(token) != 2 {
+		response.Error(ctx, http.StatusUnauthorized, "Invalid Token")
+		return
+	}
+	if token[0] != "Bearer" {
+		response.Error(ctx, http.StatusUnauthorized, "Invalid Token")
+		return
+	}
+
+	tokenData, _ := ctx.Get("token")
+	accessToken, _ := tokenData.(jwtutil.JwtClaims)
+	if err := uc.userService.DeleteUser(ctx, accessToken.UserID, param.ID, token[1]); err != nil {
+		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "User created successfully", nil)
+}
