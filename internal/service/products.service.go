@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
@@ -27,11 +30,16 @@ func NewProductService(productRepository *repository.ProductRepository, db *pgxp
 	}
 }
 
-func (p ProductService) GetAllProducts(ctx context.Context, page int) ([]dto.Products, error) {
-	rkey := "solid:products"
+func (p ProductService) GetAllProducts(ctx context.Context, req dto.ProductQueries) ([]dto.Products, int, error) {
+	rkey := fmt.Sprintf("%s:products:page=%s:title=%s:min=%s:max=%s:categories=%s",
+		os.Getenv("RDB_KEY"), req.Page, req.Title, req.Min, req.Max, strings.Join(req.Category, ","))
+
 	rsc := p.redis.Get(ctx, rkey)
 	if rsc.Err() == nil {
-		var result []dto.Products
+		var result struct {
+			Products  []dto.Products `json:"products"`
+			TotalPage int            `json:"total_page"`
+		}
 		cache, err := rsc.Bytes()
 		if err != nil {
 			log.Println(err)
@@ -39,21 +47,26 @@ func (p ProductService) GetAllProducts(ctx context.Context, page int) ([]dto.Pro
 			if err := json.Unmarshal(cache, &result); err != nil {
 				log.Println(err.Error())
 			} else {
-				return result, nil
+				return result.Products, result.TotalPage, nil
 			}
 		}
 	}
 
 	if rsc.Err() == redis.Nil {
-		log.Println("movies cache miss")
+		log.Println("products cache miss")
+	}
+
+	totalPage, err := p.productRepository.GetTotalPage(ctx, p.db, req)
+	if err != nil {
+		return []dto.Products{}, 0, err
+	}
+
+	data, err := p.productRepository.GetProducts(ctx, p.db, req)
+	if err != nil {
+		return []dto.Products{}, 0, err
 	}
 
 	var response []dto.Products
-
-	data, err := p.productRepository.GetAllProduct(ctx, p.db, page)
-	if err != nil {
-		return []dto.Products{}, err
-	}
 	for _, v := range data {
 		response = append(response, dto.Products{
 			Id:          v.Id,
@@ -65,7 +78,15 @@ func (p ProductService) GetAllProducts(ctx context.Context, page int) ([]dto.Pro
 		})
 	}
 
-	cacheStr, err := json.Marshal(response)
+	cacheData := struct {
+		Products  []dto.Products `json:"products"`
+		TotalPage int            `json:"total_page"`
+	}{
+		Products:  response,
+		TotalPage: totalPage,
+	}
+
+	cacheStr, err := json.Marshal(cacheData)
 	if err != nil {
 		log.Println(err)
 		log.Println("failed to marshal")
@@ -77,16 +98,7 @@ func (p ProductService) GetAllProducts(ctx context.Context, page int) ([]dto.Pro
 		log.Println(rdsStatus.Err().Error())
 	}
 
-	return response, nil
-}
-
-func (p ProductService) GetTotalPage(ctx context.Context) (int, error) {
-	data, err := p.productRepository.GetTotalPage(ctx, p.db)
-	if err != nil {
-		return 0, err
-	}
-
-	return data, nil
+	return response, totalPage, nil
 }
 
 func (p ProductService) PostProduct(ctx context.Context, post dto.PostProductsRequest, images dto.PostImagesRequest) (dto.PostProductResponse, error) {

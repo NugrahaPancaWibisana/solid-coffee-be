@@ -190,3 +190,15 @@ func (ur *UserRepository) InsertUser(ctx context.Context, db DBTX, req dto.Inser
 
 	return nil
 }
+
+func (ur *UserRepository) DeleteUser(ctx context.Context, db DBTX, id int) error {
+	query := "UPDATE users SET deleted_at = now() WHERE id= $1"
+
+	_, err := db.Exec(ctx, query, id)
+	if err != nil {
+		log.Println(err.Error())
+		return apperror.ErrDeleteUser 
+	}
+
+	return nil
+}

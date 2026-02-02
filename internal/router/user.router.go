@@ -25,4 +25,5 @@ func UserRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	userRouter.PATCH("/password", userController.UpdatePassword)
 
 	adminUserRouter.POST("/", userController.InsertUser)
+	adminUserRouter.DELETE("/:id", userController.DeleteUser)
 }

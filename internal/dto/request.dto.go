@@ -52,3 +52,15 @@ type UpdateProductsRequest struct {
 	Price       float32 `form:"price,omitempty" json:"price"`
 	Description string  `form:"description,omitempty" json:"description"`
 }
+
+type UserParams struct {
+	ID int `uri:"id"`
+}
+
+type ProductQueries struct {
+	Category []string `form:"category"`
+	Page     string   `form:"page"`
+	Title    string   `form:"title"`
+	Min      string   `form:"min"`
+	Max      string   `form:"max"`
+}

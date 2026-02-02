@@ -140,3 +140,15 @@ func (us *UserService) InsertUser(ctx context.Context, req dto.InsertUserRequest
 
 	return nil
 }
+
+func (us *UserService) DeleteUser(ctx context.Context, id, userID int, token string) error {
+	if err := cache.CheckToken(ctx, us.redis, id, token); err != nil {
+		return err
+	}
+
+	if err := us.userRepository.DeleteUser(ctx, us.db, userID); err != nil {
+		return err
+	}
+
+	return nil
+}
