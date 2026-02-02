@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"time"
 
@@ -118,4 +119,40 @@ func (p ProductService) PostProduct(ctx context.Context, post dto.PostProductsRe
 	}
 
 	return response, nil
+}
+
+func (p ProductService) UpdateProduct(ctx context.Context, update dto.UpdateProductsRequest, images dto.PostImagesRequest, idProduct int) error {
+	tx, err := p.db.Begin(ctx)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	if update.Description != "" || update.Price != 0 || update.ProductName != "" {
+		cmd, err := p.productRepository.UpdateProduct(ctx, tx, update, idProduct)
+		if err != nil {
+			return err
+		}
+		if cmd.RowsAffected() == 0 {
+			return errors.New("no data updated")
+		}
+	}
+
+	defer tx.Rollback(ctx)
+
+	for i := range len(images.Images_Name) {
+		cmd, err := p.productRepository.PostImages(ctx, tx, idProduct, images.Images_Name[i])
+		if err != nil {
+			return err
+		}
+		if cmd.RowsAffected() == 0 {
+			return errors.New("no data inserted")
+		}
+	}
+
+	if e := tx.Commit(ctx); e != nil {
+		log.Println("failed to commit", e.Error())
+		return e
+	}
+
+	return nil
 }

@@ -36,3 +36,9 @@ type PostImagesRequest struct {
 	ImagesFile  []*multipart.FileHeader `form:"images_file,omitempty" json:"images_file"`
 	Images_Name []string                `form:"images_name,omitempty" json:"images_name"`
 }
+
+type UpdateProductsRequest struct {
+	ProductName string  `form:"product_name,omitempty" json:"product_name"`
+	Price       float32 `form:"price,omitempty" json:"price"`
+	Description string  `form:"description,omitempty" json:"description"`
+}
