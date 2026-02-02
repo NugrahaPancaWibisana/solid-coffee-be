@@ -56,3 +56,11 @@ type UpdateProductsRequest struct {
 type UserParams struct {
 	ID int `uri:"id"`
 }
+
+type ProductQueries struct {
+	Category []string `form:"category"`
+	Page     string   `form:"page"`
+	Title    string   `form:"title"`
+	Min      string   `form:"min"`
+	Max      string   `form:"max"`
+}
