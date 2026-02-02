@@ -11,6 +11,8 @@ import (
 )
 
 func ProductRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
+	adminProductsRouter := app.Group("/admin")
+
 	productsRouter := app.Group("/products")
 	productRepository := repository.NewProductRepository()
 	productService := service.NewProductService(productRepository, db, rdb)
@@ -18,6 +20,7 @@ func ProductRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 
 	productsRouter.GET("", productController.GetAllProducts)
 
-	productsRouter.Use(middleware.AuthMiddleware())
-	productsRouter.POST("", middleware.RBACMiddleware("admin"), productController.PostProducts)
+	adminProductsRouter.Use(middleware.AuthMiddleware())
+	adminProductsRouter.POST("/products", middleware.RBACMiddleware("admin"), productController.PostProducts)
+	adminProductsRouter.PATCH("/products/:id", middleware.RBACMiddleware("admin"), productController.UpdateProduct)
 }

@@ -120,3 +120,23 @@ func (us *UserService) GetProfile(ctx context.Context, id int, token string) (dt
 
 	return res, nil
 }
+
+func (us *UserService) InsertUser(ctx context.Context, req dto.InsertUserRequest, id int, path, token string) error {
+	if err := cache.CheckToken(ctx, us.redis, id, token); err != nil {
+		return err
+	}
+
+	hasher := hashutil.Default()
+	hashedPassword, err := hasher.Hash(req.Password)
+	if err != nil {
+		return err
+	}
+
+	req.Password = hashedPassword
+
+	if err := us.userRepository.InsertUser(ctx, us.db, req, path); err != nil {
+		return err
+	}
+
+	return nil
+}

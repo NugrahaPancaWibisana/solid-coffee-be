@@ -2,9 +2,11 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math"
 	"strconv"
+	"strings"
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/model"
@@ -142,4 +144,41 @@ func (p ProductRepository) PostImages(ctx context.Context, db DBTX, idProduct in
 	sqlStr := "INSERT INTO product_images (image, product_id) VALUES (($1), ($2))"
 	values := []any{postImages, idProduct}
 	return db.Exec(ctx, sqlStr, values...)
+}
+
+func (p ProductRepository) UpdateProduct(ctx context.Context, db DBTX, update dto.UpdateProductsRequest, id int) (pgconn.CommandTag, error) {
+	var sql strings.Builder
+	values := []any{}
+	valuesAll := []any{}
+
+	sql.WriteString("UPDATE products SET")
+	if update.ProductName != "" {
+		fmt.Fprintf(&sql, " name=$%d", len(values)+1)
+		values = append(values, update.ProductName)
+		valuesAll = append(valuesAll, &update.ProductName)
+	}
+	if update.Price != 0 {
+		if len(values) > 0 {
+			sql.WriteString(",")
+		}
+		fmt.Fprintf(&sql, " price=$%d", len(values)+1)
+		values = append(values, update.Price)
+		valuesAll = append(valuesAll, &update.Price)
+	}
+	if update.Description != "" {
+		if len(values) > 0 {
+			sql.WriteString(",")
+		}
+		fmt.Fprintf(&sql, " description=$%d", len(values)+1)
+		values = append(values, update.Description)
+		valuesAll = append(valuesAll, &update.Description)
+	}
+	if update.ProductName != "" || update.Price != 0 || update.Description != "" {
+		sql.WriteString(" WHERE ")
+		fmt.Fprintf(&sql, "id=%d", id)
+	}
+
+	sqlStr := sql.String()
+
+	return db.Exec(ctx, sqlStr, valuesAll...)
 }
