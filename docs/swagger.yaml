@@ -158,6 +158,67 @@ info:
   title: Solid Coffee Backend
   version: "1.0"
 paths:
+  /admin/user/:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Insert authenticated user's profile information
+      parameters:
+      - description: Profile photo
+        in: formData
+        name: photo
+        required: true
+        type: file
+      - description: Full name (min 3 chars)
+        in: formData
+        name: fullname
+        required: true
+        type: string
+      - description: Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: Password (min 8 chars)
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: Phone number (min 3 chars)
+        in: formData
+        name: phone
+        required: true
+        type: string
+      - description: Address (min 3 chars)
+        in: formData
+        name: address
+        required: true
+        type: string
+      - description: role (user or admin)
+        in: formData
+        name: role
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Insert user profile
+      tags:
+      - user
   /admin/products/:
     post:
       consumes:

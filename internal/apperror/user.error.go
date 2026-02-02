@@ -10,4 +10,5 @@ var (
 	ErrVerifyPassword   = errors.New("old password is incorrect")
 	ErrGetProfile       = errors.New("failed to get user profile")
 	ErrProfileNotFound  = errors.New("user profile not found")
+	ErrInsertUser       = errors.New("failed to insert user")
 )
