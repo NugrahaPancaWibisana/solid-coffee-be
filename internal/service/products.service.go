@@ -156,3 +156,66 @@ func (p ProductService) UpdateProduct(ctx context.Context, update dto.UpdateProd
 
 	return nil
 }
+
+func (p ProductService) DeleteProductById(ctx context.Context, idProduct int) error {
+	tx, err := p.db.Begin(ctx)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	cmd, err := p.productRepository.DeleteProductById(ctx, tx, idProduct)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return errors.New("no data deleted")
+	}
+
+	defer tx.Rollback(ctx)
+
+	cmdDel, errDel := p.productRepository.DeleteProductImage(ctx, tx, idProduct)
+	if errDel != nil {
+		return err
+	}
+	if cmdDel.RowsAffected() == 0 {
+		return errors.New("no data deleted")
+	}
+
+	if e := tx.Commit(ctx); e != nil {
+		log.Println("failed to commit", e.Error())
+		return e
+	}
+
+	return nil
+}
+
+func (p ProductService) DeleteProductImageById(ctx context.Context, idImages int) error {
+	cmd, err := p.productRepository.DeleteProductImageById(ctx, p.db, idImages)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return errors.New("no data deleted")
+	}
+	return nil
+}
+
+func (p ProductService) GetProductById(ctx context.Context, idProduct int) (dto.DetailProduct, error) {
+	var response dto.DetailProduct
+
+	data, err := p.productRepository.GetProductById(ctx, p.db, idProduct)
+	if err != nil {
+		return dto.DetailProduct{}, err
+	}
+
+	response = dto.DetailProduct{
+		IdProduct:   data.IdProduct,
+		ProductName: data.ProductName,
+		Description: data.Description,
+		Price:       data.Price,
+		IdImages:    data.IdImages,
+		Images:      data.Images,
+	}
+
+	return response, nil
+}

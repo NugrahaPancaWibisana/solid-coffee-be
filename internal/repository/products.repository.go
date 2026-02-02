@@ -182,3 +182,47 @@ func (p ProductRepository) UpdateProduct(ctx context.Context, db DBTX, update dt
 
 	return db.Exec(ctx, sqlStr, valuesAll...)
 }
+
+func (p ProductRepository) DeleteProductById(ctx context.Context, db DBTX, idProduct int) (pgconn.CommandTag, error) {
+	sqlStr := "UPDATE products SET deleted_at = NOW() WHERE id = $1"
+	values := idProduct
+	return db.Exec(ctx, sqlStr, values)
+}
+
+func (p ProductRepository) DeleteProductImage(ctx context.Context, db DBTX, idProduct int) (pgconn.CommandTag, error) {
+	sqlStr := "UPDATE product_images SET deleted_at = NOW() WHERE product_id = $1"
+	values := idProduct
+	return db.Exec(ctx, sqlStr, values)
+}
+
+func (p ProductRepository) DeleteProductImageById(ctx context.Context, db DBTX, idImage int) (pgconn.CommandTag, error) {
+	sqlStr := "UPDATE product_images SET deleted_at = NOW() WHERE id = $1"
+	values := idImage
+	return db.Exec(ctx, sqlStr, values)
+}
+
+func (p ProductRepository) GetProductById(ctx context.Context, db DBTX, idProduct int) (model.DetailProduct, error) {
+	sqlStr := `
+			SELECT p.id, 
+			p.name, 
+			p.description, 
+			p.price, 
+			array_agg(CAST(pi.id AS VARCHAR(50))), 
+			array_agg(pi.image) 
+			FROM products p 
+			JOIN product_images pi ON pi.product_id = p.id 
+			WHERE pi.product_id = $1 
+			GROUP BY p.id`
+
+	values := []any{idProduct}
+	row := db.QueryRow(ctx, sqlStr, values...)
+
+	var prdDetail model.DetailProduct
+
+	if err := row.Scan(&prdDetail.IdProduct, &prdDetail.ProductName, &prdDetail.Description, &prdDetail.Price, &prdDetail.IdImages, &prdDetail.Images); err != nil {
+		log.Println(err.Error())
+		return model.DetailProduct{}, err
+	}
+
+	return prdDetail, nil
+}

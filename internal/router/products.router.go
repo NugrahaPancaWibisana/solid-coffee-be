@@ -21,6 +21,9 @@ func ProductRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	productsRouter.GET("", productController.GetAllProducts)
 
 	adminProductsRouter.Use(middleware.AuthMiddleware())
+	adminProductsRouter.GET("/products/:id", middleware.RBACMiddleware("admin"), productController.GetDetailProductById)
 	adminProductsRouter.POST("/products", middleware.RBACMiddleware("admin"), productController.PostProducts)
 	adminProductsRouter.PATCH("/products/:id", middleware.RBACMiddleware("admin"), productController.UpdateProduct)
+	adminProductsRouter.DELETE("/products/:id", middleware.RBACMiddleware("admin"), productController.DeleteProductById)
+	adminProductsRouter.DELETE("/products/image/:id", middleware.RBACMiddleware("admin"), productController.DeleteProductImageById)
 }
