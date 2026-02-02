@@ -171,3 +171,22 @@ func (ur *UserRepository) GetProfile(ctx context.Context, db DBTX, id int) (mode
 
 	return user, nil
 }
+
+func (ur *UserRepository) InsertUser(ctx context.Context, db DBTX, req dto.InsertUserRequest, path string) error {
+	query := `
+		INSERT INTO
+		    users (fullname, email, password, photo, phone, address, role)
+		VALUES
+		    ($1, $2, $3, $4, $5, $6, $7)
+	`
+	_, err := db.Exec(ctx, query, req.Fullname, req.Email, req.Password, path, req.Phone, req.Address, req.Role)
+	if err != nil {
+		log.Println(err.Error())
+		if strings.Contains(err.Error(), "duplicate") {
+			return apperror.ErrEmailAlreadyExists
+		}
+		return apperror.ErrInsertUser
+	}
+
+	return nil
+}
