@@ -31,7 +31,7 @@ const docTemplate = `{
                 "tags": [
                     "products"
                 ],
-                "summary": "Post Products For Admin",
+                "summary": "Post product",
                 "parameters": [
                     {
                         "type": "array",
@@ -39,14 +39,14 @@ const docTemplate = `{
                             "type": "file"
                         },
                         "collectionFormat": "csv",
-                        "description": "Product Images",
+                        "description": "Product images",
                         "name": "images_file",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Products Name",
+                        "description": "Products name",
                         "name": "product_name",
                         "in": "formData",
                         "required": true
@@ -94,7 +94,138 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/products/image/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Delete product image",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Image id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/products/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Get detail products by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Products"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Delete product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "security": [
                     {
@@ -110,7 +241,7 @@ const docTemplate = `{
                 "tags": [
                     "products"
                 ],
-                "summary": "Update Products For Admin",
+                "summary": "Update product",
                 "parameters": [
                     {
                         "type": "integer",
@@ -125,13 +256,13 @@ const docTemplate = `{
                             "type": "file"
                         },
                         "collectionFormat": "csv",
-                        "description": "Product Images",
+                        "description": "Product images",
                         "name": "images_file",
                         "in": "formData"
                     },
                     {
                         "type": "string",
-                        "description": "Products Name",
+                        "description": "Products name",
                         "name": "product_name",
                         "in": "formData"
                     },
@@ -403,7 +534,7 @@ const docTemplate = `{
                 "tags": [
                     "products"
                 ],
-                "summary": "Get All Products",
+                "summary": "Get all products",
                 "parameters": [
                     {
                         "type": "string",

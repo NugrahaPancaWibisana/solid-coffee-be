@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/response"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/service"
 	jwtutil "github.com/NugrahaPancaWibisana/solid-coffee-be/pkg/jwt"
 	"github.com/gin-gonic/gin"
@@ -30,7 +31,7 @@ func NewProductsController(productService *service.ProductService) *ProductsCont
 }
 
 // Get Products By Status godoc
-// @Summary      Get All Products
+// @Summary      Get all products
 // @Tags         products
 // @Produce      json
 // @Param        page		query string  false  "Page number"
@@ -44,11 +45,7 @@ func NewProductsController(productService *service.ProductService) *ProductsCont
 func (p ProductsController) GetAllProducts(c *gin.Context) {
 	var req dto.ProductQueries
 	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.ResponseError{
-			Message: "Invalid query parameters",
-			Status:  "Bad Request",
-			Error:   err.Error(),
-		})
+		response.Error(c, http.StatusBadRequest, "Invalid query parameters")
 		return
 	}
 
@@ -62,11 +59,7 @@ func (p ProductsController) GetAllProducts(c *gin.Context) {
 
 	data, totalPage, err := p.productService.GetAllProducts(c.Request.Context(), req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.ResponseError{
-			Message: "Internal Server Error",
-			Status:  "Internal Server Error",
-			Error:   "internal server error",
-		})
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 
@@ -99,28 +92,23 @@ func (p ProductsController) GetAllProducts(c *gin.Context) {
 		prevPage = fmt.Sprintf("/products?page=%d%s", page-1, baseQuery)
 	}
 
-	c.JSON(http.StatusOK, dto.ProductResponse{
-		ResponseSuccess: dto.ResponseSuccess{
-			Message: "Products Retrieved Successfully",
-			Status:  "Success",
-		},
-		Data: data,
-		Meta: dto.PaginationMeta{
+	response.SuccessWithMeta(c, http.StatusOK, "Products Retrieved Successfully", data,
+		dto.PaginationMeta{
 			Page:      page,
 			TotalPage: totalPage,
 			NextPage:  nextPage,
 			PrevPage:  prevPage,
 		},
-	})
+	)
 }
 
 // Post Product godoc
-// @Summary      Post Products For Admin
+// @Summary      Post product
 // @Tags         products
 // @accept			 multipart/form-data
 // @Produce      json
-// @Param        images_file	formData []file true  "Product Images"
-// @Param        product_name	formData string true  "Products Name"
+// @Param        images_file	formData []file true  "Product images"
+// @Param        product_name	formData string true  "Products name"
 // @Param        price	formData number true  "Price"
 // @Param				 description formData string true "Description"
 // @Success      200  {object}  dto.ResponseSuccess
@@ -135,11 +123,7 @@ func (p ProductsController) PostProducts(c *gin.Context) {
 
 	token, isExist := c.Get("token")
 	if !isExist {
-		c.AbortWithStatusJSON(http.StatusForbidden, dto.ResponseError{
-			Message: "Forbidden Access",
-			Status:  "403 Forbidden",
-			Error:   "Access Denied",
-		})
+		response.Error(c, http.StatusForbidden, "Forbidden Access")
 		return
 	}
 
@@ -147,11 +131,7 @@ func (p ProductsController) PostProducts(c *gin.Context) {
 
 	if err := c.ShouldBindWith(&postImages, binding.FormMultipart); err != nil {
 		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, dto.ResponseError{
-			Message: "Internal Server Error",
-			Status:  "Internal Server Error",
-			Error:   "internal server error",
-		})
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 
@@ -160,20 +140,12 @@ func (p ProductsController) PostProducts(c *gin.Context) {
 			extPoster := path.Ext(postImages.ImagesFile[key].Filename)
 			re := regexp.MustCompile("^[.](jpg|png)$")
 			if !re.Match([]byte(extPoster)) {
-				c.JSON(http.StatusBadRequest, dto.ResponseError{
-					Message: "File have to be jpg or png",
-					Error:   "Bad Request",
-					Status:  "Bad Request",
-				})
+				response.Error(c, http.StatusBadRequest, "File have to be jpg or png")
 				return
 			}
 			//validasi ukuran
 			if postImages.ImagesFile[key].Size > maxSize {
-				c.JSON(http.StatusBadRequest, dto.ResponseError{
-					Message: "File maximum 2 MB",
-					Error:   "Bad Request",
-					Status:  "Bad Request",
-				})
+				response.Error(c, http.StatusBadRequest, "File maximum 2 MB")
 				return
 			}
 
@@ -182,11 +154,7 @@ func (p ProductsController) PostProducts(c *gin.Context) {
 
 			if e := c.SaveUploadedFile(postImages.ImagesFile[key], filepath.Join("public", "products", filenamePoster)); e != nil {
 				log.Printf("error %v", e)
-				c.JSON(http.StatusInternalServerError, dto.ResponseError{
-					Message: "Internal Server Error",
-					Status:  "Internal Server Error",
-					Error:   "internal server error",
-				})
+				response.Error(c, http.StatusInternalServerError, "Internal Server Error")
 				return
 			}
 		}
@@ -197,26 +165,14 @@ func (p ProductsController) PostProducts(c *gin.Context) {
 	if err := c.ShouldBindWith(&newProduct, binding.FormMultipart); err != nil {
 		str := err.Error()
 		if strings.Contains(str, "Field") {
-			c.JSON(http.StatusBadRequest, dto.ResponseError{
-				Message: "Invalid Body",
-				Status:  "Bad Request",
-				Error:   "invalid body",
-			})
+			response.Error(c, http.StatusBadRequest, "Invalid Body")
 			return
 		}
 		if strings.Contains(str, "Empty") {
-			c.JSON(http.StatusBadRequest, dto.ResponseError{
-				Message: "Invalid Body",
-				Status:  "Bad Request",
-				Error:   "invalid body",
-			})
+			response.Error(c, http.StatusBadRequest, "Invalid Body")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, dto.ResponseError{
-			Message: "Internal Server Error",
-			Status:  "Internal Server Error",
-			Error:   "internal server error",
-		})
+		response.Error(c, http.StatusBadRequest, "Internal Server Error")
 		return
 	}
 
@@ -225,34 +181,23 @@ func (p ProductsController) PostProducts(c *gin.Context) {
 	if err != nil {
 		str := err.Error()
 		if strings.Contains(str, "empty") {
-			c.JSON(http.StatusBadRequest, dto.ResponseError{
-				Message: "Invalid Body",
-				Status:  "Invalid Body",
-				Error:   str,
-			})
+			response.Error(c, http.StatusBadRequest, "Invalid Body")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, dto.ResponseError{
-			Message: "Internal Server Error",
-			Status:  "Internal Server Error",
-			Error:   "internal server error",
-		})
+		response.Error(c, http.StatusBadRequest, "Invalid Body")
 		return
 	}
-	c.JSON(http.StatusOK, dto.ResponseSuccess{
-		Message: "Product Inserted",
-		Status:  "Product Inserted",
-	})
+	response.Success(c, http.StatusOK, "Product Inserted", nil)
 }
 
 // UpdateProduct godoc
-// @Summary      Update Products For Admin
+// @Summary      Update product
 // @Tags         products
 // @Accept       multipart/form-data
 // @Produce      json
 // @Param        id		path int  true  "Product Id"
-// @Param        images_file	formData []file false  "Product Images"
-// @Param        product_name	formData string false  "Products Name"
+// @Param        images_file	formData []file false  "Product images"
+// @Param        product_name	formData string false  "Products name"
 // @Param        price	formData number false  "Price"
 // @Param				 description formData string false "Description"
 // @Success      200  {object}  dto.ResponseSuccess
@@ -269,11 +214,7 @@ func (p ProductsController) UpdateProduct(c *gin.Context) {
 
 	token, isExist := c.Get("token")
 	if !isExist {
-		c.AbortWithStatusJSON(http.StatusForbidden, dto.ResponseError{
-			Message: "Forbidden Access",
-			Status:  "Error",
-			Error:   "Access Denied",
-		})
+		response.Error(c, http.StatusForbidden, "Forbidden Access")
 		return
 	}
 
@@ -281,11 +222,7 @@ func (p ProductsController) UpdateProduct(c *gin.Context) {
 
 	if err := c.ShouldBindWith(&updateImages, binding.FormMultipart); err != nil {
 		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, dto.ResponseError{
-			Message: "Internal Server Error",
-			Status:  "Error",
-			Error:   "internal server error",
-		})
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 
@@ -294,20 +231,12 @@ func (p ProductsController) UpdateProduct(c *gin.Context) {
 			extPoster := path.Ext(updateImages.ImagesFile[key].Filename)
 			re := regexp.MustCompile("^[.](jpg|png)$")
 			if !re.Match([]byte(extPoster)) {
-				c.JSON(http.StatusBadRequest, dto.ResponseError{
-					Message: "File have to be jpg or png",
-					Error:   "Bad Request",
-					Status:  "Error",
-				})
+				response.Error(c, http.StatusBadRequest, "File have to be jpg or png")
 				return
 			}
 			//validasi ukuran
 			if updateImages.ImagesFile[key].Size > maxSize {
-				c.JSON(http.StatusBadRequest, dto.ResponseError{
-					Message: "File maximum 2 MB",
-					Error:   "Bad Request",
-					Status:  "Error",
-				})
+				response.Error(c, http.StatusBadRequest, "File maximum 2 MB")
 				return
 			}
 
@@ -316,11 +245,7 @@ func (p ProductsController) UpdateProduct(c *gin.Context) {
 
 			if e := c.SaveUploadedFile(updateImages.ImagesFile[key], filepath.Join("public", "products", filenamePoster)); e != nil {
 				log.Printf("error %v", e)
-				c.JSON(http.StatusInternalServerError, dto.ResponseError{
-					Message: "Internal Server Error",
-					Status:  "Error",
-					Error:   "internal server error",
-				})
+				response.Error(c, http.StatusInternalServerError, "Internal Server Error")
 				return
 			}
 		}
@@ -331,49 +256,113 @@ func (p ProductsController) UpdateProduct(c *gin.Context) {
 	if err := c.ShouldBindWith(&updateProduct, binding.FormMultipart); err != nil {
 		str := err.Error()
 		if strings.Contains(str, "Field") {
-			c.JSON(http.StatusBadRequest, dto.ResponseError{
-				Message: "Invalid Body",
-				Status:  "Error",
-				Error:   "invalid body",
-			})
+			response.Error(c, http.StatusBadRequest, "Invalid Body")
 			return
 		}
 		if strings.Contains(str, "Empty") {
-			c.JSON(http.StatusBadRequest, dto.ResponseError{
-				Message: "Invalid Body",
-				Status:  "Error",
-				Error:   "invalid body",
-			})
+			response.Error(c, http.StatusBadRequest, "Invalid Body")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, dto.ResponseError{
-			Message: "Internal Server Error",
-			Status:  "Error",
-			Error:   "internal server error",
-		})
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 
 	if err := p.productService.UpdateProduct(c.Request.Context(), updateProduct, updateImages, strId); err != nil {
 		str := err.Error()
 		if strings.Contains(str, "empty") {
-			c.JSON(http.StatusBadRequest, dto.ResponseError{
-				Message: "Invalid Body",
-				Status:  "Error",
-				Error:   "Invalid Body",
-			})
+			response.Error(c, http.StatusBadRequest, "Invalid Body")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, dto.ResponseError{
-			Message: "Internal Server Error",
-			Status:  "Error",
-			Error:   "internal server error",
-		})
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.ResponseSuccess{
-		Message: "Product Updated Successfully",
-		Status:  "Success",
-	})
+	response.Success(c, http.StatusOK, "Product Updated Successfully", nil)
+}
+
+// UpdateProduct godoc
+// @Summary      Delete product
+// @Tags         products
+// @Accept       json
+// @Produce      json
+// @Param        id		path int  true  "Product id"
+// @Success      200  {object}  dto.ResponseSuccess
+// @Failure 		 400 {object} dto.ResponseError
+// @Failure 		 500 {object} dto.ResponseError
+// @Router       /admin/products/{id} [delete]
+// @security 		 BearerAuth
+func (p ProductsController) DeleteProductById(c *gin.Context) {
+	id := c.Param("id")
+	strId, _ := strconv.Atoi(id)
+
+	if err := c.ShouldBindUri(id); err != nil {
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	if err := p.productService.DeleteProductById(c.Request.Context(), strId); err != nil {
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	} else {
+		response.Success(c, http.StatusOK, "Product Deleted Successfully", nil)
+	}
+}
+
+// UpdateProduct godoc
+// @Summary      Delete product image
+// @Tags         products
+// @Accept       json
+// @Produce      json
+// @Param        id		path int  true  "Image id"
+// @Success      200  {object}  dto.ResponseSuccess
+// @Failure 		 400 {object} dto.ResponseError
+// @Failure 		 500 {object} dto.ResponseError
+// @Router       /admin/products/image/{id} [delete]
+// @security 		 BearerAuth
+func (p ProductsController) DeleteProductImageById(c *gin.Context) {
+	id := c.Param("id")
+	strId, _ := strconv.Atoi(id)
+
+	if err := c.ShouldBindUri(id); err != nil {
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	if err := p.productService.DeleteProductImageById(c.Request.Context(), strId); err != nil {
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	} else {
+		response.Success(c, http.StatusOK, "Product Deleted Successfully", nil)
+	}
+}
+
+// Get detail products by Id godoc
+// @Summary      Get detail products by id
+// @Tags         products
+// @Produce      json
+// @Param        id		path int  true  "Id"
+// @Success      200  {object}  dto.Products
+// @Failure 		 500 {object} dto.ResponseError
+// @Router       /admin/products/{id} [get]
+// @security		BearerAuth
+func (p ProductsController) GetDetailProductById(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	if err := c.ShouldBindUri(id); err != nil {
+		str := err.Error()
+		if strings.Contains(str, "Empty") {
+			response.Error(c, http.StatusBadRequest, "Invalid Body")
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+	data, err := p.productService.GetProductById(c.Request.Context(), id)
+
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	response.SuccessWithMeta(c, http.StatusOK, "Products Retrieved Successfully", data, nil)
+
 }

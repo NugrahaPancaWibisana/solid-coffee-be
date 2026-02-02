@@ -190,14 +190,14 @@ paths:
       - multipart/form-data
       parameters:
       - collectionFormat: csv
-        description: Product Images
+        description: Product images
         in: formData
         items:
           type: file
         name: images_file
         required: true
         type: array
-      - description: Products Name
+      - description: Products name
         in: formData
         name: product_name
         required: true
@@ -233,10 +233,62 @@ paths:
             $ref: '#/definitions/dto.ResponseError'
       security:
       - BearerAuth: []
-      summary: Post Products For Admin
+      summary: Post product
       tags:
       - products
   /admin/products/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Product id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Delete product
+      tags:
+      - products
+    get:
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Products'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get detail products by id
+      tags:
+      - products
     patch:
       consumes:
       - multipart/form-data
@@ -247,13 +299,13 @@ paths:
         required: true
         type: integer
       - collectionFormat: csv
-        description: Product Images
+        description: Product images
         in: formData
         items:
           type: file
         name: images_file
         type: array
-      - description: Products Name
+      - description: Products name
         in: formData
         name: product_name
         type: string
@@ -282,7 +334,37 @@ paths:
             $ref: '#/definitions/dto.ResponseError'
       security:
       - BearerAuth: []
-      summary: Update Products For Admin
+      summary: Update product
+      tags:
+      - products
+  /admin/products/image/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Image id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Delete product image
       tags:
       - products
   /admin/user/:
@@ -469,7 +551,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/dto.ResponseError'
-      summary: Get All Products
+      summary: Get all products
       tags:
       - products
   /user/:
