@@ -37,7 +37,7 @@ func NewProductsController(productService *service.ProductService) *ProductsCont
 // @Param        title		query string  false  "Product title search"
 // @Param        min		query string  false  "Minimum price"
 // @Param        max		query string  false  "Maximum price"
-// @Param        category	query []string  false  "Categories filter"
+// @Param        category	query []string  false  "Categories filter"	collectionFormat(multi)
 // @Success      200  {object}  dto.ProductResponse
 // @Failure 		 500 {object} dto.ResponseError
 // @Router       /products/ [get]

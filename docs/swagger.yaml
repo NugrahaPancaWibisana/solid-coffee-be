@@ -451,7 +451,7 @@ paths:
         in: query
         name: max
         type: string
-      - collectionFormat: csv
+      - collectionFormat: multi
         description: Categories filter
         in: query
         items:

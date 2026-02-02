@@ -377,6 +377,7 @@ func (uc *UserController) InsertUser(ctx *gin.Context) {
 			return
 		}
 
+		log.Println(err)
 		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}

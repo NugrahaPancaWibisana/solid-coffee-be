@@ -31,7 +31,7 @@ func (ur *UserRepository) GetPhoto(ctx context.Context, db DBTX, id int) (string
 
 	row := db.QueryRow(ctx, query, id)
 
-	var photo *string
+	var photo string
 	err := row.Scan(&photo)
 
 	if err != nil {
@@ -42,11 +42,7 @@ func (ur *UserRepository) GetPhoto(ctx context.Context, db DBTX, id int) (string
 		return "", err
 	}
 
-	if photo == nil {
-		return "", nil
-	}
-
-	return *photo, nil
+	return photo, nil
 }
 
 func (ur *UserRepository) UpdateProfile(ctx context.Context, db DBTX, req dto.UpdateProfileRequest, path string, id int) error {

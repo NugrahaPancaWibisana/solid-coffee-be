@@ -434,7 +434,7 @@ const docTemplate = `{
                         "items": {
                             "type": "string"
                         },
-                        "collectionFormat": "csv",
+                        "collectionFormat": "multi",
                         "description": "Categories filter",
                         "name": "category",
                         "in": "query"
