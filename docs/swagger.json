@@ -1,910 +1,993 @@
 {
-  "swagger": "2.0",
-  "info": {
-    "description": "Solid Coffee Backend RESTful API",
-    "title": "Solid Coffee Backend",
-    "contact": {},
-    "version": "1.0"
-  },
-  "host": "192.168.50.221:8080",
-  "basePath": "/",
-  "paths": {
-    "/admin/products/": {
-      "post": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "consumes": ["multipart/form-data"],
-        "produces": ["application/json"],
-        "tags": ["products"],
-        "summary": "Post product",
-        "parameters": [
-          {
-            "type": "array",
-            "items": {
-              "type": "file"
+    "swagger": "2.0",
+    "info": {
+        "description": "Solid Coffee Backend RESTful API",
+        "title": "Solid Coffee Backend",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "192.168.50.221:8080",
+    "basePath": "/",
+    "paths": {
+        "/admin/products/": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Post product",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "file"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Product images",
+                        "name": "images_file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Products name",
+                        "name": "product_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Price",
+                        "name": "price",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Description",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/products/image/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Delete product image",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Image id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/products/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Get detail products by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Products"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
             },
-            "collectionFormat": "csv",
-            "description": "Product images",
-            "name": "images_file",
-            "in": "formData",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Products name",
-            "name": "product_name",
-            "in": "formData",
-            "required": true
-          },
-          {
-            "type": "number",
-            "description": "Price",
-            "name": "price",
-            "in": "formData",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Description",
-            "name": "description",
-            "in": "formData",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseSuccess"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          }
-        }
-      }
-    },
-    "/admin/products/image/{id}": {
-      "delete": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["products"],
-        "summary": "Delete product image",
-        "parameters": [
-          {
-            "type": "integer",
-            "description": "Image id",
-            "name": "id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseSuccess"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          }
-        }
-      }
-    },
-    "/admin/products/{id}": {
-      "get": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "produces": ["application/json"],
-        "tags": ["products"],
-        "summary": "Get detail products by id",
-        "parameters": [
-          {
-            "type": "integer",
-            "description": "Id",
-            "name": "id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/dto.Products"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          }
-        }
-      },
-      "delete": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["products"],
-        "summary": "Delete product",
-        "parameters": [
-          {
-            "type": "integer",
-            "description": "Product id",
-            "name": "id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseSuccess"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          }
-        }
-      },
-      "patch": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "consumes": ["multipart/form-data"],
-        "produces": ["application/json"],
-        "tags": ["products"],
-        "summary": "Update product",
-        "parameters": [
-          {
-            "type": "integer",
-            "description": "Product Id",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "array",
-            "items": {
-              "type": "file"
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Delete product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
             },
-            "collectionFormat": "csv",
-            "description": "Product images",
-            "name": "images_file",
-            "in": "formData"
-          },
-          {
-            "type": "string",
-            "description": "Products name",
-            "name": "product_name",
-            "in": "formData"
-          },
-          {
-            "type": "number",
-            "description": "Price",
-            "name": "price",
-            "in": "formData"
-          },
-          {
-            "type": "string",
-            "description": "Description",
-            "name": "description",
-            "in": "formData"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseSuccess"
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Update product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "file"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Product images",
+                        "name": "images_file",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Products name",
+                        "name": "product_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Price",
+                        "name": "price",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Description",
+                        "name": "description",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
             }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
+        },
+        "/admin/user/": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Insert authenticated user's profile information",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Insert user profile",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Profile photo",
+                        "name": "photo",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Full name (min 3 chars)",
+                        "name": "fullname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Email",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Password (min 8 chars)",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Phone number (min 3 chars)",
+                        "name": "phone",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Address (min 3 chars)",
+                        "name": "address",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "role (user or admin)",
+                        "name": "role",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
             }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
+        },
+        "/admin/user/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete authenticated user's profile information",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Delete user profile",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
             }
-          }
-        }
-      }
-    },
-    "/admin/user/": {
-      "post": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "description": "Insert authenticated user's profile information",
-        "consumes": ["multipart/form-data"],
-        "produces": ["application/json"],
-        "tags": ["user"],
-        "summary": "Insert user profile",
-        "parameters": [
-          {
-            "type": "file",
-            "description": "Profile photo",
-            "name": "photo",
-            "in": "formData",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Full name (min 3 chars)",
-            "name": "fullname",
-            "in": "formData",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Email",
-            "name": "email",
-            "in": "formData",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Password (min 8 chars)",
-            "name": "password",
-            "in": "formData",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Phone number (min 3 chars)",
-            "name": "phone",
-            "in": "formData",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Address (min 3 chars)",
-            "name": "address",
-            "in": "formData",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "role (user or admin)",
-            "name": "role",
-            "in": "formData",
-            "required": true
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseSuccess"
+        },
+        "/auth/": {
+            "post": {
+                "description": "Authenticate user with email and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User login",
+                "parameters": [
+                    {
+                        "description": "Login credentials",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
             }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
+        },
+        "/auth/new/": {
+            "post": {
+                "description": "Create a new user account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Register new user",
+                "parameters": [
+                    {
+                        "description": "User registration data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RegisterResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
             }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
+        },
+        "/products/": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Get all products",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Product title search",
+                        "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Minimum price",
+                        "name": "min",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Maximum price",
+                        "name": "max",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Categories filter",
+                        "name": "category",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ProductResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
             }
-          }
-        }
-      }
-    },
-    "/admin/user/{id}": {
-      "delete": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "description": "Delete authenticated user's profile information",
-        "consumes": ["multipart/form-data"],
-        "produces": ["application/json"],
-        "tags": ["user"],
-        "summary": "Delete user profile",
-        "parameters": [
-          {
-            "type": "integer",
-            "description": "user id",
-            "name": "id",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseSuccess"
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          }
-        }
-      }
-    },
-    "/auth/": {
-      "post": {
-        "description": "Authenticate user with email and password",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["auth"],
-        "summary": "User login",
-        "parameters": [
-          {
-            "description": "Login credentials",
-            "name": "request",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/dto.LoginRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/dto.LoginResponse"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          }
-        }
-      }
-    },
-    "/auth/new/": {
-      "post": {
-        "description": "Create a new user account",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["auth"],
-        "summary": "Register new user",
-        "parameters": [
-          {
-            "description": "User registration data",
-            "name": "request",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/dto.RegisterRequest"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": {
-              "$ref": "#/definitions/dto.RegisterResponse"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          }
-        }
-      }
-    },
-    "/products/": {
-      "get": {
-        "produces": ["application/json"],
-        "tags": ["products"],
-        "summary": "Get all products",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Page number",
-            "name": "page",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Product title search",
-            "name": "title",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Minimum price",
-            "name": "min",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Maximum price",
-            "name": "max",
-            "in": "query"
-          },
-          {
-            "type": "array",
-            "items": {
-              "type": "string"
+        },
+        "/user/": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get authenticated user's profile information",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get user profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserProfileResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
             },
-            "collectionFormat": "csv",
-            "description": "Categories filter",
-            "name": "category",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/dto.ProductResponse"
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update authenticated user's profile information",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update user profile",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Profile photo",
+                        "name": "photo",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Full name (min 3 chars)",
+                        "name": "fullname",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Phone number (min 3 chars)",
+                        "name": "phone",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Address (min 3 chars)",
+                        "name": "address",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
             }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
+        },
+        "/user/password/": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update authenticated user's password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Change user password",
+                "parameters": [
+                    {
+                        "description": "Edit password data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdatePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
             }
-          }
         }
-      }
     },
-    "/user/": {
-      "get": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "description": "Get authenticated user's profile information",
-        "produces": ["application/json"],
-        "tags": ["user"],
-        "summary": "Get user profile",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/dto.UserProfileResponse"
+    "definitions": {
+        "dto.JWT": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
             }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
+        },
+        "dto.LoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "example123@gmail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "example": "example123"
+                }
             }
-          }
+        },
+        "dto.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.JWT"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Data retrieved successfully"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Success"
+                }
+            }
+        },
+        "dto.PaginationMeta": {
+            "type": "object",
+            "properties": {
+                "next_page": {
+                    "type": "string"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "prev_page": {
+                    "type": "string"
+                },
+                "total_page": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ProductResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Products"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Data retrieved successfully"
+                },
+                "meta": {
+                    "$ref": "#/definitions/dto.PaginationMeta"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Success"
+                }
+            }
+        },
+        "dto.Products": {
+            "type": "object",
+            "properties": {
+                "discount": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_products": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "rating_product": {
+                    "type": "number"
+                }
+            }
+        },
+        "dto.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "confirm_password",
+                "email",
+                "fullname",
+                "password"
+            ],
+            "properties": {
+                "confirm_password": {
+                    "type": "string",
+                    "example": "example123"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "example123@gmail.com"
+                },
+                "fullname": {
+                    "type": "string",
+                    "minLength": 3,
+                    "example": "John Doe"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "example": "example123"
+                }
+            }
+        },
+        "dto.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Data retrieved successfully"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Success"
+                }
+            }
+        },
+        "dto.ResponseError": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "string",
+                    "example": "failed get data"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Failed get data"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Error"
+                }
+            }
+        },
+        "dto.ResponseSuccess": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Data retrieved successfully"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Success"
+                }
+            }
+        },
+        "dto.UpdatePasswordRequest": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "old_password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "example": "example321"
+                },
+                "old_password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "example": "example123"
+                }
+            }
+        },
+        "dto.User": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "Jakarta"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2025-01-01T09:00:00Z"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "fullname": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "last_login": {
+                    "type": "string",
+                    "example": "2025-01-01T10:00:00Z"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "081234567890"
+                },
+                "photo": {
+                    "type": "string",
+                    "example": "avatar.png"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "user"
+                }
+            }
+        },
+        "dto.UserProfileResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.User"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Data retrieved successfully"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Success"
+                }
+            }
         }
-      },
-      "patch": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "description": "Update authenticated user's profile information",
-        "consumes": ["multipart/form-data"],
-        "produces": ["application/json"],
-        "tags": ["user"],
-        "summary": "Update user profile",
-        "parameters": [
-          {
-            "type": "file",
-            "description": "Profile photo",
-            "name": "photo",
-            "in": "formData"
-          },
-          {
-            "type": "string",
-            "description": "Full name (min 3 chars)",
-            "name": "fullname",
-            "in": "formData"
-          },
-          {
-            "type": "string",
-            "description": "Phone number (min 3 chars)",
-            "name": "phone",
-            "in": "formData"
-          },
-          {
-            "type": "string",
-            "description": "Address (min 3 chars)",
-            "name": "address",
-            "in": "formData"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseSuccess"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          }
-        }
-      }
     },
-    "/user/password/": {
-      "patch": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "description": "Update authenticated user's password",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["user"],
-        "summary": "Change user password",
-        "parameters": [
-          {
-            "description": "Edit password data",
-            "name": "request",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/dto.UpdatePasswordRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseSuccess"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "schema": {
-              "$ref": "#/definitions/dto.ResponseError"
-            }
-          }
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
-      }
     }
-  },
-  "definitions": {
-    "dto.JWT": {
-      "type": "object",
-      "properties": {
-        "token": {
-          "type": "string"
-        }
-      }
-    },
-    "dto.LoginRequest": {
-      "type": "object",
-      "required": ["email", "password"],
-      "properties": {
-        "email": {
-          "type": "string",
-          "example": "example123@gmail.com"
-        },
-        "password": {
-          "type": "string",
-          "minLength": 8,
-          "example": "example123"
-        }
-      }
-    },
-    "dto.LoginResponse": {
-      "type": "object",
-      "properties": {
-        "data": {
-          "$ref": "#/definitions/dto.JWT"
-        },
-        "message": {
-          "type": "string",
-          "example": "Data retrieved successfully"
-        },
-        "status": {
-          "type": "string",
-          "example": "Success"
-        }
-      }
-    },
-    "dto.PaginationMeta": {
-      "type": "object",
-      "properties": {
-        "next_page": {
-          "type": "string"
-        },
-        "page": {
-          "type": "integer"
-        },
-        "prev_page": {
-          "type": "string"
-        },
-        "total_page": {
-          "type": "integer"
-        }
-      }
-    },
-    "dto.ProductResponse": {
-      "type": "object",
-      "properties": {
-        "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/dto.Products"
-          }
-        },
-        "message": {
-          "type": "string",
-          "example": "Data retrieved successfully"
-        },
-        "meta": {
-          "$ref": "#/definitions/dto.PaginationMeta"
-        },
-        "status": {
-          "type": "string",
-          "example": "Success"
-        }
-      }
-    },
-    "dto.Products": {
-      "type": "object",
-      "properties": {
-        "discount": {
-          "type": "number"
-        },
-        "id": {
-          "type": "integer"
-        },
-        "image_products": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "price": {
-          "type": "number"
-        },
-        "rating_product": {
-          "type": "number"
-        }
-      }
-    },
-    "dto.RegisterRequest": {
-      "type": "object",
-      "required": ["confirm_password", "email", "fullname", "password"],
-      "properties": {
-        "confirm_password": {
-          "type": "string",
-          "example": "example123"
-        },
-        "email": {
-          "type": "string",
-          "example": "example123@gmail.com"
-        },
-        "fullname": {
-          "type": "string",
-          "minLength": 3,
-          "example": "John Doe"
-        },
-        "password": {
-          "type": "string",
-          "minLength": 8,
-          "example": "example123"
-        }
-      }
-    },
-    "dto.RegisterResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string",
-          "example": "Data retrieved successfully"
-        },
-        "status": {
-          "type": "string",
-          "example": "Success"
-        }
-      }
-    },
-    "dto.ResponseError": {
-      "type": "object",
-      "properties": {
-        "errors": {
-          "type": "string",
-          "example": "failed get data"
-        },
-        "message": {
-          "type": "string",
-          "example": "Failed get data"
-        },
-        "status": {
-          "type": "string",
-          "example": "Error"
-        }
-      }
-    },
-    "dto.ResponseSuccess": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string",
-          "example": "Data retrieved successfully"
-        },
-        "status": {
-          "type": "string",
-          "example": "Success"
-        }
-      }
-    },
-    "dto.UpdatePasswordRequest": {
-      "type": "object",
-      "required": ["new_password", "old_password"],
-      "properties": {
-        "new_password": {
-          "type": "string",
-          "minLength": 8,
-          "example": "example321"
-        },
-        "old_password": {
-          "type": "string",
-          "minLength": 8,
-          "example": "example123"
-        }
-      }
-    },
-    "dto.User": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "type": "string",
-          "example": "Jakarta"
-        },
-        "created_at": {
-          "type": "string",
-          "example": "2025-01-01T09:00:00Z"
-        },
-        "email": {
-          "type": "string",
-          "example": "user@example.com"
-        },
-        "fullname": {
-          "type": "string",
-          "example": "John Doe"
-        },
-        "id": {
-          "type": "integer",
-          "example": 1
-        },
-        "last_login": {
-          "type": "string",
-          "example": "2025-01-01T10:00:00Z"
-        },
-        "phone": {
-          "type": "string",
-          "example": "081234567890"
-        },
-        "photo": {
-          "type": "string",
-          "example": "avatar.png"
-        },
-        "role": {
-          "type": "string",
-          "example": "user"
-        }
-      }
-    },
-    "dto.UserProfileResponse": {
-      "type": "object",
-      "properties": {
-        "data": {
-          "$ref": "#/definitions/dto.User"
-        },
-        "message": {
-          "type": "string",
-          "example": "Data retrieved successfully"
-        },
-        "status": {
-          "type": "string",
-          "example": "Success"
-        }
-      }
-    }
-  },
-  "securityDefinitions": {
-    "BearerAuth": {
-      "description": "Type \"Bearer\" followed by a space and JWT token.",
-      "type": "apiKey",
-      "name": "Authorization",
-      "in": "header"
-    }
-  }
 }

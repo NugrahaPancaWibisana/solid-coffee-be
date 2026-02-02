@@ -15,13 +15,13 @@ definitions:
         minLength: 8
         type: string
     required:
-      - email
-      - password
+    - email
+    - password
     type: object
   dto.LoginResponse:
     properties:
       data:
-        $ref: "#/definitions/dto.JWT"
+        $ref: '#/definitions/dto.JWT'
       message:
         example: Data retrieved successfully
         type: string
@@ -44,13 +44,13 @@ definitions:
     properties:
       data:
         items:
-          $ref: "#/definitions/dto.Products"
+          $ref: '#/definitions/dto.Products'
         type: array
       message:
         example: Data retrieved successfully
         type: string
       meta:
-        $ref: "#/definitions/dto.PaginationMeta"
+        $ref: '#/definitions/dto.PaginationMeta'
       status:
         example: Success
         type: string
@@ -87,10 +87,10 @@ definitions:
         minLength: 8
         type: string
     required:
-      - confirm_password
-      - email
-      - fullname
-      - password
+    - confirm_password
+    - email
+    - fullname
+    - password
     type: object
   dto.RegisterResponse:
     properties:
@@ -133,8 +133,8 @@ definitions:
         minLength: 8
         type: string
     required:
-      - new_password
-      - old_password
+    - new_password
+    - old_password
     type: object
   dto.User:
     properties:
@@ -169,7 +169,7 @@ definitions:
   dto.UserProfileResponse:
     properties:
       data:
-        $ref: "#/definitions/dto.User"
+        $ref: '#/definitions/dto.User'
       message:
         example: Data retrieved successfully
         type: string
@@ -187,439 +187,465 @@ paths:
   /admin/products/:
     post:
       consumes:
-        - multipart/form-data
+      - multipart/form-data
       parameters:
-        - collectionFormat: csv
-          description: Product images
-          in: formData
-          items:
-            type: file
-          name: images_file
-          required: true
-          type: array
-        - description: Products name
-          in: formData
-          name: product_name
-          required: true
-          type: string
-        - description: Price
-          in: formData
-          name: price
-          required: true
-          type: number
-        - description: Description
-          in: formData
-          name: description
-          required: true
-          type: string
+      - collectionFormat: csv
+        description: Product images
+        in: formData
+        items:
+          type: file
+        name: images_file
+        required: true
+        type: array
+      - description: Products name
+        in: formData
+        name: product_name
+        required: true
+        type: string
+      - description: Price
+        in: formData
+        name: price
+        required: true
+        type: number
+      - description: Description
+        in: formData
+        name: description
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/dto.ResponseSuccess"
+            $ref: '#/definitions/dto.ResponseSuccess'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
         "404":
           description: Not Found
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Post product
       tags:
-        - products
+      - products
   /admin/products/{id}:
     delete:
       consumes:
-        - application/json
+      - application/json
       parameters:
-        - description: Product id
-          in: path
-          name: id
-          required: true
-          type: integer
+      - description: Product id
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/dto.ResponseSuccess"
+            $ref: '#/definitions/dto.ResponseSuccess'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Delete product
       tags:
-        - products
+      - products
     get:
       parameters:
-        - description: Id
-          in: path
-          name: id
-          required: true
-          type: integer
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/dto.Products"
+            $ref: '#/definitions/dto.Products'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Get detail products by id
       tags:
-        - products
+      - products
     patch:
       consumes:
-        - multipart/form-data
+      - multipart/form-data
       parameters:
-        - description: Product Id
-          in: path
-          name: id
-          required: true
-          type: integer
-        - collectionFormat: csv
-          description: Product images
-          in: formData
-          items:
-            type: file
-          name: images_file
-          type: array
-        - description: Products name
-          in: formData
-          name: product_name
-          type: string
-        - description: Price
-          in: formData
-          name: price
-          type: number
-        - description: Description
-          in: formData
-          name: description
-          type: string
+      - description: Product Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - collectionFormat: csv
+        description: Product images
+        in: formData
+        items:
+          type: file
+        name: images_file
+        type: array
+      - description: Products name
+        in: formData
+        name: product_name
+        type: string
+      - description: Price
+        in: formData
+        name: price
+        type: number
+      - description: Description
+        in: formData
+        name: description
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/dto.ResponseSuccess"
+            $ref: '#/definitions/dto.ResponseSuccess'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Update product
       tags:
-        - products
+      - products
   /admin/products/image/{id}:
     delete:
       consumes:
-        - application/json
+      - application/json
       parameters:
-        - description: Image id
-          in: path
-          name: id
-          required: true
-          type: integer
+      - description: Image id
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/dto.ResponseSuccess"
+            $ref: '#/definitions/dto.ResponseSuccess'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Delete product image
       tags:
-        - products
+      - products
   /admin/user/:
     post:
       consumes:
-        - multipart/form-data
+      - multipart/form-data
       description: Insert authenticated user's profile information
       parameters:
-        - description: Profile photo
-          in: formData
-          name: photo
-          required: true
-          type: file
-        - description: Full name (min 3 chars)
-          in: formData
-          name: fullname
-          required: true
-          type: string
-        - description: Email
-          in: formData
-          name: email
-          required: true
-          type: string
-        - description: Password (min 8 chars)
-          in: formData
-          name: password
-          required: true
-          type: string
-        - description: Phone number (min 3 chars)
-          in: formData
-          name: phone
-          required: true
-          type: string
-        - description: Address (min 3 chars)
-          in: formData
-          name: address
-          required: true
-          type: string
-        - description: role (user or admin)
-          in: formData
-          name: role
-          required: true
-          type: string
+      - description: Profile photo
+        in: formData
+        name: photo
+        required: true
+        type: file
+      - description: Full name (min 3 chars)
+        in: formData
+        name: fullname
+        required: true
+        type: string
+      - description: Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: Password (min 8 chars)
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: Phone number (min 3 chars)
+        in: formData
+        name: phone
+        required: true
+        type: string
+      - description: Address (min 3 chars)
+        in: formData
+        name: address
+        required: true
+        type: string
+      - description: role (user or admin)
+        in: formData
+        name: role
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: "#/definitions/dto.ResponseSuccess"
+            $ref: '#/definitions/dto.ResponseSuccess'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
         "401":
           description: Unauthorized
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Insert user profile
       tags:
-        - user
+      - user
+  /admin/user/{id}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: Delete authenticated user's profile information
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Delete user profile
+      tags:
+      - user
   /auth/:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Authenticate user with email and password
       parameters:
-        - description: Login credentials
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: "#/definitions/dto.LoginRequest"
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/dto.LoginResponse"
+            $ref: '#/definitions/dto.LoginResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
         "401":
           description: Unauthorized
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
       summary: User login
       tags:
-        - auth
+      - auth
   /auth/new/:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Create a new user account
       parameters:
-        - description: User registration data
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: "#/definitions/dto.RegisterRequest"
+      - description: User registration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: "#/definitions/dto.RegisterResponse"
+            $ref: '#/definitions/dto.RegisterResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
       summary: Register new user
       tags:
-        - auth
+      - auth
   /products/:
     get:
       parameters:
-        - description: Page number
-          in: query
-          name: page
+      - description: Page number
+        in: query
+        name: page
+        type: string
+      - description: Product title search
+        in: query
+        name: title
+        type: string
+      - description: Minimum price
+        in: query
+        name: min
+        type: string
+      - description: Maximum price
+        in: query
+        name: max
+        type: string
+      - collectionFormat: csv
+        description: Categories filter
+        in: query
+        items:
           type: string
-        - description: Product title search
-          in: query
-          name: title
-          type: string
-        - description: Minimum price
-          in: query
-          name: min
-          type: string
-        - description: Maximum price
-          in: query
-          name: max
-          type: string
-        - collectionFormat: csv
-          description: Categories filter
-          in: query
-          items:
-            type: string
-          name: category
-          type: array
+        name: category
+        type: array
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/dto.ProductResponse"
+            $ref: '#/definitions/dto.ProductResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
       summary: Get all products
       tags:
-        - products
+      - products
   /user/:
     get:
       description: Get authenticated user's profile information
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/dto.UserProfileResponse"
+            $ref: '#/definitions/dto.UserProfileResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Get user profile
       tags:
-        - user
+      - user
     patch:
       consumes:
-        - multipart/form-data
+      - multipart/form-data
       description: Update authenticated user's profile information
       parameters:
-        - description: Profile photo
-          in: formData
-          name: photo
-          type: file
-        - description: Full name (min 3 chars)
-          in: formData
-          name: fullname
-          type: string
-        - description: Phone number (min 3 chars)
-          in: formData
-          name: phone
-          type: string
-        - description: Address (min 3 chars)
-          in: formData
-          name: address
-          type: string
+      - description: Profile photo
+        in: formData
+        name: photo
+        type: file
+      - description: Full name (min 3 chars)
+        in: formData
+        name: fullname
+        type: string
+      - description: Phone number (min 3 chars)
+        in: formData
+        name: phone
+        type: string
+      - description: Address (min 3 chars)
+        in: formData
+        name: address
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/dto.ResponseSuccess"
+            $ref: '#/definitions/dto.ResponseSuccess'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
         "401":
           description: Unauthorized
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Update user profile
       tags:
-        - user
+      - user
   /user/password/:
     patch:
       consumes:
-        - application/json
+      - application/json
       description: Update authenticated user's password
       parameters:
-        - description: Edit password data
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: "#/definitions/dto.UpdatePasswordRequest"
+      - description: Edit password data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePasswordRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: "#/definitions/dto.ResponseSuccess"
+            $ref: '#/definitions/dto.ResponseSuccess'
         "400":
           description: Bad Request
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
         "401":
           description: Unauthorized
           schema:
-            $ref: "#/definitions/dto.ResponseError"
+            $ref: '#/definitions/dto.ResponseError'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Change user password
       tags:
-        - user
+      - user
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.
