@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS public.users (
     email character varying(255),
     password character varying(255),
     photo character varying(255),
-    phone character(13),
+    phone character varying(40),
     address text,
     role character varying(20) DEFAULT 'user'::character varying NOT NULL,
     created_at timestamp without time zone DEFAULT now(),
