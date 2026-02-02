@@ -11,7 +11,9 @@ import (
 )
 
 func UserRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
+	adminUserRouter := app.Group("/admin/user")
 	userRouter := app.Group("/user")
+	adminUserRouter.Use(middleware.AuthMiddleware(), middleware.RBACMiddleware("user", "admin"))
 	userRouter.Use(middleware.AuthMiddleware(), middleware.RBACMiddleware("user", "admin"))
 
 	userRepository := repository.NewUserRepository()
@@ -21,4 +23,6 @@ func UserRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	userRouter.GET("/", userController.GetProfile)
 	userRouter.PATCH("/", userController.UpdateProfile)
 	userRouter.PATCH("/password", userController.UpdatePassword)
+
+	adminUserRouter.POST("/", userController.InsertUser)
 }
