@@ -30,6 +30,26 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 	args := []any{}
 	argCount := 1
 
+	var categoryFilters []string
+	sortType := ""
+
+	specialCategories := map[string]bool{
+		"Priciest":    true,
+		"Cheapest":    true,
+		"Recommended": true,
+		"Latest":      true,
+	}
+
+	for _, cat := range req.Category {
+		if specialCategories[cat] {
+			if sortType == "" { 
+				sortType = cat
+			}
+		} else {
+			categoryFilters = append(categoryFilters, cat)
+		}
+	}
+
 	sb.WriteString(`
 		WITH avg_rating AS (
 			SELECT 
@@ -38,32 +58,67 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 			FROM reviews r
 			JOIN dt_order d ON d.id = r.dt_orderid
 			GROUP BY d.menu_id
+		),
+		product_avg_rating AS (
+			SELECT 
+				m.product_id,
+				AVG(ar.rating_product) AS avg_rating
+			FROM menus m
+			LEFT JOIN avg_rating ar ON ar.idmenu = m.id
+			GROUP BY m.product_id
+		),
+		product_menu AS (
+			SELECT DISTINCT ON (m.product_id)
+				m.product_id,
+				m.discount
+			FROM menus m
+			WHERE m.deleted_at IS NULL
+			ORDER BY m.product_id, m.id
 		)
-		SELECT DISTINCT ON (p.id)
-			p.id,
-			p.name,
-			STRING_AGG(DISTINCT pi.image, ',') AS image_products,
-			p.price,
-			m.discount,
-			COALESCE(ar.rating_product, 0) AS rating_product
-		FROM products p
-		JOIN menus m ON m.product_id = p.id
-		LEFT JOIN avg_rating ar ON ar.idmenu = m.id
-		LEFT JOIN product_images pi ON pi.product_id = p.id
-		LEFT JOIN product_categories pc ON pc.product_id = p.id
-		LEFT JOIN categories c ON c.id = pc.category_id
-		WHERE p.deleted_at IS NULL AND m.deleted_at IS NULL
 	`)
 
-	if len(req.Category) > 0 {
+	if len(categoryFilters) > 0 {
+		sb.WriteString(`, filtered_products AS (
+			SELECT DISTINCT p.id
+			FROM products p
+			JOIN product_categories pc ON pc.product_id = p.id
+			JOIN categories c ON c.id = pc.category_id
+			WHERE c.name IN (`)
+		
 		placeholders := []string{}
-		for _, cat := range req.Category {
+		for _, cat := range categoryFilters {
 			placeholders = append(placeholders, fmt.Sprintf("$%d", argCount))
 			args = append(args, cat)
 			argCount++
 		}
-		fmt.Fprintf(&sb, " AND c.name IN (%s)", strings.Join(placeholders, ","))
+		sb.WriteString(strings.Join(placeholders, ","))
+		sb.WriteString(`)
+		)`)
 	}
+
+	sb.WriteString(`
+		SELECT 
+			p.id,
+			p.name,
+			COALESCE(STRING_AGG(DISTINCT pi.image, ','), '') AS image_products,
+			p.price,
+			pm.discount,
+			COALESCE(par.avg_rating, 0) AS rating_product
+		FROM products p
+		JOIN product_menu pm ON pm.product_id = p.id
+		LEFT JOIN product_avg_rating par ON par.product_id = p.id
+		LEFT JOIN product_images pi ON pi.product_id = p.id
+	`)
+
+	if len(categoryFilters) > 0 {
+		sb.WriteString(`
+		JOIN filtered_products fp ON fp.id = p.id
+		`)
+	}
+
+	sb.WriteString(`
+		WHERE p.deleted_at IS NULL
+	`)
 
 	if req.Title != "" {
 		fmt.Fprintf(&sb, " AND p.name ILIKE $%d", argCount)
@@ -72,19 +127,31 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 	}
 
 	if req.Min != "" {
-		fmt.Fprintf(&sb, " AND (p.price - (p.price * m.discount / 100)) >= $%d", argCount)
+		fmt.Fprintf(&sb, " AND (p.price - (p.price * pm.discount / 100)) >= $%d", argCount)
 		args = append(args, req.Min)
 		argCount++
 	}
 
 	if req.Max != "" {
-		fmt.Fprintf(&sb, " AND (p.price - (p.price * m.discount / 100)) <= $%d", argCount)
+		fmt.Fprintf(&sb, " AND (p.price - (p.price * pm.discount / 100)) <= $%d", argCount)
 		args = append(args, req.Max)
 		argCount++
 	}
 
-	sb.WriteString(" GROUP BY p.id, p.name, p.price, m.discount, ar.rating_product")
-	sb.WriteString(" ORDER BY p.id")
+	sb.WriteString(" GROUP BY p.id, p.name, p.price, pm.discount, par.avg_rating")
+
+	switch sortType {
+	case "Priciest":
+		sb.WriteString(" ORDER BY (p.price - (p.price * pm.discount / 100)) DESC")
+	case "Cheapest":
+		sb.WriteString(" ORDER BY (p.price - (p.price * pm.discount / 100)) ASC")
+	case "Recommended":
+		sb.WriteString(" ORDER BY rating_product DESC")
+	case "Latest":
+		sb.WriteString(" ORDER BY p.created_at DESC")
+	default:
+		sb.WriteString(" ORDER BY p.id")
+	}
 
 	limit := 6
 	offset := 0
@@ -133,6 +200,21 @@ func (pr *ProductRepository) GetTotalPage(ctx context.Context, db DBTX, req dto.
 	args := []any{}
 	argCount := 1
 
+	// Pisahkan category filter (exclude special categories)
+	var categoryFilters []string
+	specialCategories := map[string]bool{
+		"Priciest":    true,
+		"Cheapest":    true,
+		"Recommended": true,
+		"Latest":      true,
+	}
+
+	for _, cat := range req.Category {
+		if !specialCategories[cat] {
+			categoryFilters = append(categoryFilters, cat) // category biasa bisa banyak
+		}
+	}
+
 	sb.WriteString(`
 		SELECT COUNT(DISTINCT p.id)
 		FROM products p
@@ -143,9 +225,10 @@ func (pr *ProductRepository) GetTotalPage(ctx context.Context, db DBTX, req dto.
 		WHERE p.deleted_at IS NULL AND m.deleted_at IS NULL
 	`)
 
-	if len(req.Category) > 0 {
+	// Filter by normal categories - BISA BANYAK
+	if len(categoryFilters) > 0 {
 		placeholders := []string{}
-		for _, cat := range req.Category {
+		for _, cat := range categoryFilters {
 			placeholders = append(placeholders, fmt.Sprintf("$%d", argCount))
 			args = append(args, cat)
 			argCount++
