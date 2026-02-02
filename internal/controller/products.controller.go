@@ -45,11 +45,7 @@ func NewProductsController(productService *service.ProductService) *ProductsCont
 func (p ProductsController) GetAllProducts(c *gin.Context) {
 	var req dto.ProductQueries
 	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.ResponseError{
-			Message: "Invalid query parameters",
-			Status:  "Bad Request",
-			Error:   err.Error(),
-		})
+		response.Error(c, http.StatusBadRequest, "Invalid query parameters")
 		return
 	}
 
