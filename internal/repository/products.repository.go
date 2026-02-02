@@ -25,103 +25,164 @@ func NewProductRepository() *ProductRepository {
 	return &ProductRepository{}
 }
 
-func (p ProductRepository) GetAllProduct(ctx context.Context, db DBTX, page int) ([]model.Products, error) {
-	sqlStr :=
-		`WITH avg_rating AS (
-  		SELECT AVG(r.rating) AS "rating_product",
-  		d.menu_id AS "idmenu"
-  	FROM reviews r
-  	JOIN dt_order d ON d.id = r.id
-  	JOIN menus m ON m.id = d.menu_id
-  	GROUP BY d.menu_id
-	)
+func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.ProductQueries) ([]model.Products, error) {
+	var sb strings.Builder
+	args := []any{}
+	argCount := 1
 
-	SELECT
+	sb.WriteString(`
+		WITH avg_rating AS (
+			SELECT 
+				AVG(r.rating) AS rating_product,
+				d.menu_id AS idmenu
+			FROM reviews r
+			JOIN dt_order d ON d.id = r.dt_orderid
+			GROUP BY d.menu_id
+		)
+		SELECT DISTINCT ON (p.id)
 			p.id,
-    	p.name,
-    	string_agg(pi.image, ',') AS "image products",
-    	p.price,
-    	m.discount,
-    	ar."rating_product"
-  	FROM menus m
-  	JOIN avg_rating ar ON ar."idmenu"= m.id
-  	JOIN products p ON p.id = m.product_id
-  	JOIN product_images pi ON pi.product_id = m.product_id
-  	GROUP BY p.id, m.id, ar."rating_product" LIMIT 6 OFFSET 
-	`
+			p.name,
+			STRING_AGG(DISTINCT pi.image, ',') AS image_products,
+			p.price,
+			m.discount,
+			COALESCE(ar.rating_product, 0) AS rating_product
+		FROM products p
+		JOIN menus m ON m.product_id = p.id
+		LEFT JOIN avg_rating ar ON ar.idmenu = m.id
+		LEFT JOIN product_images pi ON pi.product_id = p.id
+		LEFT JOIN product_categories pc ON pc.product_id = p.id
+		LEFT JOIN categories c ON c.id = pc.category_id
+		WHERE p.deleted_at IS NULL AND m.deleted_at IS NULL
+	`)
 
-	offset := (page * 6) - 6
-	spt := sqlStr + strconv.Itoa(offset)
-	sql := spt
+	if len(req.Category) > 0 {
+		placeholders := []string{}
+		for _, cat := range req.Category {
+			placeholders = append(placeholders, fmt.Sprintf("$%d", argCount))
+			args = append(args, cat)
+			argCount++
+		}
+		fmt.Fprintf(&sb, " AND c.name IN (%s)", strings.Join(placeholders, ","))
+	}
 
-	rows, err := db.Query(ctx, sql)
+	if req.Title != "" {
+		fmt.Fprintf(&sb, " AND p.name ILIKE $%d", argCount)
+		args = append(args, "%"+req.Title+"%")
+		argCount++
+	}
+
+	if req.Min != "" {
+		fmt.Fprintf(&sb, " AND (p.price - (p.price * m.discount / 100)) >= $%d", argCount)
+		args = append(args, req.Min)
+		argCount++
+	}
+
+	if req.Max != "" {
+		fmt.Fprintf(&sb, " AND (p.price - (p.price * m.discount / 100)) <= $%d", argCount)
+		args = append(args, req.Max)
+		argCount++
+	}
+
+	sb.WriteString(" GROUP BY p.id, p.name, p.price, m.discount, ar.rating_product")
+	sb.WriteString(" ORDER BY p.id")
+
+	limit := 6
+	offset := 0
+	if req.Page != "" {
+		page, _ := strconv.Atoi(req.Page)
+		if page > 0 {
+			offset = (page - 1) * limit
+		}
+	}
+
+	fmt.Fprintf(&sb, " LIMIT $%d OFFSET $%d", argCount, argCount+1)
+	args = append(args, limit, offset)
+
+	query := sb.String()
+
+	rows, err := db.Query(ctx, query, args...)
 	if err != nil {
-		log.Println(err.Error())
 		return nil, err
 	}
+	defer rows.Close()
+
 	var products []model.Products
 	for rows.Next() {
-		var product model.Products
-		err := rows.Scan(&product.Id, &product.Name, &product.Images_Name, &product.Price, &product.Discount,
-			&product.Rating)
+		var p model.Products
 
+		err := rows.Scan(
+			&p.Id,
+			&p.Name,
+			&p.Images_Name,
+			&p.Price,
+			&p.Discount,
+			&p.Rating,
+		)
 		if err != nil {
-			log.Println(err.Error())
 			return nil, err
 		}
-		products = append(products, product)
+
+		products = append(products, p)
 	}
-	return products, nil
+
+	return products, rows.Err()
 }
 
-func (p ProductRepository) GetTotalPage(ctx context.Context, db DBTX) (int, error) {
-	sqlStr :=
-		`WITH avg_rating AS (
-  		SELECT AVG(r.rating) AS "rating_product",
-  		d.menu_id AS "idmenu"
-  	FROM reviews r
-  	JOIN dt_order d ON d.id = r.id
-  	JOIN menus m ON m.id = d.menu_id
-  	GROUP BY d.menu_id
-	)
+func (pr *ProductRepository) GetTotalPage(ctx context.Context, db DBTX, req dto.ProductQueries) (int, error) {
+	var sb strings.Builder
+	args := []any{}
+	argCount := 1
 
-	SELECT
-			p.id,
-    	p.name,
-    	string_agg(pi.image, ',') AS "image products",
-    	p.price,
-    	m.discount,
-    	ar."rating_product"
-  	FROM menus m
-  	JOIN avg_rating ar ON ar."idmenu"= m.id
-  	JOIN products p ON p.id = m.product_id
-  	JOIN product_images pi ON pi.product_id = m.product_id
-  	GROUP BY p.id, m.id, ar."rating_product"
-	`
+	sb.WriteString(`
+		SELECT COUNT(DISTINCT p.id)
+		FROM products p
+		JOIN menus m ON m.product_id = p.id
+		LEFT JOIN product_images pi ON pi.product_id = p.id
+		LEFT JOIN product_categories pc ON pc.product_id = p.id
+		LEFT JOIN categories c ON c.id = pc.category_id
+		WHERE p.deleted_at IS NULL AND m.deleted_at IS NULL
+	`)
 
-	rows, err := db.Query(ctx, sqlStr)
+	if len(req.Category) > 0 {
+		placeholders := []string{}
+		for _, cat := range req.Category {
+			placeholders = append(placeholders, fmt.Sprintf("$%d", argCount))
+			args = append(args, cat)
+			argCount++
+		}
+		fmt.Fprintf(&sb, " AND c.name IN (%s)", strings.Join(placeholders, ","))
+	}
+
+	if req.Title != "" {
+		fmt.Fprintf(&sb, " AND p.name ILIKE $%d", argCount)
+		args = append(args, "%"+req.Title+"%")
+		argCount++
+	}
+
+	if req.Min != "" {
+		fmt.Fprintf(&sb, " AND (p.price - (p.price * m.discount / 100)) >= $%d", argCount)
+		args = append(args, req.Min)
+		argCount++
+	}
+
+	if req.Max != "" {
+		fmt.Fprintf(&sb, " AND (p.price - (p.price * m.discount / 100)) <= $%d", argCount)
+		args = append(args, req.Max)
+		argCount++
+	}
+
+	query := sb.String()
+
+	var totalProducts int
+	err := db.QueryRow(ctx, query, args...).Scan(&totalProducts)
 	if err != nil {
-		log.Println(err.Error())
 		return 0, err
 	}
 
-	var products []model.Products
-	for rows.Next() {
-		var product model.Products
-		err := rows.Scan(&product.Id, &product.Name, &product.Images_Name, &product.Price, &product.Discount,
-			&product.Rating)
+	itemsPerPage := 6
+	totalPage := int(math.Ceil(float64(totalProducts) / float64(itemsPerPage)))
 
-		if err != nil {
-			log.Println(err.Error())
-			return 0, err
-		}
-		products = append(products, product)
-	}
-
-	count := len(products)
-	totalPage := math.Ceil(float64(count) / float64(6))
-
-	return int(totalPage), nil
+	return totalPage, nil
 }
 
 func (p ProductRepository) PostProduct(ctx context.Context, db DBTX, post dto.PostProductsRequest) (dto.PostProductResponse, error) {
