@@ -96,6 +96,61 @@ definitions:
         example: Success
         type: string
     type: object
+  dto.UpdatePasswordRequest:
+    properties:
+      new_password:
+        example: example321
+        minLength: 8
+        type: string
+      old_password:
+        example: example123
+        minLength: 8
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  dto.User:
+    properties:
+      address:
+        example: Jakarta
+        type: string
+      created_at:
+        example: "2025-01-01T09:00:00Z"
+        type: string
+      email:
+        example: user@example.com
+        type: string
+      fullname:
+        example: John Doe
+        type: string
+      id:
+        example: 1
+        type: integer
+      last_login:
+        example: "2025-01-01T10:00:00Z"
+        type: string
+      phone:
+        example: "081234567890"
+        type: string
+      photo:
+        example: avatar.png
+        type: string
+      role:
+        example: user
+        type: string
+    type: object
+  dto.UserProfileResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.User'
+      message:
+        example: Data retrieved successfully
+        type: string
+      status:
+        example: Success
+        type: string
+    type: object
 host: 192.168.50.221:8080
 info:
   contact: {}
@@ -287,6 +342,24 @@ paths:
       tags:
       - products
   /user/:
+    get:
+      description: Get authenticated user's profile information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserProfileResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get user profile
+      tags:
+      - user
     patch:
       consumes:
       - multipart/form-data
@@ -326,6 +399,38 @@ paths:
       security:
       - BearerAuth: []
       summary: Update user profile
+      tags:
+      - user
+  /user/password/:
+    patch:
+      consumes:
+      - application/json
+      description: Update authenticated user's password
+      parameters:
+      - description: Edit password data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Change user password
       tags:
       - user
 securityDefinitions:

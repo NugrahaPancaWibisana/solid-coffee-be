@@ -9,7 +9,7 @@ type User struct {
 	Photo     string     `json:"photo" example:"avatar.png"`
 	Phone     string     `json:"phone" example:"081234567890"`
 	Address   string     `json:"address" example:"Jakarta"`
-	Role      string     `json:"role" example:"user"`
-	LastLogin *time.Time `json:"last_login" example:"2025-01-01T10:00:00Z"`
+	Role      string     `json:"role,omitempty" example:"user"`
+	LastLogin *time.Time `json:"last_login,omitempty" example:"2025-01-01T10:00:00Z"`
 	CreatedAt time.Time  `json:"created_at" example:"2025-01-01T09:00:00Z"`
 }

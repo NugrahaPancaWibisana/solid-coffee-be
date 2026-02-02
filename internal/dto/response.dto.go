@@ -37,6 +37,11 @@ type PostProductResponse struct {
 	Id int `json:"id,omitempty"`
 }
 
+type UserProfileResponse struct {
+	ResponseSuccess
+	Data User
+}
+
 type UpdateProductResponse struct {
 	Id int `json:"id,omitempty"`
 }
