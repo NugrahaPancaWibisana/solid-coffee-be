@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -32,15 +33,34 @@ func NewProductsController(productService *service.ProductService) *ProductsCont
 // @Summary      Get All Products
 // @Tags         products
 // @Produce      json
-// @Param        page		query int  true  "Pages"
-// @Success      200  {object}  dto.Products
+// @Param        page		query string  false  "Page number"
+// @Param        title		query string  false  "Product title search"
+// @Param        min		query string  false  "Minimum price"
+// @Param        max		query string  false  "Maximum price"
+// @Param        category	query []string  false  "Categories filter"
+// @Success      200  {object}  dto.ProductResponse
 // @Failure 		 500 {object} dto.ResponseError
 // @Router       /products/ [get]
 func (p ProductsController) GetAllProducts(c *gin.Context) {
-	page, _ := strconv.Atoi(c.Query("page"))
-	var nextPage string
-	var prevPage string
-	data, err := p.productService.GetAllProducts(c.Request.Context(), page)
+	var req dto.ProductQueries
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, dto.ResponseError{
+			Message: "Invalid query parameters",
+			Status:  "Bad Request",
+			Error:   err.Error(),
+		})
+		return
+	}
+
+	page := 1
+	if req.Page != "" {
+		page, _ = strconv.Atoi(req.Page)
+		if page < 1 {
+			page = 1
+		}
+	}
+
+	data, totalPage, err := p.productService.GetAllProducts(c.Request.Context(), req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ResponseError{
 			Message: "Internal Server Error",
@@ -50,19 +70,33 @@ func (p ProductsController) GetAllProducts(c *gin.Context) {
 		return
 	}
 
-	totalPage, err := p.productService.GetTotalPage(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.ResponseError{
-			Message: "Internal Server Error",
-			Status:  "Internal Server Error",
-			Error:   "internal server error",
-		})
-		return
+	var nextPage string
+	var prevPage string
+
+	queryParams := url.Values{}
+	if req.Title != "" {
+		queryParams.Set("title", req.Title)
+	}
+	if req.Min != "" {
+		queryParams.Set("min", req.Min)
+	}
+	if req.Max != "" {
+		queryParams.Set("max", req.Max)
+	}
+	for _, cat := range req.Category {
+		queryParams.Add("category", cat)
+	}
+
+	baseQuery := ""
+	if len(queryParams) > 0 {
+		baseQuery = "&" + queryParams.Encode()
 	}
 
 	if page < totalPage {
-		nextPage = fmt.Sprintf("/products?page=%d", page+1)
-		prevPage = fmt.Sprintf("/products?page=%d", page-1)
+		nextPage = fmt.Sprintf("/products?page=%d%s", page+1, baseQuery)
+	}
+	if page > 1 {
+		prevPage = fmt.Sprintf("/products?page=%d%s", page-1, baseQuery)
 	}
 
 	c.JSON(http.StatusOK, dto.ProductResponse{
