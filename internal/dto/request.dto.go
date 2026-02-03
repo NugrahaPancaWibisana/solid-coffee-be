@@ -62,6 +62,7 @@ type UserQueries struct {
 }
 
 type ProductQueries struct {
+	ID       string   `form:"id"`
 	Category []string `form:"category"`
 	Page     string   `form:"page"`
 	Title    string   `form:"title"`
