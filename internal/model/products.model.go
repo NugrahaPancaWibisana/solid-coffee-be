@@ -28,3 +28,14 @@ type DetailProductUser struct {
 	Rating       float64 `db:"rating"`
 	Total_Review int     `db:"total_review"`
 }
+type ProductType struct {
+	Id    int    `json:"id"`
+	Name  string `json:"name"`
+	Price int    `json:"price"`
+}
+
+type ProductSize struct {
+	Id    int    `json:"id"`
+	Name  string `json:"name"`
+	Price int    `json:"price"`
+}

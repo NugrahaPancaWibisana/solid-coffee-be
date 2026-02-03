@@ -21,5 +21,6 @@ func OrderRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	ordersRouter.Use(middleware.AuthMiddleware())
 
 	ordersRouter.POST("/", middleware.RBACMiddleware("user"), ordersController.CreateOrder)
+	ordersRouter.POST("/review", middleware.RBACMiddleware("user"), ordersController.AddReview)
 	adminOrdersRouter.PATCH("/orders/", middleware.RBACMiddleware("admin"), ordersController.UpdateStatusOrder)
 }

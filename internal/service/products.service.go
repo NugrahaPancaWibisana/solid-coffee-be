@@ -2,13 +2,13 @@ package service
 
 import (
 	"context"
-	// "encoding/json"
+	"encoding/json"
 	"errors"
-	// "fmt"
+	"fmt"
 	"log"
-	// "os"
-	// "strings"
-	// "time"
+	"os"
+	"strings"
+	"time"
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/repository"
@@ -31,30 +31,30 @@ func NewProductService(productRepository *repository.ProductRepository, db *pgxp
 }
 
 func (p ProductService) GetAllProducts(ctx context.Context, req dto.ProductQueries) ([]dto.Products, int, error) {
-	// rkey := fmt.Sprintf("%s:products:page=%s:title=%s:min=%s:max=%s:categories=%s",
-	// 	os.Getenv("RDB_KEY"), req.Page, req.Title, req.Min, req.Max, strings.Join(req.Category, ","))
+	rkey := fmt.Sprintf("%s:products:page=%s:title=%s:min=%s:max=%s:categories=%s",
+		os.Getenv("RDB_KEY"), req.Page, req.Title, req.Min, req.Max, strings.Join(req.Category, ","))
 
-	// rsc := p.redis.Get(ctx, rkey)
-	// if rsc.Err() == nil {
-	// 	var result struct {
-	// 		Products  []dto.Products `json:"products"`
-	// 		TotalPage int            `json:"total_page"`
-	// 	}
-	// 	cache, err := rsc.Bytes()
-	// 	if err != nil {
-	// 		log.Println(err)
-	// 	} else {
-	// 		if err := json.Unmarshal(cache, &result); err != nil {
-	// 			log.Println(err.Error())
-	// 		} else {
-	// 			return result.Products, result.TotalPage, nil
-	// 		}
-	// 	}
-	// }
+	rsc := p.redis.Get(ctx, rkey)
+	if rsc.Err() == nil {
+		var result struct {
+			Products  []dto.Products `json:"products"`
+			TotalPage int            `json:"total_page"`
+		}
+		cache, err := rsc.Bytes()
+		if err != nil {
+			log.Println(err)
+		} else {
+			if err := json.Unmarshal(cache, &result); err != nil {
+				log.Println(err.Error())
+			} else {
+				return result.Products, result.TotalPage, nil
+			}
+		}
+	}
 
-	// if rsc.Err() == redis.Nil {
-	// 	log.Println("products cache miss")
-	// }
+	if rsc.Err() == redis.Nil {
+		log.Println("products cache miss")
+	}
 
 	totalPage, err := p.productRepository.GetTotalPage(ctx, p.db, req)
 	if err != nil {
@@ -78,25 +78,25 @@ func (p ProductService) GetAllProducts(ctx context.Context, req dto.ProductQueri
 		})
 	}
 
-	// cacheData := struct {
-	// 	Products  []dto.Products `json:"products"`
-	// 	TotalPage int            `json:"total_page"`
-	// }{
-	// 	Products:  response,
-	// 	TotalPage: totalPage,
-	// }
+	cacheData := struct {
+		Products  []dto.Products `json:"products"`
+		TotalPage int            `json:"total_page"`
+	}{
+		Products:  response,
+		TotalPage: totalPage,
+	}
 
-	// cacheStr, err := json.Marshal(cacheData)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	log.Println("failed to marshal")
-	// }
+	cacheStr, err := json.Marshal(cacheData)
+	if err != nil {
+		log.Println(err)
+		log.Println("failed to marshal")
+	}
 
-	// rdsStatus := p.redis.Set(ctx, rkey, string(cacheStr), time.Minute*10)
-	// if rdsStatus.Err() != nil {
-	// 	log.Println("caching failed")
-	// 	log.Println(rdsStatus.Err().Error())
-	// }
+	rdsStatus := p.redis.Set(ctx, rkey, string(cacheStr), time.Minute*10)
+	if rdsStatus.Err() != nil {
+		log.Println("caching failed")
+		log.Println(rdsStatus.Err().Error())
+	}
 
 	return response, totalPage, nil
 }
@@ -249,6 +249,107 @@ func (p ProductService) GetDetailProductByUserWithId(ctx context.Context, idMenu
 		Discount:     data.Discount,
 		Rating:       data.Rating,
 		Total_Review: data.Total_Review,
+	}
+	return response, nil
+}
+
+func (ps *ProductService) GetAllProductType(ctx context.Context) ([]dto.ProductType, error) {
+	rkey := fmt.Sprintf("%s:product_type", os.Getenv("RDB_KEY"))
+
+	rsc := ps.redis.Get(ctx, rkey)
+	if rsc.Err() == nil {
+		var result []dto.ProductType
+		cache, err := rsc.Bytes()
+		if err != nil {
+			log.Println(err)
+		} else {
+			if err := json.Unmarshal(cache, &result); err != nil {
+				log.Println(err.Error())
+			} else {
+				return result, nil
+			}
+		}
+	}
+
+	if rsc.Err() == redis.Nil {
+		log.Println("product_type cache miss")
+	}
+
+	data, err := ps.productRepository.GetAllProductType(ctx, ps.db)
+	if err != nil {
+		return []dto.ProductType{}, err
+	}
+
+	var response []dto.ProductType
+	for _, v := range data {
+		response = append(response, dto.ProductType{
+			Id:    v.Id,
+			Name:  v.Name,
+			Price: v.Price,
+		})
+	}
+
+	cacheStr, err := json.Marshal(response)
+	if err != nil {
+		log.Println(err)
+		log.Println("failed to marshal")
+	}
+
+	rdsStatus := ps.redis.Set(ctx, rkey, string(cacheStr), time.Minute*10)
+	if rdsStatus.Err() != nil {
+		log.Println("caching failed")
+		log.Println(rdsStatus.Err().Error())
+	}
+
+	return response, nil
+}
+
+func (ps *ProductService) GetAllProductSize(ctx context.Context) ([]dto.ProductSize, error) {
+	rkey := fmt.Sprintf("%s:product_size", os.Getenv("RDB_KEY"))
+
+	rsc := ps.redis.Get(ctx, rkey)
+	if rsc.Err() == nil {
+		var result []dto.ProductSize
+		cache, err := rsc.Bytes()
+		if err != nil {
+			log.Println(err)
+		} else {
+			if err := json.Unmarshal(cache, &result); err != nil {
+				log.Println(err.Error())
+			} else {
+				return result, nil
+			}
+		}
+	}
+
+	if rsc.Err() == redis.Nil {
+		log.Println("product_size cache miss")
+	}
+
+	data, err := ps.productRepository.GetAllProductSize(ctx, ps.db)
+	if err != nil {
+		return []dto.ProductSize{}, err
+	}
+
+	var response []dto.ProductSize
+	for _, v := range data {
+		response = append(response, dto.ProductSize{
+			Id:    v.Id,
+			Name:  v.Name,
+			Price: v.Price,
+		})
+	}
+
+	cacheStr, err := json.Marshal(response)
+	if err != nil {
+		log.Println(err)
+		log.Println("failed to marshal")
+	}
+
+	rdsStatus := ps.redis.Set(ctx, rkey, string(cacheStr), time.Minute*10)
+	if rdsStatus.Err() != nil {
+		log.Println("caching failed")
+		log.Println(rdsStatus.Err().Error())
 	}
 
 	return response, nil

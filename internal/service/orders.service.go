@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/cache"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/repository"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -112,5 +113,17 @@ func (o OrderService) UpdateStatusByOrderId(ctx context.Context, status dto.Upda
 	if cmd.RowsAffected() == 0 {
 		return errors.New("no data deleted")
 	}
+	return nil
+}
+
+func (os *OrderService) AddReview(ctx context.Context, req dto.AddReview, id int, token string) error  {
+	if err := cache.CheckToken(ctx, os.redis, id, token); err != nil {
+		return err
+	}
+
+	if err := os.orderRepository.AddReview(ctx, os.db, req); err != nil {
+		return err
+	}
+
 	return nil
 }

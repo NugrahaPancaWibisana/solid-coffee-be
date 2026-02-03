@@ -65,6 +65,7 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 				AVG(ar.rating_product) AS avg_rating
 			FROM menus m
 			LEFT JOIN avg_rating ar ON ar.idmenu = m.id
+			WHERE m.deleted_at IS NULL
 			GROUP BY m.product_id
 		),
 		product_menu AS (
@@ -73,7 +74,7 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 				m.discount
 			FROM menus m
 			WHERE m.deleted_at IS NULL
-			ORDER BY m.product_id, m.id
+			ORDER BY m.product_id, m.created_at DESC
 		)
 	`)
 
@@ -103,7 +104,8 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 			COALESCE(STRING_AGG(DISTINCT pi.image, ','), '') AS image_products,
 			p.price,
 			pm.discount,
-			COALESCE(par.avg_rating, 0) AS rating_product
+			COALESCE(par.avg_rating, 0) AS rating_product,
+			MIN(p.created_at) AS created_at
 		FROM products p
 		JOIN product_menu pm ON pm.product_id = p.id
 		LEFT JOIN product_avg_rating par ON par.product_id = p.id
@@ -127,13 +129,13 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 	}
 
 	if req.Min != "" {
-		fmt.Fprintf(&sb, " AND (p.price - (p.price * pm.discount / 100)) >= $%d", argCount)
+		fmt.Fprintf(&sb, " AND (p.price - (p.price * pm.discount / 100))::numeric >= $%d::numeric", argCount)
 		args = append(args, req.Min)
 		argCount++
 	}
 
 	if req.Max != "" {
-		fmt.Fprintf(&sb, " AND (p.price - (p.price * pm.discount / 100)) <= $%d", argCount)
+		fmt.Fprintf(&sb, " AND (p.price - (p.price * pm.discount / 100))::numeric <= $%d::numeric", argCount)
 		args = append(args, req.Max)
 		argCount++
 	}
@@ -148,13 +150,13 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 
 	switch sortType {
 	case "Priciest":
-		sb.WriteString(" ORDER BY (p.price - (p.price * pm.discount / 100)) DESC")
+		sb.WriteString(" ORDER BY (p.price - (p.price * pm.discount / 100))::numeric DESC")
 	case "Cheapest":
-		sb.WriteString(" ORDER BY (p.price - (p.price * pm.discount / 100)) ASC")
+		sb.WriteString(" ORDER BY (p.price - (p.price * pm.discount / 100))::numeric ASC")
 	case "Recommended":
 		sb.WriteString(" ORDER BY rating_product DESC")
 	case "Latest":
-		sb.WriteString(" ORDER BY p.created_at DESC")
+		sb.WriteString(" ORDER BY created_at DESC")
 	default:
 		sb.WriteString(" ORDER BY p.id")
 	}
@@ -178,11 +180,11 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 		return nil, err
 	}
 	defer rows.Close()
-	log.Println(rows, query)
 
 	var products []model.Products
 	for rows.Next() {
 		var p model.Products
+		var createdAt any
 
 		err := rows.Scan(
 			&p.Id,
@@ -191,6 +193,7 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 			&p.Price,
 			&p.Discount,
 			&p.Rating,
+			&createdAt,
 		)
 		if err != nil {
 			return nil, err
@@ -222,13 +225,20 @@ func (pr *ProductRepository) GetTotalPage(ctx context.Context, db DBTX, req dto.
 	}
 
 	sb.WriteString(`
+		WITH product_menu AS (
+			SELECT DISTINCT ON (m.product_id)
+				m.product_id,
+				m.discount
+			FROM menus m
+			WHERE m.deleted_at IS NULL
+			ORDER BY m.product_id, m.created_at DESC
+		)
 		SELECT COUNT(DISTINCT p.id)
 		FROM products p
-		JOIN menus m ON m.product_id = p.id
-		LEFT JOIN product_images pi ON pi.product_id = p.id
+		JOIN product_menu pm ON pm.product_id = p.id
 		LEFT JOIN product_categories pc ON pc.product_id = p.id
 		LEFT JOIN categories c ON c.id = pc.category_id
-		WHERE p.deleted_at IS NULL AND m.deleted_at IS NULL
+		WHERE p.deleted_at IS NULL
 	`)
 
 	if len(categoryFilters) > 0 {
@@ -248,13 +258,13 @@ func (pr *ProductRepository) GetTotalPage(ctx context.Context, db DBTX, req dto.
 	}
 
 	if req.Min != "" {
-		fmt.Fprintf(&sb, " AND (p.price - (p.price * m.discount / 100)) >= $%d", argCount)
+		fmt.Fprintf(&sb, " AND (p.price - (p.price * pm.discount / 100))::numeric >= $%d::numeric", argCount)
 		args = append(args, req.Min)
 		argCount++
 	}
 
 	if req.Max != "" {
-		fmt.Fprintf(&sb, " AND (p.price - (p.price * m.discount / 100)) <= $%d", argCount)
+		fmt.Fprintf(&sb, " AND (p.price - (p.price * pm.discount / 100))::numeric <= $%d::numeric", argCount)
 		args = append(args, req.Max)
 		argCount++
 	}
@@ -415,4 +425,88 @@ func (p ProductRepository) GetDetailProductByUserWithId(ctx context.Context, db 
 	}
 
 	return prdDetail, nil
+}
+
+func (pr *ProductRepository) GetAllProductType(ctx context.Context, db DBTX) ([]model.ProductType, error) {
+	sqlStr := `SELECT id, name, price FROM product_type`
+
+	rows, err := db.Query(ctx, sqlStr)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var productTypes []model.ProductType
+	for rows.Next() {
+		var pt model.ProductType
+		if err := rows.Scan(&pt.Id, &pt.Name, &pt.Price); err != nil {
+			return nil, err
+		}
+		productTypes = append(productTypes, pt)
+	}
+
+	return productTypes, rows.Err()
+}
+
+func (pr *ProductRepository) GetAllProductSize(ctx context.Context, db DBTX) ([]model.ProductSize, error) {
+	sqlStr := `SELECT id, name, price FROM product_size`
+
+	rows, err := db.Query(ctx, sqlStr)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var productSizes []model.ProductSize
+	for rows.Next() {
+		var ps model.ProductSize
+		if err := rows.Scan(&ps.Id, &ps.Name, &ps.Price); err != nil {
+			return nil, err
+		}
+		productSizes = append(productSizes, ps)
+	}
+
+	return productSizes, rows.Err()
+}
+
+func (pr *ProductRepository) GetAllProductType(ctx context.Context, db DBTX) ([]model.ProductType, error) {
+	sqlStr := `SELECT id, name, price FROM product_type`
+
+	rows, err := db.Query(ctx, sqlStr)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var productTypes []model.ProductType
+	for rows.Next() {
+		var pt model.ProductType
+		if err := rows.Scan(&pt.Id, &pt.Name, &pt.Price); err != nil {
+			return nil, err
+		}
+		productTypes = append(productTypes, pt)
+	}
+
+	return productTypes, rows.Err()
+}
+
+func (pr *ProductRepository) GetAllProductSize(ctx context.Context, db DBTX) ([]model.ProductSize, error) {
+	sqlStr := `SELECT id, name, price FROM product_size`
+
+	rows, err := db.Query(ctx, sqlStr)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var productSizes []model.ProductSize
+	for rows.Next() {
+		var ps model.ProductSize
+		if err := rows.Scan(&ps.Id, &ps.Name, &ps.Price); err != nil {
+			return nil, err
+		}
+		productSizes = append(productSizes, ps)
+	}
+
+	return productSizes, rows.Err()
 }
