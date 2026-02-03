@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
@@ -179,6 +181,7 @@ func (o OrdersController) AddReview(ctx *gin.Context) {
 //	@Summary	Get all order
 //	@Tags		orders
 //	@Produce	json
+//	@Param		page			query		string		false	"Page Start"
 //	@Success	200		{object}	[]dto.ProductType
 //	@Failure		401		{object}	dto.ResponseError
 //	@Failure	500		{object}	dto.ResponseError
@@ -186,11 +189,43 @@ func (o OrdersController) AddReview(ctx *gin.Context) {
 //
 // @Security	BearerAuth
 func (o *OrdersController) GetAllOrderByAdmin(c *gin.Context) {
-	data, err := o.orderService.GetAllOrderByAdmin(c.Request.Context())
-	if err != nil {
-		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+	var req dto.OrderQueries
+
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.Error(c, http.StatusBadRequest, "Invalid query parameters")
 		return
 	}
 
-	response.Success(c, http.StatusOK, "Orders Retrieved Successfully", data)
+	page := 1
+	if req.Page != "" {
+		page, _ = strconv.Atoi(req.Page)
+		if page < 1 {
+			page = 1
+		}
+	}
+
+	data, totalPage, err := o.orderService.GetAllOrderByAdmin(c, page)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return
+	}
+
+	var nextPage string
+	var prevPage string
+
+	if page < totalPage {
+		nextPage = fmt.Sprintf("/admin/orders?page=%d", page+1)
+	}
+	if page > 1 {
+		prevPage = fmt.Sprintf("/admin/orders?page=%d", page-1)
+	}
+
+	response.SuccessWithMeta(c, http.StatusOK, "Users data Retrieved Successfully", data,
+		dto.PaginationMeta{
+			Page:      page,
+			TotalPage: totalPage,
+			NextPage:  nextPage,
+			PrevPage:  prevPage,
+		},
+	)
 }
