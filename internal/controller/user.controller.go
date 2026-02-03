@@ -9,6 +9,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -377,6 +378,7 @@ func (uc *UserController) InsertUser(ctx *gin.Context) {
 			return
 		}
 
+		log.Println(err)
 		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
@@ -391,9 +393,9 @@ func (uc *UserController) InsertUser(ctx *gin.Context) {
 //	@Tags			user
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			id		path	int	false	"user id"
-//	@Success		201			{object}	dto.ResponseSuccess
-//	@Failure		401			{object}	dto.ResponseError
+//	@Param			id	path		int	false	"user id"
+//	@Success		201	{object}	dto.ResponseSuccess
+//	@Failure		401	{object}	dto.ResponseError
 //	@Router			/admin/user/{id} [delete]
 //	@Security		BearerAuth
 func (uc *UserController) DeleteUser(ctx *gin.Context) {
@@ -421,4 +423,68 @@ func (uc *UserController) DeleteUser(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, http.StatusOK, "User created successfully", nil)
+}
+
+// GetUser godoc
+//
+//	@Summary		Get all user profile
+//	@Description	Get authenticated user's profile information
+//	@Tags			user
+//	@Produce		json
+//	@Param			page	query		string	false	"Page number"
+//	@Success		200		{object}	dto.UserProfileResponse
+//	@Failure		401		{object}	dto.ResponseError
+//	@Router			/admin/user/ [get]
+//	@Security		BearerAuth
+func (uc *UserController) GetUsers(ctx *gin.Context) {
+	var req dto.UserQueries
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		response.Error(ctx, http.StatusBadRequest, "Invalid query parameters")
+		return
+	}
+
+	page := 1
+	if req.Page != "" {
+		page, _ = strconv.Atoi(req.Page)
+		if page < 1 {
+			page = 1
+		}
+	}
+
+	token := strings.Split(ctx.GetHeader("Authorization"), " ")
+	if len(token) != 2 {
+		response.Error(ctx, http.StatusUnauthorized, "Invalid Token")
+		return
+	}
+	if token[0] != "Bearer" {
+		response.Error(ctx, http.StatusUnauthorized, "Invalid Token")
+		return
+	}
+
+	tokenData, _ := ctx.Get("token")
+	accessToken, _ := tokenData.(jwtutil.JwtClaims)
+	data, totalPage, err := uc.userService.GetUsers(ctx, req, accessToken.UserID, token[1])
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return
+	}
+
+	var nextPage string
+	var prevPage string
+
+	if page < totalPage {
+		nextPage = fmt.Sprintf("/admin/users?page=%d", page+1)
+	}
+	if page > 1 {
+		prevPage = fmt.Sprintf("/admin/users?page=%d", page-1)
+	}
+
+	response.SuccessWithMeta(ctx, http.StatusOK, "Users data Retrieved Successfully", data,
+		dto.PaginationMeta{
+			Page:      page,
+			TotalPage: totalPage,
+			NextPage:  nextPage,
+			PrevPage:  prevPage,
+		},
+	)
 }

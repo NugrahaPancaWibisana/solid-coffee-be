@@ -480,6 +480,29 @@ paths:
       tags:
       - products
   /admin/user/:
+    get:
+      description: Get authenticated user's profile information
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserProfileResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get all user profile
+      tags:
+      - user
     post:
       consumes:
       - multipart/form-data
@@ -668,6 +691,10 @@ paths:
   /products/:
     get:
       parameters:
+      - description: Blacklist id product
+        in: query
+        name: id
+        type: string
       - description: Page number
         in: query
         name: page
@@ -684,7 +711,7 @@ paths:
         in: query
         name: max
         type: string
-      - collectionFormat: csv
+      - collectionFormat: multi
         description: Categories filter
         in: query
         items:
