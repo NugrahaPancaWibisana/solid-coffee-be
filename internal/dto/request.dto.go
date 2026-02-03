@@ -118,3 +118,8 @@ type UpdateStatusOrder struct {
 	OrderId string `json:"order_id" binding:"required"`
 	Status  string `json:"status" binding:"required"`
 }
+
+type AddReview struct {
+	DtOrderId int `json:"dt_orderid" binding:"required"`
+	Rating    int `json:"rating" binding:"required"`
+}
