@@ -3,9 +3,11 @@ package repository
 import (
 	"context"
 	"log"
+	"math"
 	"strings"
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/model"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -129,4 +131,58 @@ func (or *OrderRepository) AddReview(ctx context.Context, db DBTX, req dto.AddRe
 	}
 
 	return nil
+}
+
+func (o *OrderRepository) GetAllOrderByAdmin(ctx context.Context, db DBTX, page int) ([]model.Order, error) {
+
+	sqlStr := `
+		SELECT
+			o.id,
+			TO_CHAR(o.created_at, 'DD FMMonth YYYY') AS "date",
+			STRING_AGG(CONCAT('• ' ,p.name, ' - ', dt.qty, 'x'), ', '),
+			o.status,
+			o.total
+		FROM orders o
+		JOIN dt_order dt ON dt.order_id = o.id
+		JOIN menus m ON dt.menu_id = m.id
+		JOIN products p ON p.id = m.product_id
+		GROUP BY o.id LIMIT 5 OFFSET $1
+	`
+
+	offset := 0
+	if page > 0 {
+		offset = (page - 1) * 5
+	}
+
+	rows, err := db.Query(ctx, sqlStr, offset)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []model.Order
+	for rows.Next() {
+		var odr model.Order
+		if err := rows.Scan(&odr.Order_Id, &odr.Date, &odr.Item, &odr.Status, &odr.Total); err != nil {
+			return nil, err
+		}
+		orders = append(orders, odr)
+	}
+
+	return orders, rows.Err()
+
+}
+
+func (o *OrderRepository) GetOrderTotalPages(ctx context.Context, db DBTX) (int, error) {
+	query := "SELECT COUNT(id) FROM orders"
+
+	var order int
+	err := db.QueryRow(ctx, query).Scan(&order)
+	if err != nil {
+		return 0, err
+	}
+
+	totalPage := int(math.Ceil(float64(order) / float64(5)))
+	return totalPage, nil
 }

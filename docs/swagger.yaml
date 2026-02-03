@@ -306,7 +306,7 @@ definitions:
         example: Success
         type: string
     type: object
-host: 192.168.50.221:8080
+host: localhost:8080
 info:
   contact: {}
   description: Solid Coffee Backend RESTful API
@@ -314,6 +314,34 @@ info:
   version: "1.0"
 paths:
   /admin/orders/:
+    get:
+      parameters:
+      - description: Page Start
+        in: query
+        name: page
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ProductType'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get all order
+      tags:
+      - orders
     patch:
       consumes:
       - application/json

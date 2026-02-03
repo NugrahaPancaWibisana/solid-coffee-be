@@ -123,3 +123,7 @@ type AddReview struct {
 	DtOrderId int `json:"dt_orderid" binding:"required"`
 	Rating    int `json:"rating" binding:"required"`
 }
+
+type OrderQueries struct {
+	Page string `json:"page"`
+}

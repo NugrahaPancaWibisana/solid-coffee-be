@@ -116,7 +116,7 @@ func (o OrderService) UpdateStatusByOrderId(ctx context.Context, status dto.Upda
 	return nil
 }
 
-func (os *OrderService) AddReview(ctx context.Context, req dto.AddReview, id int, token string) error  {
+func (os *OrderService) AddReview(ctx context.Context, req dto.AddReview, id int, token string) error {
 	if err := cache.CheckToken(ctx, os.redis, id, token); err != nil {
 		return err
 	}
@@ -126,4 +126,29 @@ func (os *OrderService) AddReview(ctx context.Context, req dto.AddReview, id int
 	}
 
 	return nil
+}
+
+func (o *OrderService) GetAllOrderByAdmin(ctx context.Context, page int) ([]dto.Order, int, error) {
+
+	totalPage, err := o.orderRepository.GetOrderTotalPages(ctx, o.db)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	data, err := o.orderRepository.GetAllOrderByAdmin(ctx, o.db, page)
+	if err != nil {
+		return []dto.Order{}, 0, err
+	}
+
+	var response []dto.Order
+	for _, v := range data {
+		response = append(response, dto.Order{
+			Order_Id: v.Order_Id,
+			Date:     v.Date,
+			Item:     v.Item,
+			Status:   v.Status,
+			Total:    v.Total,
+		})
+	}
+	return response, totalPage, nil
 }
