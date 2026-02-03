@@ -173,3 +173,24 @@ func (o OrdersController) AddReview(ctx *gin.Context) {
 
 	response.Success(ctx, http.StatusOK, "Review Added Successfully", nil)
 }
+
+// Get Order godoc
+//
+//	@Summary	Get all order
+//	@Tags		orders
+//	@Produce	json
+//	@Success	200		{object}	[]dto.ProductType
+//	@Failure		401		{object}	dto.ResponseError
+//	@Failure	500		{object}	dto.ResponseError
+//	@Router		/admin/orders/ [get]
+//
+// @Security	BearerAuth
+func (o *OrdersController) GetAllOrderByAdmin(c *gin.Context) {
+	data, err := o.orderService.GetAllOrderByAdmin(c.Request.Context())
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Orders Retrieved Successfully", data)
+}
