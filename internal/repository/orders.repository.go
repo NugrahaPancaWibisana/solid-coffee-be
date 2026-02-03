@@ -118,3 +118,15 @@ func (o OrderRepository) UpdateStatusByOrderId(ctx context.Context, db DBTX, upd
 	values := []any{strings.ToLower(updt.Status), updt.OrderId}
 	return db.Exec(ctx, sqlStr, values...)
 }
+
+func (or *OrderRepository) AddReview(ctx context.Context, db DBTX, req dto.AddReview) error {
+	query := "INSERT INTO reviews (rating, dt_orderid) VALUES ($1, $2)"
+
+	_, err := db.Exec(ctx, query, req.Rating, req.DtOrderId)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+
+	return nil
+}
