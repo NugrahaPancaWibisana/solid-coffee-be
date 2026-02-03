@@ -456,8 +456,6 @@ func (pc *ProductsController) GetAllProductType(c *gin.Context) {
 		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
-
-	response.SuccessWithMeta(c, http.StatusOK, "Products Retrieved Successfully", data, nil)
 	response.Success(c, http.StatusOK, "Product Types Retrieved Successfully", data)
 }
 
