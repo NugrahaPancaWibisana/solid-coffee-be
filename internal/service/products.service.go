@@ -231,3 +231,25 @@ func (p ProductService) GetProductById(ctx context.Context, idProduct int) (dto.
 
 	return response, nil
 }
+
+func (p ProductService) GetDetailProductByUserWithId(ctx context.Context, idMenu int) (dto.DetailProductUser, error) {
+	var response dto.DetailProductUser
+
+	data, err := p.productRepository.GetDetailProductByUserWithId(ctx, p.db, idMenu)
+	if err != nil {
+		return dto.DetailProductUser{}, err
+	}
+
+	response = dto.DetailProductUser{
+		IdProduct:    data.IdProduct,
+		ProductName:  data.ProductName,
+		Images:       data.Images,
+		Price:        data.Price,
+		Description:  data.Description,
+		Discount:     data.Discount,
+		Rating:       data.Rating,
+		Total_Review: data.Total_Review,
+	}
+
+	return response, nil
+}
