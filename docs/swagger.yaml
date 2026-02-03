@@ -1,13 +1,5 @@
 basePath: /
 definitions:
-  dto.ForgotPasswordRequest:
-    properties:
-      email:
-        example: example123@gmail.com
-        type: string
-    required:
-    - email
-    type: object
   dto.CreateMenuOrder:
     properties:
       menu_id:
@@ -34,6 +26,14 @@ definitions:
     - menus
     - payment_id
     - shipping
+    type: object
+  dto.ForgotPasswordRequest:
+    properties:
+      email:
+        example: example123@gmail.com
+        type: string
+    required:
+    - email
     type: object
   dto.JWT:
     properties:

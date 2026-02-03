@@ -1054,18 +1054,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "dto.ForgotPasswordRequest": {
-            "type": "object",
-            "required": [
-                "email"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "example123@gmail.com"
-                }
-            }
-        },
         "dto.CreateMenuOrder": {
             "type": "object",
             "properties": {
@@ -1103,6 +1091,18 @@ const docTemplate = `{
                 },
                 "shipping": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.ForgotPasswordRequest": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "example123@gmail.com"
                 }
             }
         },
