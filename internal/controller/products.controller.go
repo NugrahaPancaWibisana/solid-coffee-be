@@ -415,3 +415,39 @@ func (p ProductsController) GetDetailProductById(c *gin.Context) {
 	response.SuccessWithMeta(c, http.StatusOK, "Products Retrieved Successfully", data, nil)
 
 }
+
+// Get Product Types godoc
+//
+//	@Summary	Get all product types
+//	@Tags		products
+//	@Produce	json
+//	@Success	200		{object}	[]dto.ProductType
+//	@Failure	500		{object}	dto.ResponseError
+//	@Router		/products/product-types/ [get]
+func (pc *ProductsController) GetAllProductType(c *gin.Context) {
+	data, err := pc.productService.GetAllProductType(c.Request.Context())
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Product Types Retrieved Successfully", data)
+}
+
+// Get Product Sizes godoc
+//
+//	@Summary	Get all product sizes
+//	@Tags		products
+//	@Produce	json
+//	@Success	200		{object}	[]dto.ProductSize
+//	@Failure	500		{object}	dto.ResponseError
+//	@Router		/products/product-sizes/ [get]
+func (pc *ProductsController) GetAllProductSize(c *gin.Context) {
+	data, err := pc.productService.GetAllProductSize(c.Request.Context())
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Product Sizes Retrieved Successfully", data)
+}
