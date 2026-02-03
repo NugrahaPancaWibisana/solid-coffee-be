@@ -152,3 +152,45 @@ func (us *UserService) DeleteUser(ctx context.Context, id, userID int, token str
 
 	return nil
 }
+
+func (us *UserService) GetUsers(ctx context.Context, req dto.UserQueries, id int, token string) ([]dto.User, int, error) {
+	if err := cache.CheckToken(ctx, us.redis, id, token); err != nil {
+		return nil, 0, err
+	}
+
+	tx, err := us.db.Begin(ctx)
+	if err != nil {
+		log.Println(err.Error())
+		return nil, 0, err
+	}
+
+	totalPage, err := us.userRepository.GetUserTotalPages(ctx, tx)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer tx.Rollback(ctx)
+
+	data, err := us.userRepository.GetUsers(ctx, tx, req)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		log.Println("failed to commit", err.Error())
+		return nil, 0, err
+	}
+
+	var response []dto.User
+	for _, v := range data {
+		response = append(response, dto.User{
+			ID:       v.ID,
+			Fullname: v.Fullname,
+			Email:    v.Email,
+			Photo:    v.Photo,
+			Phone:    v.Phone,
+			Address:  v.Address,
+		})
+	}
+
+	return response, totalPage, nil
+}
