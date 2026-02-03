@@ -156,3 +156,105 @@ func (ac *AuthController) Register(ctx *gin.Context) {
 
 	response.Success(ctx, http.StatusCreated, "Registration successful", nil)
 }
+
+// ForgotPassword godoc
+//
+//	@Summary		Request OTP for forgot password
+//	@Description	Send OTP to registered email
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.ForgotPasswordRequest	true	"Forgot password request"
+//	@Success		200		{object}	dto.ResponseSuccess
+//	@Failure		400		{object}	dto.ResponseError
+//	@Failure		500		{object}	dto.ResponseError
+//	@Router			/auth/forgot-password/ [post]
+func (ac *AuthController) ForgotPassword(ctx *gin.Context) {
+	var req dto.ForgotPasswordRequest
+
+	if err := ctx.ShouldBindWith(&req, binding.JSON); err != nil {
+		errStr := err.Error()
+
+		if strings.Contains(errStr, "Email") && strings.Contains(errStr, "required") {
+			response.Error(ctx, http.StatusBadRequest, "Email field cannot be empty")
+			return
+		}
+
+		if strings.Contains(errStr, "Email") && strings.Contains(errStr, "email") {
+			response.Error(ctx, http.StatusBadRequest, "Email must be a valid email address")
+			return
+		}
+
+		response.Error(ctx, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	err := ac.authService.ForgotPassword(ctx, req.Email)
+	if err != nil {
+		if errors.Is(err, apperror.ErrUserNotFound) {
+			response.Success(ctx, http.StatusOK, "If email is registered, OTP will be sent", nil)
+			return
+		}
+
+		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "If email is registered, OTP will be sent", nil)
+}
+
+// UpdateForgotPassword godoc
+//
+//	@Summary		Update password using OTP
+//	@Description	Verify OTP and update user password
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.UpdateForgotPasswordRequest	true	"Update forgot password"
+//	@Success		200		{object}	dto.ResponseSuccess
+//	@Failure		400		{object}	dto.ResponseError
+//	@Failure		500		{object}	dto.ResponseError
+//	@Router			/auth/forgot-password/update [post]
+func (ac *AuthController) UpdateForgotPassword(ctx *gin.Context) {
+	var req dto.UpdateForgotPasswordRequest
+
+	if err := ctx.ShouldBindWith(&req, binding.JSON); err != nil {
+		errStr := err.Error()
+
+		if strings.Contains(errStr, "Otp") && strings.Contains(errStr, "required") {
+			response.Error(ctx, http.StatusBadRequest, "OTP code is required")
+			return
+		}
+
+		if strings.Contains(errStr, "NewPassword") && strings.Contains(errStr, "required") {
+			response.Error(ctx, http.StatusBadRequest, "Password is required")
+			return
+		}
+
+		if strings.Contains(errStr, "NewPassword") && strings.Contains(errStr, "min") {
+			response.Error(ctx, http.StatusBadRequest, "Password must be at least 8 characters")
+			return
+		}
+
+		if strings.Contains(errStr, "ConfirmPassword") && strings.Contains(errStr, "eqfield") {
+			response.Error(ctx, http.StatusBadRequest, "Passwords do not match")
+			return
+		}
+
+		response.Error(ctx, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	err := ac.authService.UpdatePassword(ctx, req)
+	if err != nil {
+		if errors.Is(err, apperror.ErrOTPNotFound) || errors.Is(err, apperror.ErrOTPExpired) {
+			response.Error(ctx, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "Password updated successfully", nil)
+}
