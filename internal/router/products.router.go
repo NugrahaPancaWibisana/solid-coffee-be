@@ -19,6 +19,7 @@ func ProductRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	productController := controller.NewProductsController(productService)
 
 	productsRouter.GET("", productController.GetAllProducts)
+	productsRouter.GET("/:id", productController.GetDetailProductByUserWithId)
 	productsRouter.GET("/product-sizes", productController.GetAllProductSize)
 	productsRouter.GET("/product-types", productController.GetAllProductType)
 
