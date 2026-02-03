@@ -40,6 +40,7 @@ func NewProductsController(productService *service.ProductService) *ProductsCont
 // @Param        max		query string  false  "Maximum price"
 // @Param        category	query []string  false  "Categories filter"
 // @Success      200  {object}  dto.ProductResponse
+// @Failure			401 {object} dto.ResponseError
 // @Failure 		 500 {object} dto.ResponseError
 // @Router       /products/ [get]
 func (p ProductsController) GetAllProducts(c *gin.Context) {
@@ -113,6 +114,7 @@ func (p ProductsController) GetAllProducts(c *gin.Context) {
 // @Param				 description formData string true "Description"
 // @Success      200  {object}  dto.ResponseSuccess
 // @Failure 		 500 {object} dto.ResponseError
+// @Failure			401 {object} dto.ResponseError
 // @Failure			 404 {object} dto.ResponseError
 // @Failure			 400 {object} dto.ResponseError
 // @Router       /admin/products/ [post]
@@ -201,7 +203,9 @@ func (p ProductsController) PostProducts(c *gin.Context) {
 // @Param        price	formData number false  "Price"
 // @Param				 description formData string false "Description"
 // @Success      200  {object}  dto.ResponseSuccess
+// @Failure			401 {object} dto.ResponseError
 // @Failure 		 400 {object} dto.ResponseError
+// @Failure			 404 {object} dto.ResponseError
 // @Failure 		 500 {object} dto.ResponseError
 // @Router       /admin/products/{id} [patch]
 // @security 		 BearerAuth
@@ -273,6 +277,10 @@ func (p ProductsController) UpdateProduct(c *gin.Context) {
 			response.Error(c, http.StatusBadRequest, "Invalid Body")
 			return
 		}
+		if err.Error() == "no rows in result set" {
+			response.Error(c, http.StatusNotFound, "Data Not Found")
+			return
+		}
 		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
@@ -287,6 +295,8 @@ func (p ProductsController) UpdateProduct(c *gin.Context) {
 // @Produce      json
 // @Param        id		path int  true  "Product id"
 // @Success      200  {object}  dto.ResponseSuccess
+// @Failure			401 {object} dto.ResponseError
+// @Failure			 404 {object} dto.ResponseError
 // @Failure 		 400 {object} dto.ResponseError
 // @Failure 		 500 {object} dto.ResponseError
 // @Router       /admin/products/{id} [delete]
@@ -295,12 +305,17 @@ func (p ProductsController) DeleteProductById(c *gin.Context) {
 	id := c.Param("id")
 	strId, _ := strconv.Atoi(id)
 
-	if err := c.ShouldBindUri(id); err != nil {
-		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+	_, isExist := c.Get("token")
+	if !isExist {
+		response.Error(c, http.StatusForbidden, "Forbidden Access")
 		return
 	}
 
 	if err := p.productService.DeleteProductById(c.Request.Context(), strId); err != nil {
+		if err.Error() == "no data deleted" {
+			response.Error(c, http.StatusNotFound, "Data Not Found")
+			return
+		}
 		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
 		return
 	} else {
@@ -315,6 +330,8 @@ func (p ProductsController) DeleteProductById(c *gin.Context) {
 // @Produce      json
 // @Param        id		path int  true  "Image id"
 // @Success      200  {object}  dto.ResponseSuccess
+// @Failure			401 {object} dto.ResponseError
+// @Failure			 404 {object} dto.ResponseError
 // @Failure 		 400 {object} dto.ResponseError
 // @Failure 		 500 {object} dto.ResponseError
 // @Router       /admin/products/image/{id} [delete]
@@ -323,12 +340,17 @@ func (p ProductsController) DeleteProductImageById(c *gin.Context) {
 	id := c.Param("id")
 	strId, _ := strconv.Atoi(id)
 
-	if err := c.ShouldBindUri(id); err != nil {
-		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+	_, isExist := c.Get("token")
+	if !isExist {
+		response.Error(c, http.StatusForbidden, "Forbidden Access")
 		return
 	}
 
 	if err := p.productService.DeleteProductImageById(c.Request.Context(), strId); err != nil {
+		if err.Error() == "no data deleted" {
+			response.Error(c, http.StatusNotFound, "Data Not Found")
+			return
+		}
 		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
 		return
 	} else {
@@ -342,23 +364,26 @@ func (p ProductsController) DeleteProductImageById(c *gin.Context) {
 // @Produce      json
 // @Param        id		path int  true  "Id"
 // @Success      200  {object}  dto.Products
+// @Failure			401 {object} dto.ResponseError
+// @Failure			404 {object} dto.ResponseError
 // @Failure 		 500 {object} dto.ResponseError
 // @Router       /admin/products/{id} [get]
 // @security		BearerAuth
 func (p ProductsController) GetDetailProductById(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	if err := c.ShouldBindUri(id); err != nil {
-		str := err.Error()
-		if strings.Contains(str, "Empty") {
-			response.Error(c, http.StatusBadRequest, "Invalid Body")
-			return
-		}
-		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
-		return
-	}
 	data, err := p.productService.GetProductById(c.Request.Context(), id)
 
+	_, isExist := c.Get("token")
+	if !isExist {
+		response.Error(c, http.StatusForbidden, "Forbidden Access")
+		return
+	}
+
 	if err != nil {
+		if err.Error() == "no rows in result set" {
+			response.Error(c, http.StatusNotFound, "Data Not Found")
+			return
+		}
 		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
