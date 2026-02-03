@@ -1,5 +1,13 @@
 basePath: /
 definitions:
+  dto.ForgotPasswordRequest:
+    properties:
+      email:
+        example: example123@gmail.com
+        type: string
+    required:
+    - email
+    type: object
   dto.JWT:
     properties:
       token:
@@ -121,6 +129,24 @@ definitions:
       status:
         example: Success
         type: string
+    type: object
+  dto.UpdateForgotPasswordRequest:
+    properties:
+      confirm_password:
+        example: example123
+        type: string
+      otp_code:
+        example: "123456"
+        maxLength: 6
+        type: string
+      password:
+        example: example123
+        minLength: 8
+        type: string
+    required:
+    - confirm_password
+    - otp_code
+    - password
     type: object
   dto.UpdatePasswordRequest:
     properties:
@@ -505,6 +531,66 @@ paths:
           schema:
             $ref: '#/definitions/dto.ResponseError'
       summary: User login
+      tags:
+      - auth
+  /auth/forgot-password/:
+    post:
+      consumes:
+      - application/json
+      description: Send OTP to registered email
+      parameters:
+      - description: Forgot password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      summary: Request OTP for forgot password
+      tags:
+      - auth
+  /auth/forgot-password/update:
+    post:
+      consumes:
+      - application/json
+      description: Verify OTP and update user password
+      parameters:
+      - description: Update forgot password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      summary: Update password using OTP
       tags:
       - auth
   /auth/new/:

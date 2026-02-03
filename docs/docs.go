@@ -517,6 +517,98 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/forgot-password/": {
+            "post": {
+                "description": "Send OTP to registered email",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Request OTP for forgot password",
+                "parameters": [
+                    {
+                        "description": "Forgot password request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ForgotPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/forgot-password/update": {
+            "post": {
+                "description": "Verify OTP and update user password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Update password using OTP",
+                "parameters": [
+                    {
+                        "description": "Update forgot password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateForgotPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/new/": {
             "post": {
                 "description": "Create a new user account",
@@ -778,6 +870,18 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.ForgotPasswordRequest": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "example123@gmail.com"
+                }
+            }
+        },
         "dto.JWT": {
             "type": "object",
             "properties": {
@@ -951,6 +1055,30 @@ const docTemplate = `{
                 "status": {
                     "type": "string",
                     "example": "Success"
+                }
+            }
+        },
+        "dto.UpdateForgotPasswordRequest": {
+            "type": "object",
+            "required": [
+                "confirm_password",
+                "otp_code",
+                "password"
+            ],
+            "properties": {
+                "confirm_password": {
+                    "type": "string",
+                    "example": "example123"
+                },
+                "otp_code": {
+                    "type": "string",
+                    "maxLength": 6,
+                    "example": "123456"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "example": "example123"
                 }
             }
         },
