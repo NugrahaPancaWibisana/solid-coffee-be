@@ -69,3 +69,13 @@ type ProductQueries struct {
 	Min      string   `form:"min"`
 	Max      string   `form:"max"`
 }
+
+type ForgotPasswordRequest struct {
+	Email string `json:"email" binding:"required,email" example:"example123@gmail.com"`
+}
+
+type UpdateForgotPasswordRequest struct {
+	Otp             string `json:"otp_code" binding:"required,max=6" example:"123456"`
+	NewPassword     string `json:"password" binding:"required,min=8" example:"example123"`
+	ConfirmPassword string `json:"confirm_password" binding:"required,eqfield=NewPassword" example:"example123"`
+}
