@@ -385,7 +385,7 @@ func (p ProductsController) DeleteProductImageById(c *gin.Context) {
 //	@Tags		products
 //	@Produce	json
 //	@Param		id	path		int	true	"Id"
-//	@Success	200	{object}	dto.Products
+//	@Success	200	{object}	dto.DetailProduct
 //
 // @Failure			401 {object} dto.ResponseError
 // @Failure			404 {object} dto.ResponseError
@@ -416,6 +416,32 @@ func (p ProductsController) GetDetailProductById(c *gin.Context) {
 
 }
 
+// Get detail products by Id godoc
+//
+//	@Summary	Get detail products by id
+//	@Tags		products
+//	@Produce	json
+//	@Param		id	path		int	true	"Id"
+//	@Success	200	{object}	dto.DetailProductUser
+//
+// @Failure			401 {object} dto.ResponseError
+// @Failure			404 {object} dto.ResponseError
+//
+//	@Failure	500	{object}	dto.ResponseError
+//	@Router		/products/{id} [get]
+func (p ProductsController) GetDetailProductByUserWithId(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	data, err := p.productService.GetDetailProductByUserWithId(c.Request.Context(), id)
+
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			response.Error(c, http.StatusNotFound, "Data Not Found")
+			return
+		}
+	}
+	response.Success(c, http.StatusOK, "Detail Products Retrieved Successfully", data)
+}
+
 // Get Product Types godoc
 //
 //	@Summary	Get all product types
@@ -430,7 +456,6 @@ func (pc *ProductsController) GetAllProductType(c *gin.Context) {
 		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
-
 	response.Success(c, http.StatusOK, "Product Types Retrieved Successfully", data)
 }
 
