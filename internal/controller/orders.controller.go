@@ -114,3 +114,62 @@ func (o OrdersController) UpdateStatusOrder(c *gin.Context) {
 	}
 	response.Success(c, http.StatusOK, "Status Order Updated Successfully", nil)
 }
+
+// AddReview godoc
+//
+//	@Summary		Add review to order
+//	@Tags			orders
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.AddReview	true	"Add review"
+//	@Success		200		{object}	dto.ResponseSuccess
+//	@Failure		400		{object}	dto.ResponseError
+//	@Failure		401		{object}	dto.ResponseError
+//	@Failure		403		{object}	dto.ResponseError
+//	@Failure		500		{object}	dto.ResponseError
+//	@Router			/orders/review/ [post]
+//	@Security		BearerAuth
+func (o OrdersController) AddReview(ctx *gin.Context) {
+	var req dto.AddReview
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		errStr := err.Error()
+
+		if strings.Contains(errStr, "DtOrderId") && strings.Contains(errStr, "required") {
+			response.Error(ctx, http.StatusBadRequest, "Detail Order ID is required")
+			return
+		}
+
+		if strings.Contains(errStr, "Rating") && strings.Contains(errStr, "required") {
+			response.Error(ctx, http.StatusBadRequest, "Rating is required")
+			return
+		}
+
+		response.Error(ctx, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	token := strings.Split(ctx.GetHeader("Authorization"), " ")
+	if len(token) != 2 {
+		response.Error(ctx, http.StatusUnauthorized, "Invalid Token")
+		return
+	}
+	if token[0] != "Bearer" {
+		response.Error(ctx, http.StatusUnauthorized, "Invalid Token")
+		return
+	}
+
+	tokenData, _ := ctx.Get("token")
+	accessToken, _ := tokenData.(jwtutil.JwtClaims)
+
+	if err := o.orderService.AddReview(ctx.Request.Context(), req, accessToken.UserID, token[2]); err != nil {
+		if err.Error() == "no rows in result set" {
+			response.Error(ctx, http.StatusNotFound, "Order Not Found")
+			return
+		}
+		response.Error(ctx, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "Review Added Successfully", nil)
+}
