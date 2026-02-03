@@ -315,6 +315,11 @@ info:
 paths:
   /admin/orders/:
     get:
+      parameters:
+      - description: Page Start
+        in: query
+        name: page
+        type: string
       produces:
       - application/json
       responses:

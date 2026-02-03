@@ -29,6 +29,14 @@ const docTemplate = `{
                     "orders"
                 ],
                 "summary": "Get all order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Page Start",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
