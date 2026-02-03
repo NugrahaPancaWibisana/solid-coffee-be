@@ -57,6 +57,10 @@ type UserParams struct {
 	ID int `uri:"id"`
 }
 
+type UserQueries struct {
+	Page string `form:"page"`
+}
+
 type ProductQueries struct {
 	Category []string `form:"category"`
 	Page     string   `form:"page"`
