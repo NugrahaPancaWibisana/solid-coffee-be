@@ -42,7 +42,7 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 
 	for _, cat := range req.Category {
 		if specialCategories[cat] {
-			if sortType == "" { 
+			if sortType == "" {
 				sortType = cat
 			}
 		} else {
@@ -84,7 +84,7 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 			JOIN product_categories pc ON pc.product_id = p.id
 			JOIN categories c ON c.id = pc.category_id
 			WHERE c.name IN (`)
-		
+
 		placeholders := []string{}
 		for _, cat := range categoryFilters {
 			placeholders = append(placeholders, fmt.Sprintf("$%d", argCount))
@@ -138,6 +138,12 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 		argCount++
 	}
 
+	if req.ID != "" {
+		fmt.Fprintf(&sb, " AND p.id != $%d", argCount)
+		args = append(args, req.ID)
+		argCount++
+	}
+
 	sb.WriteString(" GROUP BY p.id, p.name, p.price, pm.discount, par.avg_rating")
 
 	switch sortType {
@@ -172,6 +178,7 @@ func (pr *ProductRepository) GetProducts(ctx context.Context, db DBTX, req dto.P
 		return nil, err
 	}
 	defer rows.Close()
+	log.Println(rows, query)
 
 	var products []model.Products
 	for rows.Next() {
