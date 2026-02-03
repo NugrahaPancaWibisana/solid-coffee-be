@@ -152,3 +152,27 @@ func (o *OrderService) GetAllOrderByAdmin(ctx context.Context, page int) ([]dto.
 	}
 	return response, totalPage, nil
 }
+
+func (o *OrderService) GetHistoryByUser(ctx context.Context, page int, userId int) ([]dto.History, int, error) {
+
+	totalPage, err := o.orderRepository.GetHistoryTotalPages(ctx, o.db, userId)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	data, err := o.orderRepository.GetHistoryByUser(ctx, o.db, page, userId)
+	if err != nil {
+		return []dto.History{}, 0, err
+	}
+
+	var response []dto.History
+	for _, v := range data {
+		response = append(response, dto.History{
+			Order_Id: v.Order_Id,
+			Date:     v.Date,
+			Status:   v.Status,
+			Total:    v.Total,
+		})
+	}
+	return response, totalPage, nil
+}

@@ -186,3 +186,57 @@ func (o *OrderRepository) GetOrderTotalPages(ctx context.Context, db DBTX) (int,
 	totalPage := int(math.Ceil(float64(order) / float64(5)))
 	return totalPage, nil
 }
+
+func (o *OrderRepository) GetHistoryByUser(ctx context.Context, db DBTX, page int, userId int) ([]model.History, error) {
+
+	sqlStr := `
+		SELECT
+		o.id,
+		TO_CHAR(o.created_at, 'DD FMMonth YYYY') AS "date",	
+		o.total,
+		o.status
+		FROM orders o
+		JOIN dt_order dt ON dt.order_id = o.id
+		JOIN menus m ON dt.menu_id = m.id
+		JOIN products p ON p.id = m.product_id
+		WHERE user_id = $1
+		GROUP BY o.id LIMIT 5 OFFSET $2;
+	`
+
+	offset := 0
+	if page > 0 {
+		offset = (page - 1) * 5
+	}
+
+	rows, err := db.Query(ctx, sqlStr, userId, offset)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var histories []model.History
+	for rows.Next() {
+		var history model.History
+		if err := rows.Scan(&history.Order_Id, &history.Date, &history.Total, &history.Status); err != nil {
+			return nil, err
+		}
+		histories = append(histories, history)
+	}
+
+	return histories, rows.Err()
+
+}
+
+func (o *OrderRepository) GetHistoryTotalPages(ctx context.Context, db DBTX, userId int) (int, error) {
+	query := "SELECT COUNT(id) FROM orders WHERE user_id = $1"
+
+	var hist int
+	err := db.QueryRow(ctx, query, userId).Scan(&hist)
+	if err != nil {
+		return 0, err
+	}
+
+	totalPage := int(math.Ceil(float64(hist) / float64(5)))
+	return totalPage, nil
+}

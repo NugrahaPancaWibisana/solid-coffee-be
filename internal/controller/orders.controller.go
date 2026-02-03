@@ -220,7 +220,71 @@ func (o *OrdersController) GetAllOrderByAdmin(c *gin.Context) {
 		prevPage = fmt.Sprintf("/admin/orders?page=%d", page-1)
 	}
 
-	response.SuccessWithMeta(c, http.StatusOK, "Users data Retrieved Successfully", data,
+	response.SuccessWithMeta(c, http.StatusOK, "Orders data Retrieved Successfully", data,
+		dto.PaginationMeta{
+			Page:      page,
+			TotalPage: totalPage,
+			NextPage:  nextPage,
+			PrevPage:  prevPage,
+		},
+	)
+}
+
+// Get Order godoc
+//
+//	@Summary	Get all history
+//	@Tags		orders
+//	@Produce	json
+//	@Param		page			query		string		true	"Page Start"
+//	@Success	200		{object}	[]dto.History
+//	@Failure		401		{object}	dto.ResponseError
+//	@Failure	500		{object}	dto.ResponseError
+//	@Router		/orders/history [get]
+//
+// @Security	BearerAuth
+func (o *OrdersController) GetHistoryByUser(c *gin.Context) {
+	var req dto.HistoryQueries
+
+	token, isExist := c.Get("token")
+	if !isExist {
+		response.Error(c, http.StatusForbidden, "Forbidden Access")
+		return
+	}
+
+	accessToken, _ := token.(jwtutil.JwtClaims)
+
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.Error(c, http.StatusBadRequest, "Invalid query parameters")
+		return
+	}
+
+	userId := accessToken.UserID
+
+	page := 1
+	if req.Page != "" {
+		page, _ = strconv.Atoi(req.Page)
+		if page < 1 {
+			page = 1
+		}
+	}
+
+	data, totalPage, err := o.orderService.GetHistoryByUser(c, page, userId)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return
+	}
+
+	var nextPage string
+	var prevPage string
+
+	if page < totalPage {
+		nextPage = fmt.Sprintf("/history?page=%d", page+1)
+	}
+	if page > 1 {
+		prevPage = fmt.Sprintf("/history?page=%d", page-1)
+	}
+
+	response.SuccessWithMeta(c, http.StatusOK, "History data Retrieved Successfully", data,
 		dto.PaginationMeta{
 			Page:      page,
 			TotalPage: totalPage,
