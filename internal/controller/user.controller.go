@@ -393,9 +393,9 @@ func (uc *UserController) InsertUser(ctx *gin.Context) {
 //	@Tags			user
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			id		path	int	false	"user id"
-//	@Success		201			{object}	dto.ResponseSuccess
-//	@Failure		401			{object}	dto.ResponseError
+//	@Param			id	path		int	false	"user id"
+//	@Success		201	{object}	dto.ResponseSuccess
+//	@Failure		401	{object}	dto.ResponseError
 //	@Router			/admin/user/{id} [delete]
 //	@Security		BearerAuth
 func (uc *UserController) DeleteUser(ctx *gin.Context) {
@@ -431,9 +431,9 @@ func (uc *UserController) DeleteUser(ctx *gin.Context) {
 //	@Description	Get authenticated user's profile information
 //	@Tags			user
 //	@Produce		json
-//	@Param        page		query string  false  "Page number"
-//	@Success		200	{object}	dto.UserProfileResponse
-//	@Failure		401	{object}	dto.ResponseError
+//	@Param			page	query		string	false	"Page number"
+//	@Success		200		{object}	dto.UserProfileResponse
+//	@Failure		401		{object}	dto.ResponseError
 //	@Router			/admin/user/ [get]
 //	@Security		BearerAuth
 func (uc *UserController) GetUsers(ctx *gin.Context) {

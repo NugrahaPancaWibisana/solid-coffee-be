@@ -31,17 +31,19 @@ func NewProductsController(productService *service.ProductService) *ProductsCont
 }
 
 // Get Products By Status godoc
-// @Summary      Get all products
-// @Tags         products
-// @Produce      json
-// @Param        page		query string  false  "Page number"
-// @Param        title		query string  false  "Product title search"
-// @Param        min		query string  false  "Minimum price"
-// @Param        max		query string  false  "Maximum price"
-// @Param        category	query []string  false  "Categories filter"	collectionFormat(multi)
-// @Success      200  {object}  dto.ProductResponse
-// @Failure 		 500 {object} dto.ResponseError
-// @Router       /products/ [get]
+//
+//	@Summary	Get all products
+//	@Tags		products
+//	@Produce	json
+//	@Param		id			query		string		false	"Blacklist id product"
+//	@Param		page		query		string		false	"Page number"
+//	@Param		title		query		string		false	"Product title search"
+//	@Param		min			query		string		false	"Minimum price"
+//	@Param		max			query		string		false	"Maximum price"
+//	@Param		category	query		[]string	false	"Categories filter"	collectionFormat(multi)
+//	@Success	200			{object}	dto.ProductResponse
+//	@Failure	500			{object}	dto.ResponseError
+//	@Router		/products/ [get]
 func (p ProductsController) GetAllProducts(c *gin.Context) {
 	var req dto.ProductQueries
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -76,6 +78,9 @@ func (p ProductsController) GetAllProducts(c *gin.Context) {
 	if req.Max != "" {
 		queryParams.Set("max", req.Max)
 	}
+	// if req.ID != "" {
+	// 	queryParams.Set("id", req.ID)
+	// }
 	for _, cat := range req.Category {
 		queryParams.Add("category", cat)
 	}
@@ -103,20 +108,21 @@ func (p ProductsController) GetAllProducts(c *gin.Context) {
 }
 
 // Post Product godoc
-// @Summary      Post product
-// @Tags         products
-// @accept			 multipart/form-data
-// @Produce      json
-// @Param        images_file	formData []file true  "Product images"
-// @Param        product_name	formData string true  "Products name"
-// @Param        price	formData number true  "Price"
-// @Param				 description formData string true "Description"
-// @Success      200  {object}  dto.ResponseSuccess
-// @Failure 		 500 {object} dto.ResponseError
-// @Failure			 404 {object} dto.ResponseError
-// @Failure			 400 {object} dto.ResponseError
-// @Router       /admin/products/ [post]
-// @Security			BearerAuth
+//
+//	@Summary	Post product
+//	@Tags		products
+//	@accept		multipart/form-data
+//	@Produce	json
+//	@Param		images_file		formData	[]file	true	"Product images"
+//	@Param		product_name	formData	string	true	"Products name"
+//	@Param		price			formData	number	true	"Price"
+//	@Param		description		formData	string	true	"Description"
+//	@Success	200				{object}	dto.ResponseSuccess
+//	@Failure	500				{object}	dto.ResponseError
+//	@Failure	404				{object}	dto.ResponseError
+//	@Failure	400				{object}	dto.ResponseError
+//	@Router		/admin/products/ [post]
+//	@Security	BearerAuth
 func (p ProductsController) PostProducts(c *gin.Context) {
 	const maxSize = 2 * 1024 * 1024
 	var postImages dto.PostImagesRequest
@@ -191,20 +197,21 @@ func (p ProductsController) PostProducts(c *gin.Context) {
 }
 
 // UpdateProduct godoc
-// @Summary      Update product
-// @Tags         products
-// @Accept       multipart/form-data
-// @Produce      json
-// @Param        id		path int  true  "Product Id"
-// @Param        images_file	formData []file false  "Product images"
-// @Param        product_name	formData string false  "Products name"
-// @Param        price	formData number false  "Price"
-// @Param				 description formData string false "Description"
-// @Success      200  {object}  dto.ResponseSuccess
-// @Failure 		 400 {object} dto.ResponseError
-// @Failure 		 500 {object} dto.ResponseError
-// @Router       /admin/products/{id} [patch]
-// @security 		 BearerAuth
+//
+//	@Summary	Update product
+//	@Tags		products
+//	@Accept		multipart/form-data
+//	@Produce	json
+//	@Param		id				path		int		true	"Product Id"
+//	@Param		images_file		formData	[]file	false	"Product images"
+//	@Param		product_name	formData	string	false	"Products name"
+//	@Param		price			formData	number	false	"Price"
+//	@Param		description		formData	string	false	"Description"
+//	@Success	200				{object}	dto.ResponseSuccess
+//	@Failure	400				{object}	dto.ResponseError
+//	@Failure	500				{object}	dto.ResponseError
+//	@Router		/admin/products/{id} [patch]
+//	@security	BearerAuth
 func (p ProductsController) UpdateProduct(c *gin.Context) {
 	id := c.Param("id")
 	strId, _ := strconv.Atoi(id)
@@ -281,16 +288,17 @@ func (p ProductsController) UpdateProduct(c *gin.Context) {
 }
 
 // UpdateProduct godoc
-// @Summary      Delete product
-// @Tags         products
-// @Accept       json
-// @Produce      json
-// @Param        id		path int  true  "Product id"
-// @Success      200  {object}  dto.ResponseSuccess
-// @Failure 		 400 {object} dto.ResponseError
-// @Failure 		 500 {object} dto.ResponseError
-// @Router       /admin/products/{id} [delete]
-// @security 		 BearerAuth
+//
+//	@Summary	Delete product
+//	@Tags		products
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		int	true	"Product id"
+//	@Success	200	{object}	dto.ResponseSuccess
+//	@Failure	400	{object}	dto.ResponseError
+//	@Failure	500	{object}	dto.ResponseError
+//	@Router		/admin/products/{id} [delete]
+//	@security	BearerAuth
 func (p ProductsController) DeleteProductById(c *gin.Context) {
 	id := c.Param("id")
 	strId, _ := strconv.Atoi(id)
@@ -309,16 +317,17 @@ func (p ProductsController) DeleteProductById(c *gin.Context) {
 }
 
 // UpdateProduct godoc
-// @Summary      Delete product image
-// @Tags         products
-// @Accept       json
-// @Produce      json
-// @Param        id		path int  true  "Image id"
-// @Success      200  {object}  dto.ResponseSuccess
-// @Failure 		 400 {object} dto.ResponseError
-// @Failure 		 500 {object} dto.ResponseError
-// @Router       /admin/products/image/{id} [delete]
-// @security 		 BearerAuth
+//
+//	@Summary	Delete product image
+//	@Tags		products
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		int	true	"Image id"
+//	@Success	200	{object}	dto.ResponseSuccess
+//	@Failure	400	{object}	dto.ResponseError
+//	@Failure	500	{object}	dto.ResponseError
+//	@Router		/admin/products/image/{id} [delete]
+//	@security	BearerAuth
 func (p ProductsController) DeleteProductImageById(c *gin.Context) {
 	id := c.Param("id")
 	strId, _ := strconv.Atoi(id)
@@ -337,14 +346,15 @@ func (p ProductsController) DeleteProductImageById(c *gin.Context) {
 }
 
 // Get detail products by Id godoc
-// @Summary      Get detail products by id
-// @Tags         products
-// @Produce      json
-// @Param        id		path int  true  "Id"
-// @Success      200  {object}  dto.Products
-// @Failure 		 500 {object} dto.ResponseError
-// @Router       /admin/products/{id} [get]
-// @security		BearerAuth
+//
+//	@Summary	Get detail products by id
+//	@Tags		products
+//	@Produce	json
+//	@Param		id	path		int	true	"Id"
+//	@Success	200	{object}	dto.Products
+//	@Failure	500	{object}	dto.ResponseError
+//	@Router		/admin/products/{id} [get]
+//	@security	BearerAuth
 func (p ProductsController) GetDetailProductById(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	if err := c.ShouldBindUri(id); err != nil {
