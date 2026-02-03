@@ -21,6 +21,14 @@ type UpdateProfileRequest struct {
 	Address  string                `form:"address" binding:"omitempty,min=3" example:"Jakarta"`
 }
 
+type UpdateUserRequest struct {
+	ID       int                   `form:"id" binding:"required" example:"1"`
+	Photo    *multipart.FileHeader `form:"photo"`
+	Fullname string                `form:"fullname" binding:"omitempty,min=3" example:"John Doe"`
+	Phone    string                `form:"phone" binding:"omitempty,min=3" example:"08123456789"`
+	Address  string                `form:"address" binding:"omitempty,min=3" example:"Jakarta"`
+}
+
 type UpdatePasswordRequest struct {
 	OldPassword string `json:"old_password" binding:"required,min=8" example:"example123"`
 	NewPassword string `json:"new_password" binding:"required,min=8,nefield=OldPassword" example:"example321"`

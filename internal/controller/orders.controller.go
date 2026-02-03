@@ -162,7 +162,7 @@ func (o OrdersController) AddReview(ctx *gin.Context) {
 	tokenData, _ := ctx.Get("token")
 	accessToken, _ := tokenData.(jwtutil.JwtClaims)
 
-	if err := o.orderService.AddReview(ctx.Request.Context(), req, accessToken.UserID, token[2]); err != nil {
+	if err := o.orderService.AddReview(ctx.Request.Context(), req, accessToken.UserID, token[1]); err != nil {
 		if err.Error() == "no rows in result set" {
 			response.Error(ctx, http.StatusNotFound, "Order Not Found")
 			return
