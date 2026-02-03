@@ -2,8 +2,13 @@ package service
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
+	"math/rand"
+	"os"
 	"regexp"
+	"time"
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/apperror"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/cache"
@@ -105,6 +110,55 @@ func (as *AuthService) Register(ctx context.Context, req dto.RegisterRequest) er
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (as *AuthService) ForgotPassword(ctx context.Context, email string) error {
+	err := as.authRepository.CheckEmailExists(ctx, as.db, email)
+	if err != nil {
+		return err
+	}
+
+	otp := make([]byte, 6)
+	for i := range otp {
+		otp[i] = byte('0' + rand.Intn(10))
+	}
+
+	rkey := fmt.Sprintf("%s:forgot-password:%s", os.Getenv("RDB_KEY"), string(otp))
+
+	status := as.redis.Set(ctx, rkey, email, time.Minute*5)
+	log.Println(string(otp))
+	log.Println(status.Args()...)
+	if status.Err() != nil {
+		log.Println("caching failed:", status.Err())
+	}
+
+	return nil
+}
+
+func (as *AuthService) UpdatePassword(ctx context.Context, req dto.UpdateForgotPasswordRequest) error {
+	rkey := fmt.Sprintf("%s:forgot-password:%s", os.Getenv("RDB_KEY"), req.Otp)
+
+	email, err := as.redis.Get(ctx, rkey).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return apperror.ErrOTPNotFound
+		}
+		return err
+	}
+
+	hasher := hashutil.Default()
+	newHashedPassword, err := hasher.Hash(req.NewPassword)
+	if err != nil {
+		return err
+	}
+
+	if err := as.authRepository.UpdatePassword(ctx, as.db, email, newHashedPassword); err != nil {
+		return err
+	}
+
+	as.redis.Del(ctx, rkey)
 
 	return nil
 }

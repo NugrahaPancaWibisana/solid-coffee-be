@@ -18,4 +18,6 @@ func AuthRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 
 	authRouter.POST("/", authController.Login)
 	authRouter.POST("/new", authController.Register)
+	authRouter.POST("/forgot-password", authController.ForgotPassword)
+	authRouter.POST("/forgot-password/update", authController.UpdateForgotPassword)
 }
