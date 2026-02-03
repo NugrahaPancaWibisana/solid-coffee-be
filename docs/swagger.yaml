@@ -27,6 +27,44 @@ definitions:
     - payment_id
     - shipping
     type: object
+  dto.DetailProduct:
+    properties:
+      description:
+        type: string
+      id_images:
+        items:
+          type: string
+        type: array
+      id_product:
+        type: integer
+      images:
+        items:
+          type: string
+        type: array
+      price:
+        type: number
+      product_name:
+        type: string
+    type: object
+  dto.DetailProductUser:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      id_product:
+        type: integer
+      images:
+        type: string
+      price:
+        type: number
+      product_name:
+        type: string
+      rating:
+        type: number
+      total_review:
+        type: integer
+    type: object
   dto.JWT:
     properties:
       token:
@@ -367,7 +405,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.Products'
+            $ref: '#/definitions/dto.DetailProduct'
         "401":
           description: Unauthorized
           schema:
@@ -734,6 +772,36 @@ paths:
           schema:
             $ref: '#/definitions/dto.ResponseError'
       summary: Get all products
+      tags:
+      - products
+  /products/{id}:
+    get:
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DetailProductUser'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      summary: Get detail products by id
       tags:
       - products
   /user/:
