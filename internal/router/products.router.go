@@ -19,6 +19,8 @@ func ProductRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	productController := controller.NewProductsController(productService)
 
 	productsRouter.GET("", productController.GetAllProducts)
+	productsRouter.GET("/product-sizes", productController.GetAllProductSize)
+	productsRouter.GET("/product-types", productController.GetAllProductType)
 
 	adminProductsRouter.Use(middleware.AuthMiddleware())
 	adminProductsRouter.GET("/products/:id", middleware.RBACMiddleware("admin"), productController.GetDetailProductById)
@@ -26,4 +28,5 @@ func ProductRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	adminProductsRouter.PATCH("/products/:id", middleware.RBACMiddleware("admin"), productController.UpdateProduct)
 	adminProductsRouter.DELETE("/products/:id", middleware.RBACMiddleware("admin"), productController.DeleteProductById)
 	adminProductsRouter.DELETE("/products/image/:id", middleware.RBACMiddleware("admin"), productController.DeleteProductImageById)
+
 }
