@@ -1,5 +1,32 @@
 basePath: /
 definitions:
+  dto.CreateMenuOrder:
+    properties:
+      menu_id:
+        type: integer
+      product_size_id:
+        type: integer
+      product_type_id:
+        type: integer
+      qty:
+        type: integer
+    type: object
+  dto.CreateOrder:
+    properties:
+      menus:
+        description: Status   string            `json:"status" binding:"required"`
+        items:
+          $ref: '#/definitions/dto.CreateMenuOrder'
+        type: array
+      payment_id:
+        type: integer
+      shipping:
+        type: string
+    required:
+    - menus
+    - payment_id
+    - shipping
+    type: object
   dto.JWT:
     properties:
       token:
@@ -136,6 +163,16 @@ definitions:
     - new_password
     - old_password
     type: object
+  dto.UpdateStatusOrder:
+    properties:
+      order_id:
+        type: string
+      status:
+        type: string
+    required:
+    - order_id
+    - status
+    type: object
   dto.User:
     properties:
       address:
@@ -184,6 +221,45 @@ info:
   title: Solid Coffee Backend
   version: "1.0"
 paths:
+  /admin/orders/:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Update status order
+        in: body
+        name: orders
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateStatusOrder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Update status
+      tags:
+      - orders
   /admin/products/:
     post:
       consumes:
@@ -223,6 +299,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
         "404":
           description: Not Found
           schema:
@@ -257,6 +337,14 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -280,6 +368,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.Products'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -328,6 +424,14 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -356,6 +460,14 @@ paths:
             $ref: '#/definitions/dto.ResponseSuccess'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/dto.ResponseError'
         "500":
@@ -537,6 +649,45 @@ paths:
       summary: Register new user
       tags:
       - auth
+  /orders/:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Create order
+        in: body
+        name: movies
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateOrder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Create order
+      tags:
+      - orders
   /products/:
     get:
       parameters:
@@ -574,6 +725,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ProductResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
         "500":
           description: Internal Server Error
           schema:
