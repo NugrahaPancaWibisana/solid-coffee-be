@@ -385,3 +385,45 @@ func (p ProductRepository) GetProductById(ctx context.Context, db DBTX, idProduc
 
 	return prdDetail, nil
 }
+
+func (pr *ProductRepository) GetAllProductType(ctx context.Context, db DBTX) ([]model.ProductType, error) {
+	sqlStr := `SELECT id, name, price FROM product_type`
+
+	rows, err := db.Query(ctx, sqlStr)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var productTypes []model.ProductType
+	for rows.Next() {
+		var pt model.ProductType
+		if err := rows.Scan(&pt.Id, &pt.Name, &pt.Price); err != nil {
+			return nil, err
+		}
+		productTypes = append(productTypes, pt)
+	}
+
+	return productTypes, rows.Err()
+}
+
+func (pr *ProductRepository) GetAllProductSize(ctx context.Context, db DBTX) ([]model.ProductSize, error) {
+	sqlStr := `SELECT id, name, price FROM product_size`
+
+	rows, err := db.Query(ctx, sqlStr)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var productSizes []model.ProductSize
+	for rows.Next() {
+		var ps model.ProductSize
+		if err := rows.Scan(&ps.Id, &ps.Name, &ps.Price); err != nil {
+			return nil, err
+		}
+		productSizes = append(productSizes, ps)
+	}
+
+	return productSizes, rows.Err()
+}
