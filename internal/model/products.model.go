@@ -17,3 +17,15 @@ type DetailProduct struct {
 	IdImages    []string `db:"id_images"`
 	Images      []string `db:"images"`
 }
+
+type ProductType struct {
+	Id    int    `json:"id"`
+	Name  string `json:"name"`
+	Price int    `json:"price"`
+}
+
+type ProductSize struct {
+	Id    int    `json:"id"`
+	Name  string `json:"name"`
+	Price int    `json:"price"`
+}
