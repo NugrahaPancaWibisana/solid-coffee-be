@@ -11,5 +11,6 @@ var (
 	ErrGetProfile       = errors.New("failed to get user profile")
 	ErrProfileNotFound  = errors.New("user profile not found")
 	ErrInsertUser       = errors.New("failed to insert user")
-	ErrDeleteUser       = errors.New("Failed to delete user")
+	ErrDeleteUser       = errors.New("failed to delete user")
+	ErrGetUsers         = errors.New("failed to get users")
 )
