@@ -540,6 +540,10 @@ paths:
   /products/:
     get:
       parameters:
+      - description: Blacklist id product
+        in: query
+        name: id
+        type: string
       - description: Page number
         in: query
         name: page

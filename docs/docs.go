@@ -575,6 +575,12 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Blacklist id product",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "Page number",
                         "name": "page",
                         "in": "query"
