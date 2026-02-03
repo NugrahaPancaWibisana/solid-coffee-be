@@ -64,3 +64,42 @@ type ProductQueries struct {
 	Min      string   `form:"min"`
 	Max      string   `form:"max"`
 }
+
+type CreateOrder struct {
+	Shipping   string `json:"shipping" binding:"required"`
+	Payment_Id int    `json:"payment_id" binding:"required"`
+	// Status   string            `json:"status" binding:"required"`
+	Menus []CreateMenuOrder `json:"menus" binding:"required"`
+}
+
+type CreateDetailOrder struct {
+	OrderId       string  `json:"order_id"`
+	MenuId        int     `json:"menu_id"`
+	Qty           int     `json:"qty"`
+	ProductSizeId int     `json:"product_size_id"`
+	ProductTypeId int     `json:"product_type_id"`
+	Subtotal      float64 `json:"subtotal"`
+}
+
+type CreateMenuOrder struct {
+	MenuId        int `json:"menu_id"`
+	Qty           int `json:"qty"`
+	ProductSizeId int `json:"product_size_id"`
+	ProductTypeId int `json:"product_type_id"`
+}
+
+type UpdateOrder struct {
+	OrderId string  `json:"order_id" binding:"required"`
+	Tax     float64 `json:"tax" binding:"required"`
+	Total   float64 `json:"total" binding:"required"`
+}
+
+type UpdateStock struct {
+	MenuId int `json:"menu_id"`
+	Stock  int `json:"stock"`
+}
+
+type UpdateStatusOrder struct {
+	OrderId string `json:"order_id" binding:"required"`
+	Status  string `json:"status" binding:"required"`
+}

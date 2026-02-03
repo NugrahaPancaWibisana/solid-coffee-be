@@ -45,3 +45,21 @@ type UserProfileResponse struct {
 type UpdateProductResponse struct {
 	Id int `json:"id,omitempty"`
 }
+
+type MenuPriceResponse struct {
+	Menu_Id  int     `json:"menu_id,omitempty"`
+	Price    float64 `json:"price,omitempty"`
+	Discount float64 `json:"discount,omitempty"`
+	Stock    int     `json:"stock,omitempty"`
+}
+type CreateOrderResponse struct {
+	Id_Order string  `json:"id,omitempty"`
+	Tax      float64 `json:"tax,omitempty"`
+	Total    float64 `json:"total,omitempty"`
+}
+
+type CreateDetailOrderResponse struct {
+	Qty      int     `json:"qty,omitempty"`
+	Subtotal float64 `json:"subtotal,omitempty"`
+	MenuId   int     `json:"menu_id,omitempty"`
+}
