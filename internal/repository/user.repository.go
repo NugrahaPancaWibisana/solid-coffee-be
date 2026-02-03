@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
+	"strconv"
 	"strings"
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/apperror"
@@ -193,8 +195,70 @@ func (ur *UserRepository) DeleteUser(ctx context.Context, db DBTX, id int) error
 	_, err := db.Exec(ctx, query, id)
 	if err != nil {
 		log.Println(err.Error())
-		return apperror.ErrDeleteUser 
+		return apperror.ErrDeleteUser
 	}
 
 	return nil
+}
+
+func (ur *UserRepository) GetUsers(ctx context.Context, db DBTX, req dto.UserQueries) ([]model.User, error) {
+	query := `
+		SELECT
+		    id,
+		    fullname,
+		    email,
+		    photo,
+		    phone,
+		    address
+		FROM users
+		LIMIT 5
+		OFFSET $1
+	`
+
+	offset := 0
+	if req.Page != "" {
+		page, _ := strconv.Atoi(req.Page)
+		if page > 0 {
+			offset = (page - 1) * 5
+		}
+	}
+
+	rows, err := db.Query(ctx, query, offset)
+	if err != nil {
+		log.Println("GetUsers error:", err.Error())
+		return nil, apperror.ErrGetUsers
+	}
+	defer rows.Close()
+
+	var users []model.User
+	for rows.Next() {
+		var u model.User
+		if err := rows.Scan(
+			&u.ID,
+			&u.Fullname,
+			&u.Email,
+			&u.Photo,
+			&u.Phone,
+			&u.Address,
+		); err != nil {
+			log.Println("Scan error:", err.Error())
+			return nil, apperror.ErrGetUsers
+		}
+		users = append(users, u)
+	}
+
+	return users, nil
+}
+
+func (ur *UserRepository) GetUserTotalPages(ctx context.Context, db DBTX) (int, error) {
+	query := "SELECT COUNT(DISTINCT id) FROM users"
+
+	var user int
+	err := db.QueryRow(ctx, query).Scan(&user)
+	if err != nil {
+		return 0, err
+	}
+
+	totalPage := int(math.Ceil(float64(user) / float64(5)))
+	return totalPage, nil
 }

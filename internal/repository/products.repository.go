@@ -200,7 +200,6 @@ func (pr *ProductRepository) GetTotalPage(ctx context.Context, db DBTX, req dto.
 	args := []any{}
 	argCount := 1
 
-	// Pisahkan category filter (exclude special categories)
 	var categoryFilters []string
 	specialCategories := map[string]bool{
 		"Priciest":    true,
@@ -211,7 +210,7 @@ func (pr *ProductRepository) GetTotalPage(ctx context.Context, db DBTX, req dto.
 
 	for _, cat := range req.Category {
 		if !specialCategories[cat] {
-			categoryFilters = append(categoryFilters, cat) // category biasa bisa banyak
+			categoryFilters = append(categoryFilters, cat)
 		}
 	}
 
@@ -225,7 +224,6 @@ func (pr *ProductRepository) GetTotalPage(ctx context.Context, db DBTX, req dto.
 		WHERE p.deleted_at IS NULL AND m.deleted_at IS NULL
 	`)
 
-	// Filter by normal categories - BISA BANYAK
 	if len(categoryFilters) > 0 {
 		placeholders := []string{}
 		for _, cat := range categoryFilters {
