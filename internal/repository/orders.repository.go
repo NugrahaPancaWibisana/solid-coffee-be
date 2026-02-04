@@ -239,6 +239,8 @@ func (o *OrderRepository) GetHistoryTotalPages(ctx context.Context, db DBTX, use
 
 	totalPage := int(math.Ceil(float64(hist) / float64(5)))
 	return totalPage, nil
+}
+
 func (o *OrderRepository) GetProductType(ctx context.Context, db DBTX, id int) (model.ProductType, error) {
 	sqlStr := `SELECT id, name, price FROM product_type WHERE id = $1`
 
