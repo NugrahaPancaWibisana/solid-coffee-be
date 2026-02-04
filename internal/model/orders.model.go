@@ -7,3 +7,10 @@ type Order struct {
 	Status   string  `db:"status"`
 	Total    float32 `db:"total"`
 }
+
+type History struct {
+	Order_Id string  `db:"order_id"`
+	Date     string  `db:"date"`
+	Total    float32 `db:"total"`
+	Status   string  `db:"status"`
+}

@@ -83,6 +83,17 @@ definitions:
     required:
     - email
     type: object
+  dto.History:
+    properties:
+      date:
+        type: string
+      order_id:
+        type: string
+      status:
+        type: string
+      total:
+        type: number
+    type: object
   dto.JWT:
     properties:
       token:
@@ -866,6 +877,36 @@ paths:
       security:
       - BearerAuth: []
       summary: Create order
+      tags:
+      - orders
+  /orders/history:
+    get:
+      parameters:
+      - description: Page Start
+        in: query
+        name: page
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.History'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get all history
       tags:
       - orders
   /orders/review/:

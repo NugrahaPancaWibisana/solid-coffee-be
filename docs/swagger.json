@@ -872,6 +872,54 @@
                 }
             }
         },
+        "/orders/history": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Get all history",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Page Start",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.History"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/orders/review/": {
             "post": {
                 "security": [
@@ -1379,6 +1427,23 @@
                 "email": {
                     "type": "string",
                     "example": "example123@gmail.com"
+                }
+            }
+        },
+        "dto.History": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "number"
                 }
             }
         },
