@@ -25,18 +25,19 @@ func NewOrdersController(orderService *service.OrderService) *OrdersController {
 }
 
 // Post Product godoc
-// @Summary      Create order
-// @Tags         orders
-// @accept			 json
-// @Produce      json
-// @Param        movies	 body dto.CreateOrder  true  "Create order"
-// @Success      200  {object}  dto.ResponseSuccess
-// @Failure 		 500 {object} dto.ResponseError
-// @Failure			 404 {object} dto.ResponseError
-// @Failure			 400 {object} dto.ResponseError
-// @Failure			 401 {object} dto.ResponseError
-// @Router       /orders/ [post]
-// @Security			BearerAuth
+//
+//	@Summary	Create order
+//	@Tags		Orders
+//	@accept		json
+//	@Produce	json
+//	@Param		movies	body		dto.CreateOrder	true	"Create order"
+//	@Success	200		{object}	dto.ResponseSuccess
+//	@Failure	500		{object}	dto.ResponseError
+//	@Failure	404		{object}	dto.ResponseError
+//	@Failure	400		{object}	dto.ResponseError
+//	@Failure	401		{object}	dto.ResponseError
+//	@Router		/orders/ [post]
+//	@Security	BearerAuth
 func (o OrdersController) CreateOrder(c *gin.Context) {
 
 	var createOrder dto.CreateOrder
@@ -74,18 +75,19 @@ func (o OrdersController) CreateOrder(c *gin.Context) {
 }
 
 // UpdateProduct godoc
-// @Summary      Update status
-// @Tags         orders
-// @Accept       json
-// @Produce      json
-// @Param        orders	 body dto.UpdateStatusOrder  true  "Update status order"
-// @Success      200  {object}  dto.ResponseSuccess
-// @Failure			401 {object} dto.ResponseError
-// @Failure 		 400 {object} dto.ResponseError
-// @Failure			 404 {object} dto.ResponseError
-// @Failure 		 500 {object} dto.ResponseError
-// @Router       /admin/orders/ [patch]
-// @security 		 BearerAuth
+//
+//	@Summary	Update status
+//	@Tags		Orders
+//	@Accept		json
+//	@Produce	json
+//	@Param		orders	body		dto.UpdateStatusOrder	true	"Update status order"
+//	@Success	200		{object}	dto.ResponseSuccess
+//	@Failure	401		{object}	dto.ResponseError
+//	@Failure	400		{object}	dto.ResponseError
+//	@Failure	404		{object}	dto.ResponseError
+//	@Failure	500		{object}	dto.ResponseError
+//	@Router		/admin/orders/ [patch]
+//	@security	BearerAuth
 func (o OrdersController) UpdateStatusOrder(c *gin.Context) {
 	var updtStatus dto.UpdateStatusOrder
 
@@ -119,18 +121,18 @@ func (o OrdersController) UpdateStatusOrder(c *gin.Context) {
 
 // AddReview godoc
 //
-//	@Summary		Add review to order
-//	@Tags			orders
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		dto.AddReview	true	"Add review"
-//	@Success		200		{object}	dto.ResponseSuccess
-//	@Failure		400		{object}	dto.ResponseError
-//	@Failure		401		{object}	dto.ResponseError
-//	@Failure		403		{object}	dto.ResponseError
-//	@Failure		500		{object}	dto.ResponseError
-//	@Router			/orders/review/ [post]
-//	@Security		BearerAuth
+//	@Summary	Add review to order
+//	@Tags		Admin Order Management
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.AddReview	true	"Add review"
+//	@Success	200		{object}	dto.ResponseSuccess
+//	@Failure	400		{object}	dto.ResponseError
+//	@Failure	401		{object}	dto.ResponseError
+//	@Failure	403		{object}	dto.ResponseError
+//	@Failure	500		{object}	dto.ResponseError
+//	@Router		/orders/review/ [post]
+//	@Security	BearerAuth
 func (o OrdersController) AddReview(ctx *gin.Context) {
 	var req dto.AddReview
 
@@ -179,15 +181,14 @@ func (o OrdersController) AddReview(ctx *gin.Context) {
 // Get Order godoc
 //
 //	@Summary	Get all order
-//	@Tags		orders
+//	@Tags		Admin Order Management
 //	@Produce	json
-//	@Param		page			query		string		false	"Page Start"
+//	@Param		page	query		string	false	"Page Start"
 //	@Success	200		{object}	[]dto.ProductType
-//	@Failure		401		{object}	dto.ResponseError
+//	@Failure	401		{object}	dto.ResponseError
 //	@Failure	500		{object}	dto.ResponseError
 //	@Router		/admin/orders/ [get]
-//
-// @Security	BearerAuth
+//	@Security	BearerAuth
 func (o *OrdersController) GetAllOrderByAdmin(c *gin.Context) {
 	var req dto.OrderQueries
 
@@ -233,15 +234,14 @@ func (o *OrdersController) GetAllOrderByAdmin(c *gin.Context) {
 // Get Order godoc
 //
 //	@Summary	Get all history
-//	@Tags		orders
+//	@Tags		Orders
 //	@Produce	json
-//	@Param		page			query		string		true	"Page Start"
+//	@Param		page	query		string	true	"Page Start"
 //	@Success	200		{object}	[]dto.History
-//	@Failure		401		{object}	dto.ResponseError
+//	@Failure	401		{object}	dto.ResponseError
 //	@Failure	500		{object}	dto.ResponseError
 //	@Router		/orders/history [get]
-//
-// @Security	BearerAuth
+//	@Security	BearerAuth
 func (o *OrdersController) GetHistoryByUser(c *gin.Context) {
 	var req dto.HistoryQueries
 

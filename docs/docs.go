@@ -26,7 +26,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "Admin Order Management"
                 ],
                 "summary": "Get all order",
                 "parameters": [
@@ -74,7 +74,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "Orders"
                 ],
                 "summary": "Update status",
                 "parameters": [
@@ -136,7 +136,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Admin Product Management"
                 ],
                 "summary": "Post product",
                 "parameters": [
@@ -221,7 +221,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Admin Product Management"
                 ],
                 "summary": "Delete product image",
                 "parameters": [
@@ -278,7 +278,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Admin Product Management"
                 ],
                 "summary": "Get detail products by id",
                 "parameters": [
@@ -330,7 +330,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Admin Product Management"
                 ],
                 "summary": "Delete product",
                 "parameters": [
@@ -388,7 +388,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Admin Product Management"
                 ],
                 "summary": "Update product",
                 "parameters": [
@@ -474,7 +474,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Admin User Management"
                 ],
                 "summary": "Get all user profile",
                 "parameters": [
@@ -514,7 +514,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Admin User Management"
                 ],
                 "summary": "Insert user profile",
                 "parameters": [
@@ -588,6 +588,48 @@ const docTemplate = `{
                         }
                     }
                 }
+            }
+        },
+        "/admin/user/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete authenticated user's profile information",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin User Management"
+                ],
+                "summary": "Delete user profile",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
             },
             "patch": {
                 "security": [
@@ -603,7 +645,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Admin User Management"
                 ],
                 "summary": "Update user profile",
                 "parameters": [
@@ -611,8 +653,7 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "user id",
                         "name": "id",
-                        "in": "formData",
-                        "required": true
+                        "in": "path"
                     },
                     {
                         "type": "file",
@@ -661,48 +702,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/user/{id}": {
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Delete authenticated user's profile information",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Delete user profile",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "user id",
-                        "name": "id",
-                        "in": "path"
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ResponseSuccess"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ResponseError"
-                        }
-                    }
-                }
-            }
-        },
         "/auth/": {
             "post": {
                 "description": "Authenticate user with email and password",
@@ -713,7 +712,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "User login",
                 "parameters": [
@@ -759,7 +758,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Request OTP for forgot password",
                 "parameters": [
@@ -805,7 +804,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Update password using OTP",
                 "parameters": [
@@ -851,7 +850,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Register new user",
                 "parameters": [
@@ -901,7 +900,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "Orders"
                 ],
                 "summary": "Create order",
                 "parameters": [
@@ -960,7 +959,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "Orders"
                 ],
                 "summary": "Get all history",
                 "parameters": [
@@ -1011,7 +1010,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "Admin Order Management"
                 ],
                 "summary": "Add review to order",
                 "parameters": [
@@ -1065,7 +1064,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Products"
                 ],
                 "summary": "Get all products",
                 "parameters": [
@@ -1138,7 +1137,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Products"
                 ],
                 "summary": "Get all product sizes",
                 "responses": {
@@ -1166,7 +1165,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Products"
                 ],
                 "summary": "Get all product types",
                 "responses": {
@@ -1194,7 +1193,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Products"
                 ],
                 "summary": "Get detail products by id",
                 "parameters": [
@@ -1246,7 +1245,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Users"
                 ],
                 "summary": "Get user profile",
                 "responses": {
@@ -1278,7 +1277,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Users"
                 ],
                 "summary": "Update user profile",
                 "parameters": [
@@ -1344,7 +1343,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Users"
                 ],
                 "summary": "Change user password",
                 "parameters": [

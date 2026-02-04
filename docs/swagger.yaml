@@ -352,7 +352,7 @@ paths:
       - BearerAuth: []
       summary: Get all order
       tags:
-      - orders
+      - Admin Order Management
     patch:
       consumes:
       - application/json
@@ -390,7 +390,7 @@ paths:
       - BearerAuth: []
       summary: Update status
       tags:
-      - orders
+      - Orders
   /admin/products/:
     post:
       consumes:
@@ -446,7 +446,7 @@ paths:
       - BearerAuth: []
       summary: Post product
       tags:
-      - products
+      - Admin Product Management
   /admin/products/{id}:
     delete:
       consumes:
@@ -484,7 +484,7 @@ paths:
       - BearerAuth: []
       summary: Delete product
       tags:
-      - products
+      - Admin Product Management
     get:
       parameters:
       - description: Id
@@ -515,7 +515,7 @@ paths:
       - BearerAuth: []
       summary: Get detail products by id
       tags:
-      - products
+      - Admin Product Management
     patch:
       consumes:
       - multipart/form-data
@@ -571,7 +571,7 @@ paths:
       - BearerAuth: []
       summary: Update product
       tags:
-      - products
+      - Admin Product Management
   /admin/products/image/{id}:
     delete:
       consumes:
@@ -609,7 +609,7 @@ paths:
       - BearerAuth: []
       summary: Delete product image
       tags:
-      - products
+      - Admin Product Management
   /admin/user/:
     get:
       description: Get authenticated user's profile information
@@ -633,53 +633,7 @@ paths:
       - BearerAuth: []
       summary: Get all user profile
       tags:
-      - user
-    patch:
-      consumes:
-      - multipart/form-data
-      description: Update authenticated user's profile information
-      parameters:
-      - description: user id
-        in: formData
-        name: id
-        required: true
-        type: integer
-      - description: Profile photo
-        in: formData
-        name: photo
-        type: file
-      - description: Full name (min 3 chars)
-        in: formData
-        name: fullname
-        type: string
-      - description: Phone number (min 3 chars)
-        in: formData
-        name: phone
-        type: string
-      - description: Address (min 3 chars)
-        in: formData
-        name: address
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ResponseSuccess'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ResponseError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dto.ResponseError'
-      security:
-      - BearerAuth: []
-      summary: Update user profile
-      tags:
-      - user
+      - Admin User Management
     post:
       consumes:
       - multipart/form-data
@@ -739,7 +693,7 @@ paths:
       - BearerAuth: []
       summary: Insert user profile
       tags:
-      - user
+      - Admin User Management
   /admin/user/{id}:
     delete:
       consumes:
@@ -765,7 +719,52 @@ paths:
       - BearerAuth: []
       summary: Delete user profile
       tags:
-      - user
+      - Admin User Management
+    patch:
+      consumes:
+      - multipart/form-data
+      description: Update authenticated user's profile information
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        type: integer
+      - description: Profile photo
+        in: formData
+        name: photo
+        type: file
+      - description: Full name (min 3 chars)
+        in: formData
+        name: fullname
+        type: string
+      - description: Phone number (min 3 chars)
+        in: formData
+        name: phone
+        type: string
+      - description: Address (min 3 chars)
+        in: formData
+        name: address
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - Admin User Management
   /auth/:
     post:
       consumes:
@@ -795,7 +794,7 @@ paths:
             $ref: '#/definitions/dto.ResponseError'
       summary: User login
       tags:
-      - auth
+      - Auth
   /auth/forgot-password/:
     post:
       consumes:
@@ -825,7 +824,7 @@ paths:
             $ref: '#/definitions/dto.ResponseError'
       summary: Request OTP for forgot password
       tags:
-      - auth
+      - Auth
   /auth/forgot-password/update:
     post:
       consumes:
@@ -855,7 +854,7 @@ paths:
             $ref: '#/definitions/dto.ResponseError'
       summary: Update password using OTP
       tags:
-      - auth
+      - Auth
   /auth/new/:
     post:
       consumes:
@@ -885,7 +884,7 @@ paths:
             $ref: '#/definitions/dto.ResponseError'
       summary: Register new user
       tags:
-      - auth
+      - Auth
   /orders/:
     post:
       consumes:
@@ -924,7 +923,7 @@ paths:
       - BearerAuth: []
       summary: Create order
       tags:
-      - orders
+      - Orders
   /orders/history:
     get:
       parameters:
@@ -954,7 +953,7 @@ paths:
       - BearerAuth: []
       summary: Get all history
       tags:
-      - orders
+      - Orders
   /orders/review/:
     post:
       consumes:
@@ -993,7 +992,7 @@ paths:
       - BearerAuth: []
       summary: Add review to order
       tags:
-      - orders
+      - Admin Order Management
   /products/:
     get:
       parameters:
@@ -1041,7 +1040,7 @@ paths:
             $ref: '#/definitions/dto.ResponseError'
       summary: Get all products
       tags:
-      - products
+      - Products
   /products/{id}:
     get:
       parameters:
@@ -1071,7 +1070,7 @@ paths:
             $ref: '#/definitions/dto.ResponseError'
       summary: Get detail products by id
       tags:
-      - products
+      - Products
   /products/product-sizes/:
     get:
       produces:
@@ -1089,7 +1088,7 @@ paths:
             $ref: '#/definitions/dto.ResponseError'
       summary: Get all product sizes
       tags:
-      - products
+      - Products
   /products/product-types/:
     get:
       produces:
@@ -1107,7 +1106,7 @@ paths:
             $ref: '#/definitions/dto.ResponseError'
       summary: Get all product types
       tags:
-      - products
+      - Products
   /user/:
     get:
       description: Get authenticated user's profile information
@@ -1126,7 +1125,7 @@ paths:
       - BearerAuth: []
       summary: Get user profile
       tags:
-      - user
+      - Users
     patch:
       consumes:
       - multipart/form-data
@@ -1167,7 +1166,7 @@ paths:
       - BearerAuth: []
       summary: Update user profile
       tags:
-      - user
+      - Users
   /user/password/:
     patch:
       consumes:
@@ -1199,7 +1198,7 @@ paths:
       - BearerAuth: []
       summary: Change user password
       tags:
-      - user
+      - Users
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.
