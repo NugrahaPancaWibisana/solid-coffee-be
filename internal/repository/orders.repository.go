@@ -239,4 +239,35 @@ func (o *OrderRepository) GetHistoryTotalPages(ctx context.Context, db DBTX, use
 
 	totalPage := int(math.Ceil(float64(hist) / float64(5)))
 	return totalPage, nil
+func (o *OrderRepository) GetProductType(ctx context.Context, db DBTX, id int) (model.ProductType, error) {
+	sqlStr := `SELECT id, name, price FROM product_type WHERE id = $1`
+
+	rows, err := db.Query(ctx, sqlStr, id)
+	if err != nil {
+		return model.ProductType{}, err
+	}
+	defer rows.Close()
+
+	var pt model.ProductType
+	if err := rows.Scan(&pt.Id, &pt.Name, &pt.Price); err != nil {
+		return model.ProductType{}, err
+	}
+	return pt, rows.Err()
+}
+
+func (o *OrderRepository) GetProductSize(ctx context.Context, db DBTX, id int) (model.ProductSize, error) {
+	sqlStr := `SELECT id, name, price FROM product_size WHERE id = $1`
+
+	rows, err := db.Query(ctx, sqlStr, id)
+	if err != nil {
+		return model.ProductSize{}, err
+	}
+	defer rows.Close()
+
+	var ps model.ProductSize
+	if err := rows.Scan(&ps.Id, &ps.Name, &ps.Price); err != nil {
+		return model.ProductSize{}, err
+	}
+
+	return ps, rows.Err()
 }
