@@ -176,3 +176,17 @@ func (o *OrderService) GetHistoryByUser(ctx context.Context, page int, userId in
 	}
 	return response, totalPage, nil
 }
+
+// func (o OrderService) GetDetailHistoryById(ctx context.Context, idOrder string) (dto.DetailOrder, error) {
+// 	var response dto.DetailOrder
+
+// 	data, err := o.orderRepository.GetDetailHistoryById(ctx, o.db, idOrder)
+// 	if err != nil {
+// 		return dto.DetailOrder{}, err
+// 	}
+
+// 	response = dto.DetailOrder{
+// 		Order_Id: data.Order_Id,
+// 	}
+// 	return response, nil
+// }

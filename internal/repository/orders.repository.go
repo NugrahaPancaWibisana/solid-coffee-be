@@ -240,3 +240,44 @@ func (o *OrderRepository) GetHistoryTotalPages(ctx context.Context, db DBTX, use
 	totalPage := int(math.Ceil(float64(hist) / float64(5)))
 	return totalPage, nil
 }
+
+// func (o OrderRepository) GetDetailHistoryById(ctx context.Context, db DBTX, idOrder string) (model.DetailOrder, error) {
+// 	sqlStr := `
+// 		WITH avg_rating AS (
+//   			SELECT AVG(r.rating) AS "rating_product",
+//   			d.menu_id AS "idmenu"
+//   	FROM reviews r
+//   	JOIN dt_order d ON d.id = r.id
+//   	JOIN menus m ON m.id = d.menu_id
+//   	GROUP BY d.menu_id
+// 	)
+
+// 		SELECT
+// 			p.id,
+//     	p.name,
+//     	string_agg(pi.image, ',') AS "image product",
+//     	p.price,
+// 			p.description,
+//     	CAST(m.discount AS FLOAT4),
+//     	COALESCE(ar."rating_product",0),
+// 			COUNT(ar."idmenu") AS "count reviews"
+//   	FROM menus m
+//   	LEFT JOIN avg_rating ar ON ar."idmenu"= m.id
+//   	LEFT JOIN products p ON p.id = m.product_id
+//   	LEFT JOIN product_images pi ON pi.product_id = m.product_id
+// 		WHERE m.id = $1
+//   	GROUP BY p.id, m.id, ar."rating_product"
+// 	`
+
+// 	values := []any{idOrder}
+// 	row := db.QueryRow(ctx, sqlStr, values...)
+
+// 	var prdDetail model.DetailProductUser
+
+// 	if err := row.Scan(&prdDetail.IdProduct, &prdDetail.ProductName, &prdDetail.Images, &prdDetail.Price, &prdDetail.Description, &prdDetail.Discount, &prdDetail.Rating, &prdDetail.Total_Review); err != nil {
+// 		log.Println(err.Error())
+// 		return model.DetailProductUser{}, err
+// 	}
+
+// 	return prdDetail, nil
+// }
