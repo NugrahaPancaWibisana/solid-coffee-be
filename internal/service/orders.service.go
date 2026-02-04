@@ -48,14 +48,18 @@ func (o OrderService) CreateOrder(ctx context.Context, order dto.CreateOrder, us
 		var dt dto.CreateDetailOrder
 		dt.OrderId = dataOrder.Id_Order
 		dt.MenuId = order.Menus[i].MenuId
-		dt.ProductSizeId = order.Menus[i].ProductSizeId
 		discount := dataMenu.Price * dataMenu.Discount
-		dt.Subtotal = ((dataMenu.Price - discount) * float64(order.Menus[i].Qty))
+
+		dt.ProductSizeId = order.Menus[i].ProductSizeId
 		dt.ProductTypeId = order.Menus[i].ProductTypeId
+
+		priceSize, err := o.orderRepository.GetProductSize(ctx, tx, dt.ProductSizeId)
+		priceType, err := o.orderRepository.GetProductType(ctx, tx, dt.ProductTypeId)
+
+		dt.Subtotal = ((dataMenu.Price - discount) * float64(order.Menus[i].Qty)) + float64(priceSize.Price) + float64(priceType.Price)
 		dt.Qty = order.Menus[i].Qty
 
 		stockUpdt := dataMenu.Stock - order.Menus[i].Qty
-
 		totalSub = totalSub + dt.Subtotal
 
 		var updtStock dto.UpdateStock
