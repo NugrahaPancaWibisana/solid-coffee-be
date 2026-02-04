@@ -27,4 +27,5 @@ func UserRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	adminUserRouter.POST("/", userController.InsertUser)
 	adminUserRouter.DELETE("/:id", userController.DeleteUser)
 	adminUserRouter.GET("/", userController.GetUsers)
+	adminUserRouter.PATCH("/", userController.UpdateProfileAdmin)
 }
