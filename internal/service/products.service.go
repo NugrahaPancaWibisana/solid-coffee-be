@@ -354,3 +354,54 @@ func (ps *ProductService) GetAllProductSize(ctx context.Context) ([]dto.ProductS
 
 	return response, nil
 }
+
+func (ps *ProductService) GetAllProductByAdmin(ctx context.Context) ([]dto.ProductSize, error) {
+	rkey := fmt.Sprintf("%s:product_admin", os.Getenv("RDB_KEY"))
+
+	rsc := ps.redis.Get(ctx, rkey)
+	if rsc.Err() == nil {
+		var result []dto.ProductSize
+		cache, err := rsc.Bytes()
+		if err != nil {
+			log.Println(err)
+		} else {
+			if err := json.Unmarshal(cache, &result); err != nil {
+				log.Println(err.Error())
+			} else {
+				return result, nil
+			}
+		}
+	}
+
+	if rsc.Err() == redis.Nil {
+		log.Println("product_size cache miss")
+	}
+
+	data, err := ps.productRepository.GetAllProductSize(ctx, ps.db)
+	if err != nil {
+		return []dto.ProductSize{}, err
+	}
+
+	var response []dto.ProductSize
+	for _, v := range data {
+		response = append(response, dto.ProductSize{
+			Id:    v.Id,
+			Name:  v.Name,
+			Price: v.Price,
+		})
+	}
+
+	cacheStr, err := json.Marshal(response)
+	if err != nil {
+		log.Println(err)
+		log.Println("failed to marshal")
+	}
+
+	rdsStatus := ps.redis.Set(ctx, rkey, string(cacheStr), time.Minute*10)
+	if rdsStatus.Err() != nil {
+		log.Println("caching failed")
+		log.Println(rdsStatus.Err().Error())
+	}
+
+	return response, nil
+}

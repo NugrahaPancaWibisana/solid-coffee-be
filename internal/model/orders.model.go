@@ -28,10 +28,10 @@ type DetailOrder struct {
 }
 
 type DetailItem struct {
-	ItemName    string `db:"item_name"`
-	Qty         int    `db:"qty"`
-	Image       string `db:"image"`
-	ProductSize string `db:"product_size"`
-	ProductType string `db:"product_type"`
-	Subtotal    string `db:"subtotal"`
+	ItemName    string   `db:"item_name"`
+	Qty         int      `db:"qty"`
+	Image       []string `db:"image"`
+	ProductSize string   `db:"product_size"`
+	ProductType string   `db:"product_type"`
+	Subtotal    string   `db:"subtotal"`
 }

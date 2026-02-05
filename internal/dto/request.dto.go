@@ -139,3 +139,8 @@ type OrderQueries struct {
 type HistoryQueries struct {
 	Page string `json:"page"`
 }
+
+type ProductAdminQueries struct {
+	Page string `json:"page"`
+	Name string `json:"name"`
+}

@@ -190,14 +190,9 @@ func (o *OrderRepository) GetOrderTotalPages(ctx context.Context, db DBTX) (int,
 func (o *OrderRepository) GetProductType(ctx context.Context, db DBTX, id int) (model.ProductType, error) {
 	sqlStr := `SELECT id, name, price FROM product_type WHERE id = $1`
 
-	rows, err := db.Query(ctx, sqlStr, id)
-	if err != nil {
-		return model.ProductType{}, err
-	}
-	defer rows.Close()
-
+	row := db.QueryRow(ctx, sqlStr, id)
 	var pt model.ProductType
-	if err := rows.Scan(&pt.Id, &pt.Name, &pt.Price); err != nil {
+	if err := row.Scan(&pt.Id, &pt.Name, &pt.Price); err != nil {
 		return model.ProductType{}, err
 	}
 	return pt, nil
@@ -206,14 +201,10 @@ func (o *OrderRepository) GetProductType(ctx context.Context, db DBTX, id int) (
 func (o *OrderRepository) GetProductSize(ctx context.Context, db DBTX, id int) (model.ProductSize, error) {
 	sqlStr := `SELECT id, name, price FROM product_size WHERE id = $1`
 
-	rows, err := db.Query(ctx, sqlStr, id)
-	if err != nil {
-		return model.ProductSize{}, err
-	}
-	defer rows.Close()
+	row := db.QueryRow(ctx, sqlStr, id)
 
 	var ps model.ProductSize
-	if err := rows.Scan(&ps.Id, &ps.Name, &ps.Price); err != nil {
+	if err := row.Scan(&ps.Id, &ps.Name, &ps.Price); err != nil {
 		return model.ProductSize{}, err
 	}
 
@@ -310,7 +301,7 @@ func (o OrderRepository) GetDetailOrderHistoryById(ctx context.Context, db DBTX,
 		SELECT
 		p.name,
 		dt.qty,
-		pi.image,
+		ARRAY_AGG(pi.image),
 		dt.subtotal,
 		ps.name,
 		pt.name
@@ -322,6 +313,7 @@ func (o OrderRepository) GetDetailOrderHistoryById(ctx context.Context, db DBTX,
 		JOIN product_size ps ON ps.id = dt.product_size_id
 		JOIN product_type pt ON pt.id = dt.product_type_id
 		WHERE o.id = $1
+		GROUP BY p.id, dt.id, ps.id, pt.id
 	`
 
 	values := []any{idOrder}
