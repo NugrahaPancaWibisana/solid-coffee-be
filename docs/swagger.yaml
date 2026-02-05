@@ -165,6 +165,24 @@ definitions:
         example: Success
         type: string
     type: object
+  dto.MenuRequest:
+    properties:
+      discount:
+        example: 0.5
+        maximum: 100
+        minimum: 0
+        type: number
+      product_id:
+        example: 1
+        type: integer
+      stock:
+        example: 10
+        minimum: 0
+        type: integer
+    required:
+    - product_id
+    - stock
+    type: object
   dto.PaginationMeta:
     properties:
       next_page:
@@ -294,6 +312,21 @@ definitions:
     - otp_code
     - password
     type: object
+  dto.UpdateMenuRequest:
+    properties:
+      discount:
+        example: 10
+        maximum: 100
+        minimum: 0
+        type: number
+      product_id:
+        example: 1
+        type: integer
+      stock:
+        example: 10
+        minimum: 0
+        type: integer
+    type: object
   dto.UpdatePasswordRequest:
     properties:
       new_password:
@@ -366,6 +399,150 @@ info:
   title: Solid Coffee Backend
   version: "1.0"
 paths:
+  /admin/menu/:
+    get:
+      description: Get all menu items with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get all menus
+      tags:
+      - Admin Menu Management
+    post:
+      consumes:
+      - application/json
+      description: Create a new menu item
+      parameters:
+      - description: Menu data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MenuRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Create menu
+      tags:
+      - Admin Menu Management
+  /admin/menu/{id}:
+    delete:
+      description: Delete menu item by ID
+      parameters:
+      - description: Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Delete menu
+      tags:
+      - Admin Menu Management
+    get:
+      description: Get menu item details by ID
+      parameters:
+      - description: Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get menu by ID
+      tags:
+      - Admin Menu Management
+    patch:
+      consumes:
+      - application/json
+      description: Update menu item by ID
+      parameters:
+      - description: Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Menu data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateMenuRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Update menu
+      tags:
+      - Admin Menu Management
   /admin/orders/:
     get:
       parameters:
