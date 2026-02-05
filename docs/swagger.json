@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "192.168.50.221:8080",
     "basePath": "/",
     "paths": {
         "/admin/orders/": {
@@ -1491,7 +1491,10 @@
             "type": "object",
             "properties": {
                 "image": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "item_name": {
                     "type": "string"
