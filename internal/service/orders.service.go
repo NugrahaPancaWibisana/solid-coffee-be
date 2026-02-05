@@ -181,16 +181,32 @@ func (o *OrderService) GetHistoryByUser(ctx context.Context, page int, userId in
 	return response, totalPage, nil
 }
 
-// func (o OrderService) GetDetailHistoryById(ctx context.Context, idOrder string) (dto.DetailOrder, error) {
-// 	var response dto.DetailOrder
+func (o OrderService) GetDetailHistoryById(ctx context.Context, idOrder string) (dto.DetailOrderResponse, error) {
+	var response dto.DetailOrderResponse
+	// var respDt dto.DetailItemResponse
+	var respDts []dto.DetailItemResponse
 
-// 	data, err := o.orderRepository.GetDetailHistoryById(ctx, o.db, idOrder)
-// 	if err != nil {
-// 		return dto.DetailOrder{}, err
-// 	}
+	data, err := o.orderRepository.GetOrderHistoryById(ctx, o.db, idOrder)
+	if err != nil {
+		return dto.DetailOrderResponse{}, err
+	}
 
-// 	response = dto.DetailOrder{
-// 		Order_Id: data.Order_Id,
-// 	}
-// 	return response, nil
-// }
+	dataDt, err := o.orderRepository.GetDetailOrderHistoryById(ctx, o.db, idOrder)
+	for _, value := range dataDt {
+		respDts = append(respDts, dto.DetailItemResponse(value))
+	}
+
+	response = dto.DetailOrderResponse{
+		Order_Id:      data.Order_Id,
+		DateOrder:     data.DateOrder,
+		FullName:      data.FullName,
+		Address:       data.Address,
+		Phone:         data.Phone,
+		PaymentMethod: data.PaymentMethod,
+		Shipping:      data.Shipping,
+		Status:        data.Status,
+		Total:         data.Total,
+		DetailItem:    respDts,
+	}
+	return response, nil
+}

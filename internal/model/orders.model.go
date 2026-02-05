@@ -16,21 +16,22 @@ type History struct {
 }
 
 type DetailOrder struct {
-	Order_Id      string       `db:"order_id"`
-	FullName      string       `db:"fullname"`
-	Address       string       `db:"address"`
-	Phone         string       `db:"phone"`
-	PaymentMethod string       `db:"payment_method"`
-	Shipping      string       `db:"shipping"`
-	Status        string       `db:"status"`
-	Total         string       `db:"total"`
-	DetailItem    []DetailItem `db:"detail_item"`
+	Order_Id      string `db:"order_id"`
+	DateOrder     string `db:"date_order"`
+	FullName      string `db:"fullname"`
+	Address       string `db:"address"`
+	Phone         string `db:"phone"`
+	PaymentMethod string `db:"payment_method"`
+	Shipping      string `db:"shipping"`
+	Status        string `db:"status"`
+	Total         string `db:"total"`
 }
 
 type DetailItem struct {
 	ItemName    string `db:"item_name"`
 	Qty         int    `db:"qty"`
+	Image       string `db:"image"`
 	ProductSize string `db:"product_size"`
 	ProductType string `db:"product_type"`
-	Price       string `db:"price"`
+	Subtotal    string `db:"subtotal"`
 }

@@ -274,43 +274,71 @@ func (o *OrderRepository) GetHistoryTotalPages(ctx context.Context, db DBTX, use
 	return totalPage, nil
 }
 
-// func (o OrderRepository) GetDetailHistoryById(ctx context.Context, db DBTX, idOrder string) (model.DetailOrder, error) {
-// 	sqlStr := `
-// 		WITH avg_rating AS (
-//   			SELECT AVG(r.rating) AS "rating_product",
-//   			d.menu_id AS "idmenu"
-//   	FROM reviews r
-//   	JOIN dt_order d ON d.id = r.id
-//   	JOIN menus m ON m.id = d.menu_id
-//   	GROUP BY d.menu_id
-// 	)
+func (o OrderRepository) GetOrderHistoryById(ctx context.Context, db DBTX, idOrder string) (model.DetailOrder, error) {
+	sqlStr := `
+		SELECT
+		o.id,
+		TO_CHAR(o.created_at, 'DD FMMonth YYYY HH12:MI AM') AS "date",
+		COALESCE(u.fullname, ''),
+		COALESCE(u.address, ','),
+		COALESCE(u.phone, ','),
+		py.name,
+		o.shipping,
+		o.status,
+		o.total
+		FROM orders o
+		JOIN users u ON u.id = o.user_id
+		JOIN payments py ON py.id = o.payment_id
+		WHERE o.id = $1
+	`
 
-// 		SELECT
-// 			p.id,
-//     	p.name,
-//     	string_agg(pi.image, ',') AS "image product",
-//     	p.price,
-// 			p.description,
-//     	CAST(m.discount AS FLOAT4),
-//     	COALESCE(ar."rating_product",0),
-// 			COUNT(ar."idmenu") AS "count reviews"
-//   	FROM menus m
-//   	LEFT JOIN avg_rating ar ON ar."idmenu"= m.id
-//   	LEFT JOIN products p ON p.id = m.product_id
-//   	LEFT JOIN product_images pi ON pi.product_id = m.product_id
-// 		WHERE m.id = $1
-//   	GROUP BY p.id, m.id, ar."rating_product"
-// 	`
+	values := []any{idOrder}
+	row := db.QueryRow(ctx, sqlStr, values...)
 
-// 	values := []any{idOrder}
-// 	row := db.QueryRow(ctx, sqlStr, values...)
+	var ord model.DetailOrder
 
-// 	var prdDetail model.DetailProductUser
+	if err := row.Scan(&ord.Order_Id, &ord.DateOrder, &ord.FullName, &ord.Address, &ord.Phone, &ord.PaymentMethod, &ord.Shipping, &ord.Status, &ord.Total); err != nil {
+		log.Println(err.Error())
+		return model.DetailOrder{}, err
+	}
 
-// 	if err := row.Scan(&prdDetail.IdProduct, &prdDetail.ProductName, &prdDetail.Images, &prdDetail.Price, &prdDetail.Description, &prdDetail.Discount, &prdDetail.Rating, &prdDetail.Total_Review); err != nil {
-// 		log.Println(err.Error())
-// 		return model.DetailProductUser{}, err
-// 	}
+	return ord, nil
+}
 
-// 	return prdDetail, nil
-// }
+func (o OrderRepository) GetDetailOrderHistoryById(ctx context.Context, db DBTX, idOrder string) ([]model.DetailItem, error) {
+	sqlStr := `
+		SELECT
+		p.name,
+		dt.qty,
+		pi.image,
+		dt.subtotal,
+		ps.name,
+		pt.name
+		FROM orders o
+		JOIN dt_order dt ON dt.order_id = o.id
+		JOIN menus m ON dt.menu_id = m.id
+		JOIN products p ON p.id = m.product_id
+		JOIN product_images pi ON pi.product_id = p.id
+		JOIN product_size ps ON ps.id = dt.product_size_id
+		JOIN product_type pt ON pt.id = dt.product_type_id
+		WHERE o.id = $1
+	`
+
+	values := []any{idOrder}
+	rows, err := db.Query(ctx, sqlStr, values...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var ordDetails []model.DetailItem
+	for rows.Next() {
+		var ord model.DetailItem
+		if err := rows.Scan(&ord.ItemName, &ord.Qty, &ord.Image, &ord.Subtotal, &ord.ProductSize, &ord.ProductType); err != nil {
+			return nil, err
+		}
+		ordDetails = append(ordDetails, ord)
+	}
+
+	return ordDetails, nil
+}

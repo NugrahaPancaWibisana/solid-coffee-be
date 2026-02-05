@@ -23,6 +23,7 @@ func OrderRouter(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	ordersRouter.GET("/history", middleware.RBACMiddleware("user"), ordersController.GetHistoryByUser)
 	ordersRouter.POST("/", middleware.RBACMiddleware("user"), ordersController.CreateOrder)
 	ordersRouter.POST("/review", middleware.RBACMiddleware("user"), ordersController.AddReview)
+	ordersRouter.GET("/history/:id", middleware.RBACMiddleware("user", "admin"), ordersController.GetDetailHistoryById)
 	adminOrdersRouter.PATCH("/orders/", middleware.RBACMiddleware("admin"), ordersController.UpdateStatusOrder)
 	adminOrdersRouter.GET("/orders/", middleware.RBACMiddleware("admin"), ordersController.GetAllOrderByAdmin)
 }
