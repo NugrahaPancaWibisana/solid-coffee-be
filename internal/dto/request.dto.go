@@ -139,3 +139,24 @@ type OrderQueries struct {
 type HistoryQueries struct {
 	Page string `json:"page"`
 }
+
+type MenuRequest struct {
+	ProductID int     `json:"product_id" binding:"required" example:"1"`
+	Stock     int     `json:"stock" binding:"required,min=0" example:"10"`
+	Discount  float64 `json:"discount" binding:"min=0,max=100" example:"0.5"`
+}
+
+type MenuParams struct {
+	Search string `form:"search"`
+	Page   string `form:"page"`
+}
+
+type UpdateMenuRequest struct {
+	ProductID int     `json:"product_id" binding:"omitempty,gt=0" example:"1"`
+	Stock     int     `json:"stock" binding:"omitempty,min=0" example:"10"`
+	Discount  float64 `json:"discount" binding:"omitempty,min=0,max=100" example:"10"`
+}
+
+type MenuURIParam struct {
+    ID int `uri:"id" binding:"required"`
+}
