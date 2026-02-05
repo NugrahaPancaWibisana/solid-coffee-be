@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"slices"
 
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/cache"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
@@ -109,8 +110,15 @@ func (o OrderService) CreateOrder(ctx context.Context, order dto.CreateOrder, us
 	return response, nil
 }
 
-func (o OrderService) UpdateStatusByOrderId(ctx context.Context, status dto.UpdateStatusOrder) error {
-	cmd, err := o.orderRepository.UpdateStatusByOrderId(ctx, o.db, status)
+func (o OrderService) UpdateStatusByOrderId(ctx context.Context, sts dto.UpdateStatusOrder) error {
+	status := []string{"pending, done, canceled"}
+	isAvailable := slices.Contains(status, sts.Status)
+
+	if !isAvailable {
+		return errors.New("status is not valid")
+	}
+
+	cmd, err := o.orderRepository.UpdateStatusByOrderId(ctx, o.db, sts)
 	if err != nil {
 		return err
 	}
