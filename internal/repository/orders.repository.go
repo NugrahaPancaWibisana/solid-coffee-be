@@ -200,7 +200,7 @@ func (o *OrderRepository) GetProductType(ctx context.Context, db DBTX, id int) (
 	if err := rows.Scan(&pt.Id, &pt.Name, &pt.Price); err != nil {
 		return model.ProductType{}, err
 	}
-	return pt, rows.Err()
+	return pt, nil
 }
 
 func (o *OrderRepository) GetProductSize(ctx context.Context, db DBTX, id int) (model.ProductSize, error) {
@@ -217,7 +217,7 @@ func (o *OrderRepository) GetProductSize(ctx context.Context, db DBTX, id int) (
 		return model.ProductSize{}, err
 	}
 
-	return ps, rows.Err()
+	return ps, nil
 }
 
 func (o *OrderRepository) GetHistoryByUser(ctx context.Context, db DBTX, page int, userId int) ([]model.History, error) {
