@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -286,6 +287,11 @@ func (pr *ProductRepository) GetTotalPage(ctx context.Context, db DBTX, req dto.
 func (p ProductRepository) PostProduct(ctx context.Context, db DBTX, post dto.PostProductsRequest) (dto.PostProductResponse, error) {
 	var idProduct int
 	sqlStr := "INSERT INTO products (name, price, description) VALUES (($1), ($2), ($3)) RETURNING id"
+
+	if post.Price <= 0 {
+		return dto.PostProductResponse{}, errors.New("Price cant below 0, please change !")
+	}
+
 	values := []any{post.ProductName, post.Price, post.Description}
 
 	row := db.QueryRow(ctx, sqlStr, values...)

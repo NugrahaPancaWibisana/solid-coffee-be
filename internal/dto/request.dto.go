@@ -140,6 +140,11 @@ type HistoryQueries struct {
 	Page string `json:"page"`
 }
 
+type ProductAdminQueries struct {
+	Page string `json:"page"`
+	Name string `json:"name"`
+}
+
 type MenuRequest struct {
 	ProductID int     `json:"product_id" binding:"required" example:"1"`
 	Stock     int     `json:"stock" binding:"required,min=0" example:"10"`
@@ -158,5 +163,5 @@ type UpdateMenuRequest struct {
 }
 
 type MenuURIParam struct {
-    ID int `uri:"id" binding:"required"`
+	ID int `uri:"id" binding:"required"`
 }

@@ -60,6 +60,12 @@ func (o OrderService) CreateOrder(ctx context.Context, order dto.CreateOrder, us
 		dt.Subtotal = ((dataMenu.Price - discount) * float64(order.Menus[i].Qty)) + float64(priceSize.Price) + float64(priceType.Price)
 		dt.Qty = order.Menus[i].Qty
 
+		currentStock := dataMenu.Stock - order.Menus[i].Qty
+
+		if currentStock < 0 {
+			return dto.CreateOrderResponse{}, errors.New("Stock Insufficient, Order Can't be Done !!")
+		}
+
 		stockUpdt := dataMenu.Stock - order.Menus[i].Qty
 		totalSub = totalSub + dt.Subtotal
 
@@ -189,10 +195,8 @@ func (o *OrderService) GetHistoryByUser(ctx context.Context, page int, userId in
 	return response, totalPage, nil
 }
 
-func (o OrderService) GetDetailHistoryById(ctx context.Context, idOrder string) (dto.DetailOrderResponse, error) {
+func (o *OrderService) GetDetailHistoryById(ctx context.Context, idOrder string) (dto.DetailOrderResponse, error) {
 	var response dto.DetailOrderResponse
-	// var respDt dto.DetailItemResponse
-	var respDts []dto.DetailItemResponse
 
 	data, err := o.orderRepository.GetOrderHistoryById(ctx, o.db, idOrder)
 	if err != nil {
@@ -200,8 +204,22 @@ func (o OrderService) GetDetailHistoryById(ctx context.Context, idOrder string) 
 	}
 
 	dataDt, err := o.orderRepository.GetDetailOrderHistoryById(ctx, o.db, idOrder)
-	for _, value := range dataDt {
-		respDts = append(respDts, dto.DetailItemResponse(value))
+	imgStr := &[]string{}
+
+	var resp []dto.DetailItemResponse
+	for _, v := range dataDt {
+		for _, img := range v.Image {
+			*imgStr = append(*imgStr, img)
+		}
+
+		resp = append(resp, dto.DetailItemResponse{
+			ItemName:    v.ItemName,
+			ProductSize: v.ProductSize,
+			ProductType: v.ProductType,
+			Qty:         v.Qty,
+			Subtotal:    v.Subtotal,
+			Images:      *imgStr,
+		})
 	}
 
 	response = dto.DetailOrderResponse{
@@ -214,7 +232,8 @@ func (o OrderService) GetDetailHistoryById(ctx context.Context, idOrder string) 
 		Shipping:      data.Shipping,
 		Status:        data.Status,
 		Total:         data.Total,
-		DetailItem:    respDts,
+		DetailItem:    resp,
 	}
+
 	return response, nil
 }

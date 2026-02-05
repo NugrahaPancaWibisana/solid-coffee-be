@@ -62,6 +62,10 @@ func (o OrdersController) CreateOrder(c *gin.Context) {
 
 	if err != nil {
 		str := err.Error()
+		if err.Error() == "Stock Insufficient, Order Can't be Done !!" {
+			response.Error(c, http.StatusBadRequest, "Stock Insufficient !!")
+			return
+		}
 		if strings.Contains(str, "empty") {
 			response.Error(c, http.StatusBadRequest, "Invalid Body")
 			return

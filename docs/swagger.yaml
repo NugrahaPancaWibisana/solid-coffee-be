@@ -40,7 +40,9 @@ definitions:
   dto.DetailItemResponse:
     properties:
       image:
-        type: string
+        items:
+          type: string
+        type: array
       item_name:
         type: string
       product_size:

@@ -78,10 +78,10 @@ type DetailOrderResponse struct {
 }
 
 type DetailItemResponse struct {
-	ItemName    string `json:"item_name"`
-	Qty         int    `json:"qty"`
-	Image       string `json:"image"`
-	ProductSize string `json:"product_size"`
-	ProductType string `json:"product_type"`
-	Subtotal    string `json:"subtotal"`
+	ItemName    string   `json:"item_name"`
+	Qty         int      `json:"qty"`
+	Images      []string `json:"image"`
+	ProductSize string   `json:"product_size"`
+	ProductType string   `json:"product_type"`
+	Subtotal    string   `json:"subtotal"`
 }

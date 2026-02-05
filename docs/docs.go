@@ -1725,7 +1725,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "image": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "item_name": {
                     "type": "string"
