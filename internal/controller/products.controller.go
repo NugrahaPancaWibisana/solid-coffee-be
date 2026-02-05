@@ -33,7 +33,7 @@ func NewProductsController(productService *service.ProductService) *ProductsCont
 // Get Products By Status godoc
 //
 //	@Summary	Get all products
-//	@Tags		products
+//	@Tags		Products
 //	@Produce	json
 //	@Param		id			query		string		false	"Blacklist id product"
 //	@Param		page		query		string		false	"Page number"
@@ -42,9 +42,7 @@ func NewProductsController(productService *service.ProductService) *ProductsCont
 //	@Param		max			query		string		false	"Maximum price"
 //	@Param		category	query		[]string	false	"Categories filter"	collectionFormat(multi)
 //	@Success	200			{object}	dto.ProductResponse
-//
-// @Failure			401 {object} dto.ResponseError
-//
+//	@Failure	401			{object}	dto.ResponseError
 //	@Failure	500			{object}	dto.ResponseError
 //	@Router		/products/ [get]
 func (p ProductsController) GetAllProducts(c *gin.Context) {
@@ -113,7 +111,7 @@ func (p ProductsController) GetAllProducts(c *gin.Context) {
 // Post Product godoc
 //
 //	@Summary	Post product
-//	@Tags		products
+//	@Tags		Admin Product Management
 //	@accept		multipart/form-data
 //	@Produce	json
 //	@Param		images_file		formData	[]file	true	"Product images"
@@ -122,9 +120,7 @@ func (p ProductsController) GetAllProducts(c *gin.Context) {
 //	@Param		description		formData	string	true	"Description"
 //	@Success	200				{object}	dto.ResponseSuccess
 //	@Failure	500				{object}	dto.ResponseError
-//
-// @Failure			401 {object} dto.ResponseError
-//
+//	@Failure	401				{object}	dto.ResponseError
 //	@Failure	404				{object}	dto.ResponseError
 //	@Failure	400				{object}	dto.ResponseError
 //	@Router		/admin/products/ [post]
@@ -205,7 +201,7 @@ func (p ProductsController) PostProducts(c *gin.Context) {
 // UpdateProduct godoc
 //
 //	@Summary	Update product
-//	@Tags		products
+//	@Tags		Admin Product Management
 //	@Accept		multipart/form-data
 //	@Produce	json
 //	@Param		id				path		int		true	"Product Id"
@@ -214,13 +210,9 @@ func (p ProductsController) PostProducts(c *gin.Context) {
 //	@Param		price			formData	number	false	"Price"
 //	@Param		description		formData	string	false	"Description"
 //	@Success	200				{object}	dto.ResponseSuccess
-//
-// @Failure			401 {object} dto.ResponseError
-//
+//	@Failure	401				{object}	dto.ResponseError
 //	@Failure	400				{object}	dto.ResponseError
-//
-// @Failure			 404 {object} dto.ResponseError
-//
+//	@Failure	404				{object}	dto.ResponseError
 //	@Failure	500				{object}	dto.ResponseError
 //	@Router		/admin/products/{id} [patch]
 //	@security	BearerAuth
@@ -306,15 +298,13 @@ func (p ProductsController) UpdateProduct(c *gin.Context) {
 // UpdateProduct godoc
 //
 //	@Summary	Delete product
-//	@Tags		products
+//	@Tags		Admin Product Management
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		int	true	"Product id"
 //	@Success	200	{object}	dto.ResponseSuccess
-//
-// @Failure			401 {object} dto.ResponseError
-// @Failure			 404 {object} dto.ResponseError
-//
+//	@Failure	401	{object}	dto.ResponseError
+//	@Failure	404	{object}	dto.ResponseError
 //	@Failure	400	{object}	dto.ResponseError
 //	@Failure	500	{object}	dto.ResponseError
 //	@Router		/admin/products/{id} [delete]
@@ -344,15 +334,13 @@ func (p ProductsController) DeleteProductById(c *gin.Context) {
 // UpdateProduct godoc
 //
 //	@Summary	Delete product image
-//	@Tags		products
+//	@Tags		Admin Product Management
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		int	true	"Image id"
 //	@Success	200	{object}	dto.ResponseSuccess
-//
-// @Failure			401 {object} dto.ResponseError
-// @Failure			 404 {object} dto.ResponseError
-//
+//	@Failure	401	{object}	dto.ResponseError
+//	@Failure	404	{object}	dto.ResponseError
 //	@Failure	400	{object}	dto.ResponseError
 //	@Failure	500	{object}	dto.ResponseError
 //	@Router		/admin/products/image/{id} [delete]
@@ -382,14 +370,12 @@ func (p ProductsController) DeleteProductImageById(c *gin.Context) {
 // Get detail products by Id godoc
 //
 //	@Summary	Get detail products by id
-//	@Tags		products
+//	@Tags		Admin Product Management
 //	@Produce	json
 //	@Param		id	path		int	true	"Id"
 //	@Success	200	{object}	dto.DetailProduct
-//
-// @Failure			401 {object} dto.ResponseError
-// @Failure			404 {object} dto.ResponseError
-//
+//	@Failure	401	{object}	dto.ResponseError
+//	@Failure	404	{object}	dto.ResponseError
 //	@Failure	500	{object}	dto.ResponseError
 //	@Router		/admin/products/{id} [get]
 //	@security	BearerAuth
@@ -419,14 +405,12 @@ func (p ProductsController) GetDetailProductById(c *gin.Context) {
 // Get detail products by Id godoc
 //
 //	@Summary	Get detail products by id
-//	@Tags		products
+//	@Tags		Products
 //	@Produce	json
 //	@Param		id	path		int	true	"Id"
 //	@Success	200	{object}	dto.DetailProductUser
-//
-// @Failure			401 {object} dto.ResponseError
-// @Failure			404 {object} dto.ResponseError
-//
+//	@Failure	401	{object}	dto.ResponseError
+//	@Failure	404	{object}	dto.ResponseError
 //	@Failure	500	{object}	dto.ResponseError
 //	@Router		/products/{id} [get]
 func (p ProductsController) GetDetailProductByUserWithId(c *gin.Context) {
@@ -445,10 +429,10 @@ func (p ProductsController) GetDetailProductByUserWithId(c *gin.Context) {
 // Get Product Types godoc
 //
 //	@Summary	Get all product types
-//	@Tags		products
+//	@Tags		Products
 //	@Produce	json
-//	@Success	200		{object}	[]dto.ProductType
-//	@Failure	500		{object}	dto.ResponseError
+//	@Success	200	{object}	[]dto.ProductType
+//	@Failure	500	{object}	dto.ResponseError
 //	@Router		/products/product-types/ [get]
 func (pc *ProductsController) GetAllProductType(c *gin.Context) {
 	data, err := pc.productService.GetAllProductType(c.Request.Context())
@@ -462,10 +446,10 @@ func (pc *ProductsController) GetAllProductType(c *gin.Context) {
 // Get Product Sizes godoc
 //
 //	@Summary	Get all product sizes
-//	@Tags		products
+//	@Tags		Products
 //	@Produce	json
-//	@Success	200		{object}	[]dto.ProductSize
-//	@Failure	500		{object}	dto.ResponseError
+//	@Success	200	{object}	[]dto.ProductSize
+//	@Failure	500	{object}	dto.ResponseError
 //	@Router		/products/product-sizes/ [get]
 func (pc *ProductsController) GetAllProductSize(c *gin.Context) {
 	data, err := pc.productService.GetAllProductSize(c.Request.Context())

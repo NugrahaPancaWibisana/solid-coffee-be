@@ -34,7 +34,7 @@ func NewUserController(userService *service.UserService) *UserController {
 //
 //	@Summary		Update user profile
 //	@Description	Update authenticated user's profile information
-//	@Tags			user
+//	@Tags			Users
 //	@Accept			multipart/form-data
 //	@Produce		json
 //	@Param			photo		formData	file	false	"Profile photo"
@@ -142,10 +142,10 @@ func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 //
 //	@Summary		Update user profile
 //	@Description	Update authenticated user's profile information
-//	@Tags			user
+//	@Tags			Admin User Management
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			id		formData	int	true	"user id"
+//	@Param			id			path		int		false	"user id"
 //	@Param			photo		formData	file	false	"Profile photo"
 //	@Param			fullname	formData	string	false	"Full name (min 3 chars)"
 //	@Param			phone		formData	string	false	"Phone number (min 3 chars)"
@@ -153,17 +153,18 @@ func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 //	@Success		200			{object}	dto.ResponseSuccess
 //	@Failure		400			{object}	dto.ResponseError
 //	@Failure		401			{object}	dto.ResponseError
-//	@Router			/admin/user/ [patch]
+//	@Router			/admin/user/{id} [patch]
 //	@Security		BearerAuth
 func (uc *UserController) UpdateProfileAdmin(ctx *gin.Context) {
+	var param dto.UserParams
+	if err := ctx.ShouldBindUri(&param); err != nil {
+		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return
+	}
+
 	var req dto.UpdateUserRequest
 	if err := ctx.ShouldBindWith(&req, binding.FormMultipart); err != nil {
 		errStr := err.Error()
-
-		if strings.Contains(errStr, "ID") && strings.Contains(errStr, "required") {
-			response.Error(ctx, http.StatusBadRequest, "ID field cannot be empty")
-			return
-		}
 
 		if strings.Contains(errStr, "no multipart boundary param in Content-Type") {
 			response.Error(ctx, http.StatusBadRequest, "No fields to update")
@@ -238,7 +239,7 @@ func (uc *UserController) UpdateProfileAdmin(ctx *gin.Context) {
 		imagePath = fmt.Sprintf("/profile/%s", filename)
 	}
 
-	oldPath, err := uc.userService.UpdateProfile(ctx, reqChange, imagePath, req.ID, token[1])
+	oldPath, err := uc.userService.UpdateProfileAdmin(ctx, reqChange, imagePath, param.ID, accessToken.UserID, token[1])
 	if err != nil {
 		if errors.Is(err, apperror.ErrNoFieldsToUpdate) {
 			response.Error(ctx, http.StatusBadRequest, err.Error())
@@ -263,7 +264,7 @@ func (uc *UserController) UpdateProfileAdmin(ctx *gin.Context) {
 //
 //	@Summary		Change user password
 //	@Description	Update authenticated user's password
-//	@Tags			user
+//	@Tags			Users
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		dto.UpdatePasswordRequest	true	"Edit password data"
@@ -335,7 +336,7 @@ func (uc *UserController) UpdatePassword(ctx *gin.Context) {
 //
 //	@Summary		Get user profile
 //	@Description	Get authenticated user's profile information
-//	@Tags			user
+//	@Tags			Users
 //	@Produce		json
 //	@Success		200	{object}	dto.UserProfileResponse
 //	@Failure		401	{object}	dto.ResponseError
@@ -367,7 +368,7 @@ func (uc *UserController) GetProfile(ctx *gin.Context) {
 //
 //	@Summary		Insert user profile
 //	@Description	Insert authenticated user's profile information
-//	@Tags			user
+//	@Tags			Admin User Management
 //	@Accept			multipart/form-data
 //	@Produce		json
 //	@Param			photo		formData	file	true	"Profile photo"
@@ -511,7 +512,7 @@ func (uc *UserController) InsertUser(ctx *gin.Context) {
 //
 //	@Summary		Delete user profile
 //	@Description	Delete authenticated user's profile information
-//	@Tags			user
+//	@Tags			Admin User Management
 //	@Accept			multipart/form-data
 //	@Produce		json
 //	@Param			id	path		int	false	"user id"
@@ -550,7 +551,7 @@ func (uc *UserController) DeleteUser(ctx *gin.Context) {
 //
 //	@Summary		Get all user profile
 //	@Description	Get authenticated user's profile information
-//	@Tags			user
+//	@Tags			Admin User Management
 //	@Produce		json
 //	@Param			page	query		string	false	"Page number"
 //	@Success		200		{object}	dto.UserProfileResponse

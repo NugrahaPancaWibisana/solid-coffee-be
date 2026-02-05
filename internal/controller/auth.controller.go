@@ -25,7 +25,7 @@ func NewAuthController(authService *service.AuthService) *AuthController {
 //
 //	@Summary		User login
 //	@Description	Authenticate user with email and password
-//	@Tags			auth
+//	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		dto.LoginRequest	true	"Login credentials"
@@ -89,7 +89,7 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 //
 //	@Summary		Register new user
 //	@Description	Create a new user account
-//	@Tags			auth
+//	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		dto.RegisterRequest	true	"User registration data"
@@ -161,7 +161,7 @@ func (ac *AuthController) Register(ctx *gin.Context) {
 //
 //	@Summary		Request OTP for forgot password
 //	@Description	Send OTP to registered email
-//	@Tags			auth
+//	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		dto.ForgotPasswordRequest	true	"Forgot password request"
@@ -207,7 +207,7 @@ func (ac *AuthController) ForgotPassword(ctx *gin.Context) {
 //
 //	@Summary		Update password using OTP
 //	@Description	Verify OTP and update user password
-//	@Tags			auth
+//	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		dto.UpdateForgotPasswordRequest	true	"Update forgot password"

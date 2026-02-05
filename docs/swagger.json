@@ -20,7 +20,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "Admin Order Management"
                 ],
                 "summary": "Get all order",
                 "parameters": [
@@ -68,7 +68,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "Orders"
                 ],
                 "summary": "Update status",
                 "parameters": [
@@ -130,7 +130,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Admin Product Management"
                 ],
                 "summary": "Post product",
                 "parameters": [
@@ -215,7 +215,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Admin Product Management"
                 ],
                 "summary": "Delete product image",
                 "parameters": [
@@ -272,7 +272,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Admin Product Management"
                 ],
                 "summary": "Get detail products by id",
                 "parameters": [
@@ -324,7 +324,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Admin Product Management"
                 ],
                 "summary": "Delete product",
                 "parameters": [
@@ -382,7 +382,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Admin Product Management"
                 ],
                 "summary": "Update product",
                 "parameters": [
@@ -468,7 +468,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Admin User Management"
                 ],
                 "summary": "Get all user profile",
                 "parameters": [
@@ -508,7 +508,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Admin User Management"
                 ],
                 "summary": "Insert user profile",
                 "parameters": [
@@ -582,6 +582,48 @@
                         }
                     }
                 }
+            }
+        },
+        "/admin/user/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete authenticated user's profile information",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin User Management"
+                ],
+                "summary": "Delete user profile",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseSuccess"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
             },
             "patch": {
                 "security": [
@@ -597,7 +639,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Admin User Management"
                 ],
                 "summary": "Update user profile",
                 "parameters": [
@@ -605,8 +647,7 @@
                         "type": "integer",
                         "description": "user id",
                         "name": "id",
-                        "in": "formData",
-                        "required": true
+                        "in": "path"
                     },
                     {
                         "type": "file",
@@ -655,48 +696,6 @@
                 }
             }
         },
-        "/admin/user/{id}": {
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Delete authenticated user's profile information",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Delete user profile",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "user id",
-                        "name": "id",
-                        "in": "path"
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ResponseSuccess"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ResponseError"
-                        }
-                    }
-                }
-            }
-        },
         "/auth/": {
             "post": {
                 "description": "Authenticate user with email and password",
@@ -707,7 +706,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "User login",
                 "parameters": [
@@ -753,7 +752,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Request OTP for forgot password",
                 "parameters": [
@@ -799,7 +798,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Update password using OTP",
                 "parameters": [
@@ -845,7 +844,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Register new user",
                 "parameters": [
@@ -895,7 +894,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "Orders"
                 ],
                 "summary": "Create order",
                 "parameters": [
@@ -954,7 +953,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "Orders"
                 ],
                 "summary": "Get all history",
                 "parameters": [
@@ -1056,7 +1055,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "Admin Order Management"
                 ],
                 "summary": "Add review to order",
                 "parameters": [
@@ -1110,7 +1109,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Products"
                 ],
                 "summary": "Get all products",
                 "parameters": [
@@ -1183,7 +1182,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Products"
                 ],
                 "summary": "Get all product sizes",
                 "responses": {
@@ -1211,7 +1210,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Products"
                 ],
                 "summary": "Get all product types",
                 "responses": {
@@ -1239,7 +1238,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Products"
                 ],
                 "summary": "Get detail products by id",
                 "parameters": [
@@ -1291,7 +1290,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Users"
                 ],
                 "summary": "Get user profile",
                 "responses": {
@@ -1323,7 +1322,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Users"
                 ],
                 "summary": "Update user profile",
                 "parameters": [
@@ -1389,7 +1388,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Users"
                 ],
                 "summary": "Change user password",
                 "parameters": [

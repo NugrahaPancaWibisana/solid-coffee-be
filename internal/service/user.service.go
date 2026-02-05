@@ -53,6 +53,36 @@ func (us *UserService) UpdateProfile(ctx context.Context, req dto.UpdateProfileR
 	return oldPath, nil
 }
 
+func (us *UserService) UpdateProfileAdmin(ctx context.Context, req dto.UpdateProfileRequest, path string, userID, id int, token string) (string, error) {
+	err := cache.CheckToken(ctx, us.redis, id, token)
+	if err != nil {
+		return "", err
+	}
+
+	tx, err := us.db.Begin(ctx)
+	if err != nil {
+		log.Println(err.Error())
+		return "", err
+	}
+	defer tx.Rollback(ctx)
+
+	oldPath, err := us.userRepository.GetPhoto(ctx, tx, userID)
+	if err != nil {
+		return "", err
+	}
+
+	if err := us.userRepository.UpdateProfile(ctx, tx, req, path, userID); err != nil {
+		return "", err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		log.Println("failed to commit", err.Error())
+		return "", err
+	}
+
+	return oldPath, nil
+}
+
 func (us *UserService) UpdatePassword(ctx context.Context, req dto.UpdatePasswordRequest, id int, token string) error {
 	if err := cache.CheckToken(ctx, us.redis, id, token); err != nil {
 		return err
