@@ -77,7 +77,7 @@ func (o OrdersController) CreateOrder(c *gin.Context) {
 // UpdateProduct godoc
 //
 //	@Summary	Update status
-//	@Tags		Orders
+//	@Tags		Admin Order Management
 //	@Accept		json
 //	@Produce	json
 //	@Param		orders	body		dto.UpdateStatusOrder	true	"Update status order"
@@ -85,6 +85,7 @@ func (o OrdersController) CreateOrder(c *gin.Context) {
 //	@Failure	401		{object}	dto.ResponseError
 //	@Failure	400		{object}	dto.ResponseError
 //	@Failure	404		{object}	dto.ResponseError
+//	@Failure	422		{object}	dto.ResponseError
 //	@Failure	500		{object}	dto.ResponseError
 //	@Router		/admin/orders/ [patch]
 //	@security	BearerAuth
@@ -105,11 +106,15 @@ func (o OrdersController) UpdateStatusOrder(c *gin.Context) {
 
 	if err := o.orderService.UpdateStatusByOrderId(c.Request.Context(), updtStatus); err != nil {
 		str := err.Error()
+		if str == "status is not valid" {
+			response.Error(c, http.StatusUnprocessableEntity, "Status Is Not Appropriate")
+			return
+		}
 		if strings.Contains(str, "empty") {
 			response.Error(c, http.StatusBadRequest, "Invalid Body")
 			return
 		}
-		if err.Error() == "no rows in result set" {
+		if err.Error() == "no rows in result set" || err.Error() == "no data deleted" {
 			response.Error(c, http.StatusNotFound, "Data Not Found")
 			return
 		}

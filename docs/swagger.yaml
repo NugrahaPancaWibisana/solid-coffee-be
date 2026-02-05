@@ -357,7 +357,7 @@ definitions:
         example: Success
         type: string
     type: object
-host: 192.168.50.221:8080
+host: localhost:8080
 info:
   contact: {}
   description: Solid Coffee Backend RESTful API
@@ -422,6 +422,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/dto.ResponseError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -430,7 +434,7 @@ paths:
       - BearerAuth: []
       summary: Update status
       tags:
-      - Orders
+      - Admin Order Management
   /admin/products/:
     post:
       consumes:

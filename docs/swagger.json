@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "192.168.50.221:8080",
+    "host": "localhost:8080",
     "basePath": "/",
     "paths": {
         "/admin/orders/": {
@@ -68,7 +68,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Orders"
+                    "Admin Order Management"
                 ],
                 "summary": "Update status",
                 "parameters": [
@@ -103,6 +103,12 @@
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/dto.ResponseError"
                         }
