@@ -17,6 +17,7 @@ func Init(app *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	UserRouter(app, db, rdb)
 	ProductRouter(app, db, rdb)
 	OrderRouter(app, db, rdb)
+	MenuRouter(app, db, rdb)
 
 	app.Static("/static/img", "public")
 
