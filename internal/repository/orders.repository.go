@@ -187,6 +187,39 @@ func (o *OrderRepository) GetOrderTotalPages(ctx context.Context, db DBTX) (int,
 	return totalPage, nil
 }
 
+func (o *OrderRepository) GetProductType(ctx context.Context, db DBTX, id int) (model.ProductType, error) {
+	sqlStr := `SELECT id, name, price FROM product_type WHERE id = $1`
+
+	rows, err := db.Query(ctx, sqlStr, id)
+	if err != nil {
+		return model.ProductType{}, err
+	}
+	defer rows.Close()
+
+	var pt model.ProductType
+	if err := rows.Scan(&pt.Id, &pt.Name, &pt.Price); err != nil {
+		return model.ProductType{}, err
+	}
+	return pt, nil
+}
+
+func (o *OrderRepository) GetProductSize(ctx context.Context, db DBTX, id int) (model.ProductSize, error) {
+	sqlStr := `SELECT id, name, price FROM product_size WHERE id = $1`
+
+	rows, err := db.Query(ctx, sqlStr, id)
+	if err != nil {
+		return model.ProductSize{}, err
+	}
+	defer rows.Close()
+
+	var ps model.ProductSize
+	if err := rows.Scan(&ps.Id, &ps.Name, &ps.Price); err != nil {
+		return model.ProductSize{}, err
+	}
+
+	return ps, nil
+}
+
 func (o *OrderRepository) GetHistoryByUser(ctx context.Context, db DBTX, page int, userId int) ([]model.History, error) {
 
 	sqlStr := `
@@ -241,35 +274,71 @@ func (o *OrderRepository) GetHistoryTotalPages(ctx context.Context, db DBTX, use
 	return totalPage, nil
 }
 
-func (o *OrderRepository) GetProductType(ctx context.Context, db DBTX, id int) (model.ProductType, error) {
-	sqlStr := `SELECT id, name, price FROM product_type WHERE id = $1`
+func (o OrderRepository) GetOrderHistoryById(ctx context.Context, db DBTX, idOrder string) (model.DetailOrder, error) {
+	sqlStr := `
+		SELECT
+		o.id,
+		TO_CHAR(o.created_at, 'DD FMMonth YYYY HH12:MI AM') AS "date",
+		COALESCE(u.fullname, ''),
+		COALESCE(u.address, ','),
+		COALESCE(u.phone, ','),
+		py.name,
+		o.shipping,
+		o.status,
+		o.total
+		FROM orders o
+		JOIN users u ON u.id = o.user_id
+		JOIN payments py ON py.id = o.payment_id
+		WHERE o.id = $1
+	`
 
-	rows, err := db.Query(ctx, sqlStr, id)
-	if err != nil {
-		return model.ProductType{}, err
-	}
-	defer rows.Close()
+	values := []any{idOrder}
+	row := db.QueryRow(ctx, sqlStr, values...)
 
-	var pt model.ProductType
-	if err := rows.Scan(&pt.Id, &pt.Name, &pt.Price); err != nil {
-		return model.ProductType{}, err
+	var ord model.DetailOrder
+
+	if err := row.Scan(&ord.Order_Id, &ord.DateOrder, &ord.FullName, &ord.Address, &ord.Phone, &ord.PaymentMethod, &ord.Shipping, &ord.Status, &ord.Total); err != nil {
+		log.Println(err.Error())
+		return model.DetailOrder{}, err
 	}
-	return pt, rows.Err()
+
+	return ord, nil
 }
 
-func (o *OrderRepository) GetProductSize(ctx context.Context, db DBTX, id int) (model.ProductSize, error) {
-	sqlStr := `SELECT id, name, price FROM product_size WHERE id = $1`
+func (o OrderRepository) GetDetailOrderHistoryById(ctx context.Context, db DBTX, idOrder string) ([]model.DetailItem, error) {
+	sqlStr := `
+		SELECT
+		p.name,
+		dt.qty,
+		pi.image,
+		dt.subtotal,
+		ps.name,
+		pt.name
+		FROM orders o
+		JOIN dt_order dt ON dt.order_id = o.id
+		JOIN menus m ON dt.menu_id = m.id
+		JOIN products p ON p.id = m.product_id
+		JOIN product_images pi ON pi.product_id = p.id
+		JOIN product_size ps ON ps.id = dt.product_size_id
+		JOIN product_type pt ON pt.id = dt.product_type_id
+		WHERE o.id = $1
+	`
 
-	rows, err := db.Query(ctx, sqlStr, id)
+	values := []any{idOrder}
+	rows, err := db.Query(ctx, sqlStr, values...)
 	if err != nil {
-		return model.ProductSize{}, err
+		return nil, err
 	}
 	defer rows.Close()
 
-	var ps model.ProductSize
-	if err := rows.Scan(&ps.Id, &ps.Name, &ps.Price); err != nil {
-		return model.ProductSize{}, err
+	var ordDetails []model.DetailItem
+	for rows.Next() {
+		var ord model.DetailItem
+		if err := rows.Scan(&ord.ItemName, &ord.Qty, &ord.Image, &ord.Subtotal, &ord.ProductSize, &ord.ProductType); err != nil {
+			return nil, err
+		}
+		ordDetails = append(ordDetails, ord)
 	}
 
-	return ps, rows.Err()
+	return ordDetails, nil
 }

@@ -293,3 +293,33 @@ func (o *OrdersController) GetHistoryByUser(c *gin.Context) {
 		},
 	)
 }
+
+// Get detail history by Id godoc
+//
+//	@Summary  Get detail history by id
+//	@Tags   Orders
+//	@Produce  json
+//	@Param    id  path    string true  "Id"
+//	@Success  200 {object}  dto.DetailOrderResponse
+//
+// @Failure     401 {object} dto.ResponseError
+// @Failure     404 {object} dto.ResponseError
+//
+//	@Failure  500 {object}  dto.ResponseError
+//	@Router   /orders/history/{id} [get]
+//
+// @security BearerAuth
+func (o OrdersController) GetDetailHistoryById(c *gin.Context) {
+	id := c.Param("id")
+	data, err := o.orderService.GetDetailHistoryById(c.Request.Context(), id)
+
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			response.Error(c, http.StatusNotFound, "Data Not Found")
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+	response.Success(c, http.StatusOK, "Detail History Retrieved Successfully", data)
+}

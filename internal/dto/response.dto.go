@@ -63,3 +63,25 @@ type CreateDetailOrderResponse struct {
 	Subtotal float64 `json:"subtotal,omitempty"`
 	MenuId   int     `json:"menu_id,omitempty"`
 }
+
+type DetailOrderResponse struct {
+	Order_Id      string               `json:"order_id"`
+	DateOrder     string               `json:"date_order"`
+	FullName      string               `json:"fullname"`
+	Address       string               `json:"address"`
+	Phone         string               `json:"phone"`
+	PaymentMethod string               `json:"payment_method"`
+	Shipping      string               `json:"shipping"`
+	Status        string               `json:"status"`
+	Total         string               `json:"total"`
+	DetailItem    []DetailItemResponse `json:"detail_item"`
+}
+
+type DetailItemResponse struct {
+	ItemName    string `json:"item_name"`
+	Qty         int    `json:"qty"`
+	Image       string `json:"image"`
+	ProductSize string `json:"product_size"`
+	ProductType string `json:"product_type"`
+	Subtotal    string `json:"subtotal"`
+}
