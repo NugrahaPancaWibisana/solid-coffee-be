@@ -162,7 +162,7 @@ func (uc *UserController) UpdateProfileAdmin(ctx *gin.Context) {
 		return
 	}
 
-	var req dto.UpdateUserRequest
+	var req dto.UpdateProfileRequest
 	if err := ctx.ShouldBindWith(&req, binding.FormMultipart); err != nil {
 		errStr := err.Error()
 
