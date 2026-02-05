@@ -297,7 +297,7 @@ func (o *OrdersController) GetHistoryByUser(c *gin.Context) {
 // Get detail history by Id godoc
 //
 //	@Summary  Get detail history by id
-//	@Tags   orders
+//	@Tags   Orders
 //	@Produce  json
 //	@Param    id  path    string true  "Id"
 //	@Success  200 {object}  dto.DetailOrderResponse
@@ -318,6 +318,8 @@ func (o OrdersController) GetDetailHistoryById(c *gin.Context) {
 			response.Error(c, http.StatusNotFound, "Data Not Found")
 			return
 		}
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
 	}
 	response.Success(c, http.StatusOK, "Detail History Retrieved Successfully", data)
 }

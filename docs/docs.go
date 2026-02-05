@@ -1007,7 +1007,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "Orders"
                 ],
                 "summary": "Get detail history by id",
                 "parameters": [
