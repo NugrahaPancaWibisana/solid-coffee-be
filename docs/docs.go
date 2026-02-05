@@ -997,6 +997,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/orders/history/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Get detail history by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DetailOrderResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/orders/review/": {
             "post": {
                 "security": [
@@ -1433,6 +1484,67 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "shipping": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.DetailItemResponse": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "item_name": {
+                    "type": "string"
+                },
+                "product_size": {
+                    "type": "string"
+                },
+                "product_type": {
+                    "type": "string"
+                },
+                "qty": {
+                    "type": "integer"
+                },
+                "subtotal": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.DetailOrderResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "date_order": {
+                    "type": "string"
+                },
+                "detail_item": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.DetailItemResponse"
+                    }
+                },
+                "fullname": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "shipping": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total": {
                     "type": "string"
                 }
             }

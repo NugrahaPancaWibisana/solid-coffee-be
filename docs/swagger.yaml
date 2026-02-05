@@ -37,6 +37,46 @@ definitions:
     - payment_id
     - shipping
     type: object
+  dto.DetailItemResponse:
+    properties:
+      image:
+        type: string
+      item_name:
+        type: string
+      product_size:
+        type: string
+      product_type:
+        type: string
+      qty:
+        type: integer
+      subtotal:
+        type: string
+    type: object
+  dto.DetailOrderResponse:
+    properties:
+      address:
+        type: string
+      date_order:
+        type: string
+      detail_item:
+        items:
+          $ref: '#/definitions/dto.DetailItemResponse'
+        type: array
+      fullname:
+        type: string
+      order_id:
+        type: string
+      payment_method:
+        type: string
+      phone:
+        type: string
+      shipping:
+        type: string
+      status:
+        type: string
+      total:
+        type: string
+    type: object
   dto.DetailProduct:
     properties:
       description:
@@ -953,6 +993,38 @@ paths:
       security:
       - BearerAuth: []
       summary: Get all history
+      tags:
+      - orders
+  /orders/history/{id}:
+    get:
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DetailOrderResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get detail history by id
       tags:
       - orders
   /orders/review/:
