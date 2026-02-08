@@ -3,7 +3,7 @@ package dto
 import "github.com/golang-jwt/jwt/v5"
 
 type JWTClaims struct {
-	UserID int    `json:"user_id"`
+	UserID int    `json:"id"`
 	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }

@@ -12,4 +12,7 @@ var (
 	// Service Expercted Error
 	ErrInvalidEmailFormat = errors.New("email must be a valid email address")
 	ErrInvalidCredential  = errors.New("invalid email or password")
+
+	ErrOTPNotFound = errors.New("OTP is invalid or has expired")
+	ErrOTPExpired  = errors.New("OTP has expired")
 )

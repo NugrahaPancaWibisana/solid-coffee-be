@@ -1,0 +1,516 @@
+package controller
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+	"net/url"
+	"path"
+	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/response"
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/service"
+	jwtutil "github.com/NugrahaPancaWibisana/solid-coffee-be/pkg/jwt"
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+)
+
+type ProductsController struct {
+	productService *service.ProductService
+}
+
+func NewProductsController(productService *service.ProductService) *ProductsController {
+	return &ProductsController{
+		productService: productService,
+	}
+}
+
+// Get Products By Status godoc
+//
+//	@Summary	Get all products
+//	@Tags		Products
+//	@Produce	json
+//	@Param		id			query		string		false	"Blacklist id product"
+//	@Param		page		query		string		false	"Page number"
+//	@Param		title		query		string		false	"Product title search"
+//	@Param		min			query		string		false	"Minimum price"
+//	@Param		max			query		string		false	"Maximum price"
+//	@Param		category	query		[]string	false	"Categories filter"	collectionFormat(multi)
+//	@Success	200			{object}	dto.ProductResponse
+//	@Failure	401			{object}	dto.ResponseError
+//	@Failure	500			{object}	dto.ResponseError
+//	@Router		/products/ [get]
+func (p ProductsController) GetAllProducts(c *gin.Context) {
+	var req dto.ProductQueries
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.Error(c, http.StatusBadRequest, "Invalid query parameters")
+		return
+	}
+
+	page := 1
+	if req.Page != "" {
+		page, _ = strconv.Atoi(req.Page)
+		if page < 1 {
+			page = 1
+		}
+	}
+
+	data, totalPage, err := p.productService.GetAllProducts(c.Request.Context(), req)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	var nextPage string
+	var prevPage string
+
+	queryParams := url.Values{}
+	if req.Title != "" {
+		queryParams.Set("title", req.Title)
+	}
+	if req.Min != "" {
+		queryParams.Set("min", req.Min)
+	}
+	if req.Max != "" {
+		queryParams.Set("max", req.Max)
+	}
+	// if req.ID != "" {
+	// 	queryParams.Set("id", req.ID)
+	// }
+	for _, cat := range req.Category {
+		queryParams.Add("category", cat)
+	}
+
+	baseQuery := ""
+	if len(queryParams) > 0 {
+		baseQuery = "&" + queryParams.Encode()
+	}
+
+	if page < totalPage {
+		nextPage = fmt.Sprintf("/products?page=%d%s", page+1, baseQuery)
+	}
+	if page > 1 {
+		prevPage = fmt.Sprintf("/products?page=%d%s", page-1, baseQuery)
+	}
+
+	response.SuccessWithMeta(c, http.StatusOK, "Products Retrieved Successfully", data,
+		dto.PaginationMeta{
+			Page:      page,
+			TotalPage: totalPage,
+			NextPage:  nextPage,
+			PrevPage:  prevPage,
+		},
+	)
+}
+
+// Post Product godoc
+//
+//	@Summary	Post product
+//	@Tags		Admin Product Management
+//	@accept		multipart/form-data
+//	@Produce	json
+//	@Param		images_file		formData	[]file	true	"Product images"
+//	@Param		product_name	formData	string	true	"Products name"
+//	@Param		price			formData	number	true	"Price"
+//	@Param		description		formData	string	true	"Description"
+//	@Success	200				{object}	dto.ResponseSuccess
+//	@Failure	500				{object}	dto.ResponseError
+//	@Failure	401				{object}	dto.ResponseError
+//	@Failure	404				{object}	dto.ResponseError
+//	@Failure	400				{object}	dto.ResponseError
+//	@Router		/admin/products/ [post]
+//	@Security	BearerAuth
+func (p ProductsController) PostProducts(c *gin.Context) {
+	const maxSize = 2 * 1024 * 1024
+	var postImages dto.PostImagesRequest
+
+	token, isExist := c.Get("token")
+	if !isExist {
+		response.Error(c, http.StatusForbidden, "Forbidden Access")
+		return
+	}
+
+	accessToken, _ := token.(jwtutil.JwtClaims)
+
+	if err := c.ShouldBindWith(&postImages, binding.FormMultipart); err != nil {
+		log.Println(err.Error())
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	if postImages.ImagesFile != nil {
+		for key := range len(postImages.ImagesFile) {
+			extPoster := path.Ext(postImages.ImagesFile[key].Filename)
+			re := regexp.MustCompile("^[.](jpg|png)$")
+			if !re.Match([]byte(extPoster)) {
+				response.Error(c, http.StatusBadRequest, "File have to be jpg or png")
+				return
+			}
+			//validasi ukuran
+			if postImages.ImagesFile[key].Size > maxSize {
+				response.Error(c, http.StatusBadRequest, "File maximum 2 MB")
+				return
+			}
+
+			filenamePoster := fmt.Sprintf("%d_product_%d%s", time.Now().UnixNano(), accessToken.UserID, extPoster)
+			postImages.Images_Name = append(postImages.Images_Name, filenamePoster)
+
+			if e := c.SaveUploadedFile(postImages.ImagesFile[key], filepath.Join("public", "products", filenamePoster)); e != nil {
+				log.Printf("error %v", e)
+				response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+				return
+			}
+		}
+	}
+
+	var newProduct dto.PostProductsRequest
+
+	if err := c.ShouldBindWith(&newProduct, binding.FormMultipart); err != nil {
+		str := err.Error()
+		if err.Error() == "Price cant below 0, please change !" {
+			response.Error(c, http.StatusUnprocessableEntity, "Price value cant below 0 !!")
+			return
+		}
+		if strings.Contains(str, "Field") {
+			response.Error(c, http.StatusBadRequest, "Invalid Body")
+			return
+		}
+		if strings.Contains(str, "Empty") {
+			response.Error(c, http.StatusBadRequest, "Invalid Body")
+			return
+		}
+		response.Error(c, http.StatusBadRequest, "Internal Server Error")
+		return
+	}
+
+	_, err := p.productService.PostProduct(c.Request.Context(), newProduct, postImages)
+
+	if err != nil {
+		str := err.Error()
+		if strings.Contains(str, "empty") {
+			response.Error(c, http.StatusBadRequest, "Invalid Body")
+			return
+		}
+		response.Error(c, http.StatusBadRequest, "Invalid Body")
+		return
+	}
+	response.Success(c, http.StatusOK, "Product Inserted", nil)
+}
+
+// UpdateProduct godoc
+//
+//	@Summary	Update product
+//	@Tags		Admin Product Management
+//	@Accept		multipart/form-data
+//	@Produce	json
+//	@Param		id				path		int		true	"Product Id"
+//	@Param		images_file		formData	[]file	false	"Product images"
+//	@Param		product_name	formData	string	false	"Products name"
+//	@Param		price			formData	number	false	"Price"
+//	@Param		description		formData	string	false	"Description"
+//	@Success	200				{object}	dto.ResponseSuccess
+//	@Failure	401				{object}	dto.ResponseError
+//	@Failure	400				{object}	dto.ResponseError
+//	@Failure	404				{object}	dto.ResponseError
+//	@Failure	500				{object}	dto.ResponseError
+//	@Router		/admin/products/{id} [patch]
+//	@security	BearerAuth
+func (p ProductsController) UpdateProduct(c *gin.Context) {
+	id := c.Param("id")
+	strId, _ := strconv.Atoi(id)
+
+	const maxSize = 2 * 1024 * 1024
+	var updateImages dto.PostImagesRequest
+
+	token, isExist := c.Get("token")
+	if !isExist {
+		response.Error(c, http.StatusForbidden, "Forbidden Access")
+		return
+	}
+
+	accessToken, _ := token.(jwtutil.JwtClaims)
+
+	if err := c.ShouldBindWith(&updateImages, binding.FormMultipart); err != nil {
+		log.Println(err.Error())
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	if updateImages.ImagesFile != nil {
+		for key := range len(updateImages.ImagesFile) {
+			extPoster := path.Ext(updateImages.ImagesFile[key].Filename)
+			re := regexp.MustCompile("^[.](jpg|png)$")
+			if !re.Match([]byte(extPoster)) {
+				response.Error(c, http.StatusBadRequest, "File have to be jpg or png")
+				return
+			}
+			//validasi ukuran
+			if updateImages.ImagesFile[key].Size > maxSize {
+				response.Error(c, http.StatusBadRequest, "File maximum 2 MB")
+				return
+			}
+
+			filenamePoster := fmt.Sprintf("%d_product_%d%s", time.Now().UnixNano(), accessToken.UserID, extPoster)
+			updateImages.Images_Name = append(updateImages.Images_Name, filenamePoster)
+
+			if e := c.SaveUploadedFile(updateImages.ImagesFile[key], filepath.Join("public", "products", filenamePoster)); e != nil {
+				log.Printf("error %v", e)
+				response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+				return
+			}
+		}
+	}
+
+	var updateProduct dto.UpdateProductsRequest
+
+	if err := c.ShouldBindWith(&updateProduct, binding.FormMultipart); err != nil {
+		str := err.Error()
+		if strings.Contains(str, "Field") {
+			response.Error(c, http.StatusBadRequest, "Invalid Body")
+			return
+		}
+		if strings.Contains(str, "Empty") {
+			response.Error(c, http.StatusBadRequest, "Invalid Body")
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	if err := p.productService.UpdateProduct(c.Request.Context(), updateProduct, updateImages, strId); err != nil {
+		str := err.Error()
+		if strings.Contains(str, "empty") {
+			response.Error(c, http.StatusBadRequest, "Invalid Body")
+			return
+		}
+		if err.Error() == "no rows in result set" {
+			response.Error(c, http.StatusNotFound, "Data Not Found")
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Product Updated Successfully", nil)
+}
+
+// UpdateProduct godoc
+//
+//	@Summary	Delete product
+//	@Tags		Admin Product Management
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		int	true	"Product id"
+//	@Success	200	{object}	dto.ResponseSuccess
+//	@Failure	401	{object}	dto.ResponseError
+//	@Failure	404	{object}	dto.ResponseError
+//	@Failure	400	{object}	dto.ResponseError
+//	@Failure	500	{object}	dto.ResponseError
+//	@Router		/admin/products/{id} [delete]
+//	@security	BearerAuth
+func (p ProductsController) DeleteProductById(c *gin.Context) {
+	id := c.Param("id")
+	strId, _ := strconv.Atoi(id)
+
+	_, isExist := c.Get("token")
+	if !isExist {
+		response.Error(c, http.StatusForbidden, "Forbidden Access")
+		return
+	}
+
+	if err := p.productService.DeleteProductById(c.Request.Context(), strId); err != nil {
+		if err.Error() == "no data deleted" {
+			response.Error(c, http.StatusNotFound, "Data Not Found")
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	} else {
+		response.Success(c, http.StatusOK, "Product Deleted Successfully", nil)
+	}
+}
+
+// UpdateProduct godoc
+//
+//	@Summary	Delete product image
+//	@Tags		Admin Product Management
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		int	true	"Image id"
+//	@Success	200	{object}	dto.ResponseSuccess
+//	@Failure	401	{object}	dto.ResponseError
+//	@Failure	404	{object}	dto.ResponseError
+//	@Failure	400	{object}	dto.ResponseError
+//	@Failure	500	{object}	dto.ResponseError
+//	@Router		/admin/products/image/{id} [delete]
+//	@security	BearerAuth
+func (p ProductsController) DeleteProductImageById(c *gin.Context) {
+	id := c.Param("id")
+	strId, _ := strconv.Atoi(id)
+
+	_, isExist := c.Get("token")
+	if !isExist {
+		response.Error(c, http.StatusForbidden, "Forbidden Access")
+		return
+	}
+
+	if err := p.productService.DeleteProductImageById(c.Request.Context(), strId); err != nil {
+		if err.Error() == "no data deleted" {
+			response.Error(c, http.StatusNotFound, "Data Not Found")
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	} else {
+		response.Success(c, http.StatusOK, "Product Deleted Successfully", nil)
+	}
+}
+
+// Get detail products by Id godoc
+//
+//	@Summary	Get detail products by id
+//	@Tags		Admin Product Management
+//	@Produce	json
+//	@Param		id	path		int	true	"Id"
+//	@Success	200	{object}	dto.DetailProduct
+//	@Failure	401	{object}	dto.ResponseError
+//	@Failure	404	{object}	dto.ResponseError
+//	@Failure	500	{object}	dto.ResponseError
+//	@Router		/admin/products/{id} [get]
+//	@security	BearerAuth
+func (p ProductsController) GetDetailProductById(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	data, err := p.productService.GetProductById(c.Request.Context(), id)
+
+	_, isExist := c.Get("token")
+	if !isExist {
+		response.Error(c, http.StatusForbidden, "Forbidden Access")
+		return
+	}
+
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			response.Error(c, http.StatusNotFound, "Data Not Found")
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	response.SuccessWithMeta(c, http.StatusOK, "Products Retrieved Successfully", data, nil)
+
+}
+
+// Get detail products by Id godoc
+//
+//	@Summary	Get detail products by id
+//	@Tags		Products
+//	@Produce	json
+//	@Param		id	path		int	true	"Id"
+//	@Success	200	{object}	dto.DetailProductUser
+//	@Failure	401	{object}	dto.ResponseError
+//	@Failure	404	{object}	dto.ResponseError
+//	@Failure	500	{object}	dto.ResponseError
+//	@Router		/products/{id} [get]
+func (p ProductsController) GetDetailProductByUserWithId(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	data, err := p.productService.GetDetailProductByUserWithId(c.Request.Context(), id)
+
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			response.Error(c, http.StatusNotFound, "Data Not Found")
+			return
+		}
+	}
+	response.Success(c, http.StatusOK, "Detail Products Retrieved Successfully", data)
+}
+
+// Get Product Types godoc
+//
+//	@Summary	Get all product types
+//	@Tags		Products
+//	@Produce	json
+//	@Success	200	{object}	[]dto.ProductType
+//	@Failure	500	{object}	dto.ResponseError
+//	@Router		/products/product-types/ [get]
+func (pc *ProductsController) GetAllProductType(c *gin.Context) {
+	data, err := pc.productService.GetAllProductType(c.Request.Context())
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+	response.Success(c, http.StatusOK, "Product Types Retrieved Successfully", data)
+}
+
+// Get Product Sizes godoc
+//
+//	@Summary	Get all product sizes
+//	@Tags		Products
+//	@Produce	json
+//	@Success	200	{object}	[]dto.ProductSize
+//	@Failure	500	{object}	dto.ResponseError
+//	@Router		/products/product-sizes/ [get]
+func (pc *ProductsController) GetAllProductSize(c *gin.Context) {
+	data, err := pc.productService.GetAllProductSize(c.Request.Context())
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Product Sizes Retrieved Successfully", data)
+}
+
+// Get Product Sizes godoc
+//
+//	@Summary	Get all product
+//	@Tags		Admin Product Management
+//	@Produce	json
+//	@Success	200	{object}	[]dto.Product
+//	@Failure	500	{object}	dto.ResponseError
+//	@Router		/products/product-sizes/ [get]
+// func (pc *ProductsController) GetAllProductByAdmin(c *gin.Context) {
+// 	var req dto.ProductAdminQueries
+
+// 	if err := c.ShouldBindQuery(&req); err != nil {
+// 		response.Error(c, http.StatusBadRequest, "Invalid query parameters")
+// 		return
+// 	}
+
+// 	page := 1
+// 	if req.Page != "" {
+// 		page, _ = strconv.Atoi(req.Page)
+// 		if page < 1 {
+// 			page = 1
+// 		}
+// 	}
+
+// 	data, totalPage, err := pc.productService.GetAllProductByAdmin(c, page)
+// 	if err != nil {
+// 		response.Error(c, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+// 		return
+// 	}
+
+// 	var nextPage string
+// 	var prevPage string
+
+// 	if page < totalPage {
+// 		nextPage = fmt.Sprintf("/admin/products?page=%d", page+1)
+// 	}
+// 	if page > 1 {
+// 		prevPage = fmt.Sprintf("/admin/products?page=%d", page-1)
+// 	}
+
+// 	response.SuccessWithMeta(c, http.StatusOK, "Products Data Retrieved Successfully", data,
+// 		dto.PaginationMeta{
+// 			Page:      page,
+// 			TotalPage: totalPage,
+// 			NextPage:  nextPage,
+// 			PrevPage:  prevPage,
+// 		},
+// 	)
+// }

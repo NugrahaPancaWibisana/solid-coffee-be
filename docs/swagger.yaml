@@ -1,5 +1,141 @@
 basePath: /
 definitions:
+  dto.AddReview:
+    properties:
+      dt_orderid:
+        type: integer
+      rating:
+        type: integer
+    required:
+    - dt_orderid
+    - rating
+    type: object
+  dto.CreateMenuOrder:
+    properties:
+      menu_id:
+        type: integer
+      product_size_id:
+        type: integer
+      product_type_id:
+        type: integer
+      qty:
+        type: integer
+    type: object
+  dto.CreateOrder:
+    properties:
+      menus:
+        description: Status   string            `json:"status" binding:"required"`
+        items:
+          $ref: '#/definitions/dto.CreateMenuOrder'
+        type: array
+      payment_id:
+        type: integer
+      shipping:
+        type: string
+    required:
+    - menus
+    - payment_id
+    - shipping
+    type: object
+  dto.DetailItemResponse:
+    properties:
+      image:
+        items:
+          type: string
+        type: array
+      item_name:
+        type: string
+      product_size:
+        type: string
+      product_type:
+        type: string
+      qty:
+        type: integer
+      subtotal:
+        type: string
+    type: object
+  dto.DetailOrderResponse:
+    properties:
+      address:
+        type: string
+      date_order:
+        type: string
+      detail_item:
+        items:
+          $ref: '#/definitions/dto.DetailItemResponse'
+        type: array
+      fullname:
+        type: string
+      order_id:
+        type: string
+      payment_method:
+        type: string
+      phone:
+        type: string
+      shipping:
+        type: string
+      status:
+        type: string
+      total:
+        type: string
+    type: object
+  dto.DetailProduct:
+    properties:
+      description:
+        type: string
+      id_images:
+        items:
+          type: string
+        type: array
+      id_product:
+        type: integer
+      images:
+        items:
+          type: string
+        type: array
+      price:
+        type: number
+      product_name:
+        type: string
+    type: object
+  dto.DetailProductUser:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      id_product:
+        type: integer
+      images:
+        type: string
+      price:
+        type: number
+      product_name:
+        type: string
+      rating:
+        type: number
+      total_review:
+        type: integer
+    type: object
+  dto.ForgotPasswordRequest:
+    properties:
+      email:
+        example: example123@gmail.com
+        type: string
+    required:
+    - email
+    type: object
+  dto.History:
+    properties:
+      date:
+        type: string
+      order_id:
+        type: string
+      status:
+        type: string
+      total:
+        type: number
+    type: object
   dto.JWT:
     properties:
       token:
@@ -28,6 +164,83 @@ definitions:
       status:
         example: Success
         type: string
+    type: object
+  dto.MenuRequest:
+    properties:
+      discount:
+        example: 0.5
+        maximum: 100
+        minimum: 0
+        type: number
+      product_id:
+        example: 1
+        type: integer
+      stock:
+        example: 10
+        minimum: 0
+        type: integer
+    required:
+    - product_id
+    - stock
+    type: object
+  dto.PaginationMeta:
+    properties:
+      next_page:
+        type: string
+      page:
+        type: integer
+      prev_page:
+        type: string
+      total_page:
+        type: integer
+    type: object
+  dto.ProductResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.Products'
+        type: array
+      message:
+        example: Data retrieved successfully
+        type: string
+      meta:
+        $ref: '#/definitions/dto.PaginationMeta'
+      status:
+        example: Success
+        type: string
+    type: object
+  dto.ProductSize:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: integer
+    type: object
+  dto.ProductType:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: integer
+    type: object
+  dto.Products:
+    properties:
+      discount:
+        type: number
+      id:
+        type: integer
+      image_products:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      rating_product:
+        type: number
     type: object
   dto.RegisterRequest:
     properties:
@@ -81,6 +294,104 @@ definitions:
         example: Success
         type: string
     type: object
+  dto.UpdateForgotPasswordRequest:
+    properties:
+      confirm_password:
+        example: example123
+        type: string
+      otp_code:
+        example: "123456"
+        maxLength: 6
+        type: string
+      password:
+        example: example123
+        minLength: 8
+        type: string
+    required:
+    - confirm_password
+    - otp_code
+    - password
+    type: object
+  dto.UpdateMenuRequest:
+    properties:
+      discount:
+        example: 10
+        maximum: 100
+        minimum: 0
+        type: number
+      product_id:
+        example: 1
+        type: integer
+      stock:
+        example: 10
+        minimum: 0
+        type: integer
+    type: object
+  dto.UpdatePasswordRequest:
+    properties:
+      new_password:
+        example: example321
+        minLength: 8
+        type: string
+      old_password:
+        example: example123
+        minLength: 8
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  dto.UpdateStatusOrder:
+    properties:
+      order_id:
+        type: string
+      status:
+        type: string
+    required:
+    - order_id
+    - status
+    type: object
+  dto.User:
+    properties:
+      address:
+        example: Jakarta
+        type: string
+      created_at:
+        example: "2025-01-01T09:00:00Z"
+        type: string
+      email:
+        example: user@example.com
+        type: string
+      fullname:
+        example: John Doe
+        type: string
+      id:
+        example: 1
+        type: integer
+      last_login:
+        example: "2025-01-01T10:00:00Z"
+        type: string
+      phone:
+        example: "081234567890"
+        type: string
+      photo:
+        example: avatar.png
+        type: string
+      role:
+        example: user
+        type: string
+    type: object
+  dto.UserProfileResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.User'
+      message:
+        example: Data retrieved successfully
+        type: string
+      status:
+        example: Success
+        type: string
+    type: object
 host: 192.168.50.221:8080
 info:
   contact: {}
@@ -88,6 +399,595 @@ info:
   title: Solid Coffee Backend
   version: "1.0"
 paths:
+  /admin/menu/:
+    get:
+      description: Get all menu items with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get all menus
+      tags:
+      - Admin Menu Management
+    post:
+      consumes:
+      - application/json
+      description: Create a new menu item
+      parameters:
+      - description: Menu data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MenuRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Create menu
+      tags:
+      - Admin Menu Management
+  /admin/menu/{id}:
+    delete:
+      description: Delete menu item by ID
+      parameters:
+      - description: Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Delete menu
+      tags:
+      - Admin Menu Management
+    get:
+      description: Get menu item details by ID
+      parameters:
+      - description: Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get menu by ID
+      tags:
+      - Admin Menu Management
+    patch:
+      consumes:
+      - application/json
+      description: Update menu item by ID
+      parameters:
+      - description: Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Menu data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateMenuRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Update menu
+      tags:
+      - Admin Menu Management
+  /admin/orders/:
+    get:
+      parameters:
+      - description: Page Start
+        in: query
+        name: page
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ProductType'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get all order
+      tags:
+      - Admin Order Management
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Update status order
+        in: body
+        name: orders
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateStatusOrder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Update status
+      tags:
+      - Admin Order Management
+  /admin/products/:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - collectionFormat: csv
+        description: Product images
+        in: formData
+        items:
+          type: file
+        name: images_file
+        required: true
+        type: array
+      - description: Products name
+        in: formData
+        name: product_name
+        required: true
+        type: string
+      - description: Price
+        in: formData
+        name: price
+        required: true
+        type: number
+      - description: Description
+        in: formData
+        name: description
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Post product
+      tags:
+      - Admin Product Management
+  /admin/products/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Product id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Delete product
+      tags:
+      - Admin Product Management
+    get:
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DetailProduct'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get detail products by id
+      tags:
+      - Admin Product Management
+    patch:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Product Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - collectionFormat: csv
+        description: Product images
+        in: formData
+        items:
+          type: file
+        name: images_file
+        type: array
+      - description: Products name
+        in: formData
+        name: product_name
+        type: string
+      - description: Price
+        in: formData
+        name: price
+        type: number
+      - description: Description
+        in: formData
+        name: description
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Update product
+      tags:
+      - Admin Product Management
+  /admin/products/image/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Image id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Delete product image
+      tags:
+      - Admin Product Management
+  /admin/user/:
+    get:
+      description: Get authenticated user's profile information
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserProfileResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get all user profile
+      tags:
+      - Admin User Management
+    post:
+      consumes:
+      - multipart/form-data
+      description: Insert authenticated user's profile information
+      parameters:
+      - description: Profile photo
+        in: formData
+        name: photo
+        required: true
+        type: file
+      - description: Full name (min 3 chars)
+        in: formData
+        name: fullname
+        required: true
+        type: string
+      - description: Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: Password (min 8 chars)
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: Phone number (min 3 chars)
+        in: formData
+        name: phone
+        required: true
+        type: string
+      - description: Address (min 3 chars)
+        in: formData
+        name: address
+        required: true
+        type: string
+      - description: role (user or admin)
+        in: formData
+        name: role
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Insert user profile
+      tags:
+      - Admin User Management
+  /admin/user/{id}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: Delete authenticated user's profile information
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Delete user profile
+      tags:
+      - Admin User Management
+    patch:
+      consumes:
+      - multipart/form-data
+      description: Update authenticated user's profile information
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        type: integer
+      - description: Profile photo
+        in: formData
+        name: photo
+        type: file
+      - description: Full name (min 3 chars)
+        in: formData
+        name: fullname
+        type: string
+      - description: Phone number (min 3 chars)
+        in: formData
+        name: phone
+        type: string
+      - description: Address (min 3 chars)
+        in: formData
+        name: address
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - Admin User Management
   /auth/:
     delete:
       description: Logout user and invalidate token
@@ -140,7 +1040,67 @@ paths:
             $ref: '#/definitions/dto.ResponseError'
       summary: User login
       tags:
-      - auth
+      - Auth
+  /auth/forgot-password/:
+    post:
+      consumes:
+      - application/json
+      description: Send OTP to registered email
+      parameters:
+      - description: Forgot password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      summary: Request OTP for forgot password
+      tags:
+      - Auth
+  /auth/forgot-password/update:
+    post:
+      consumes:
+      - application/json
+      description: Verify OTP and update user password
+      parameters:
+      - description: Update forgot password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      summary: Update password using OTP
+      tags:
+      - Auth
   /auth/new/:
     post:
       consumes:
@@ -170,7 +1130,353 @@ paths:
             $ref: '#/definitions/dto.ResponseError'
       summary: Register new user
       tags:
-      - auth
+      - Auth
+  /orders/:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Create order
+        in: body
+        name: movies
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateOrder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Create order
+      tags:
+      - Orders
+  /orders/history:
+    get:
+      parameters:
+      - description: Page Start
+        in: query
+        name: page
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.History'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get all history
+      tags:
+      - Orders
+  /orders/history/{id}:
+    get:
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DetailOrderResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get detail history by id
+      tags:
+      - Orders
+  /orders/review/:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Add review
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AddReview'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Add review to order
+      tags:
+      - Admin Order Management
+  /products/:
+    get:
+      parameters:
+      - description: Blacklist id product
+        in: query
+        name: id
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: string
+      - description: Product title search
+        in: query
+        name: title
+        type: string
+      - description: Minimum price
+        in: query
+        name: min
+        type: string
+      - description: Maximum price
+        in: query
+        name: max
+        type: string
+      - collectionFormat: multi
+        description: Categories filter
+        in: query
+        items:
+          type: string
+        name: category
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProductResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      summary: Get all products
+      tags:
+      - Products
+  /products/{id}:
+    get:
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DetailProductUser'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      summary: Get detail products by id
+      tags:
+      - Products
+  /products/product-sizes/:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ProductSize'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      summary: Get all product sizes
+      tags:
+      - Products
+  /products/product-types/:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ProductType'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      summary: Get all product types
+      tags:
+      - Products
+  /user/:
+    get:
+      description: Get authenticated user's profile information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserProfileResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Get user profile
+      tags:
+      - Users
+    patch:
+      consumes:
+      - multipart/form-data
+      description: Update authenticated user's profile information
+      parameters:
+      - description: Profile photo
+        in: formData
+        name: photo
+        type: file
+      - description: Full name (min 3 chars)
+        in: formData
+        name: fullname
+        type: string
+      - description: Phone number (min 3 chars)
+        in: formData
+        name: phone
+        type: string
+      - description: Address (min 3 chars)
+        in: formData
+        name: address
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - Users
+  /user/password/:
+    patch:
+      consumes:
+      - application/json
+      description: Update authenticated user's password
+      parameters:
+      - description: Edit password data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Change user password
+      tags:
+      - Users
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.
