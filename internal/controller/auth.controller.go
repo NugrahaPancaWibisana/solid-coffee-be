@@ -264,7 +264,7 @@ func (ac *AuthController) UpdateForgotPassword(ctx *gin.Context) {
 //
 //	@Summary		User logout
 //	@Description	Logout user and invalidate token
-//	@Tags			auth
+//	@Tags			Auth
 //	@Produce		json
 //	@Security		BearerAuth
 //	@Success		200	{object}	dto.ResponseSuccess

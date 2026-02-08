@@ -1011,7 +1011,7 @@ paths:
       - BearerAuth: []
       summary: User logout
       tags:
-      - auth
+      - Auth
     post:
       consumes:
       - application/json
