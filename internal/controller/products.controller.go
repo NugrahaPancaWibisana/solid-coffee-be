@@ -44,7 +44,7 @@ func NewProductsController(productService *service.ProductService) *ProductsCont
 //	@Success	200			{object}	dto.ProductResponse
 //	@Failure	401			{object}	dto.ResponseError
 //	@Failure	500			{object}	dto.ResponseError
-//	@Router		/products/ [get]
+//	@Router		/products [get]
 func (p ProductsController) GetAllProducts(c *gin.Context) {
 	var req dto.ProductQueries
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -123,7 +123,7 @@ func (p ProductsController) GetAllProducts(c *gin.Context) {
 //	@Failure	401				{object}	dto.ResponseError
 //	@Failure	404				{object}	dto.ResponseError
 //	@Failure	400				{object}	dto.ResponseError
-//	@Router		/admin/products/ [post]
+//	@Router		/admin/products [post]
 //	@Security	BearerAuth
 func (p ProductsController) PostProducts(c *gin.Context) {
 	const maxSize = 2 * 1024 * 1024
@@ -437,7 +437,7 @@ func (p ProductsController) GetDetailProductByUserWithId(c *gin.Context) {
 //	@Produce	json
 //	@Success	200	{object}	[]dto.ProductType
 //	@Failure	500	{object}	dto.ResponseError
-//	@Router		/products/product-types/ [get]
+//	@Router		/products/product-types [get]
 func (pc *ProductsController) GetAllProductType(c *gin.Context) {
 	data, err := pc.productService.GetAllProductType(c.Request.Context())
 	if err != nil {
@@ -454,7 +454,7 @@ func (pc *ProductsController) GetAllProductType(c *gin.Context) {
 //	@Produce	json
 //	@Success	200	{object}	[]dto.ProductSize
 //	@Failure	500	{object}	dto.ResponseError
-//	@Router		/products/product-sizes/ [get]
+//	@Router		/products/product-sizes [get]
 func (pc *ProductsController) GetAllProductSize(c *gin.Context) {
 	data, err := pc.productService.GetAllProductSize(c.Request.Context())
 	if err != nil {

@@ -33,7 +33,7 @@ func NewAuthController(authService *service.AuthService) *AuthController {
 //	@Success		200		{object}	dto.LoginResponse
 //	@Failure		400		{object}	dto.ResponseError
 //	@Failure		401		{object}	dto.ResponseError
-//	@Router			/auth/ [post]
+//	@Router			/auth [post]
 func (ac *AuthController) Login(ctx *gin.Context) {
 	var req dto.LoginRequest
 
@@ -97,7 +97,7 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 //	@Success		201		{object}	dto.RegisterResponse
 //	@Failure		400		{object}	dto.ResponseError
 //	@Failure		500		{object}	dto.ResponseError
-//	@Router			/auth/new/ [post]
+//	@Router			/auth/new [post]
 func (ac *AuthController) Register(ctx *gin.Context) {
 	var req dto.RegisterRequest
 
@@ -169,7 +169,7 @@ func (ac *AuthController) Register(ctx *gin.Context) {
 //	@Success		200		{object}	dto.ResponseSuccess
 //	@Failure		400		{object}	dto.ResponseError
 //	@Failure		500		{object}	dto.ResponseError
-//	@Router			/auth/forgot-password/ [post]
+//	@Router			/auth/forgot-password [post]
 func (ac *AuthController) ForgotPassword(ctx *gin.Context) {
 	var req dto.ForgotPasswordRequest
 
@@ -270,7 +270,7 @@ func (ac *AuthController) UpdateForgotPassword(ctx *gin.Context) {
 //	@Success		200	{object}	dto.ResponseSuccess
 //	@Failure		401	{object}	dto.ResponseError
 //	@Failure		500	{object}	dto.ResponseError
-//	@Router			/auth/ [delete]
+//	@Router			/auth [delete]
 //	@Security		BearerAuth
 func (ac *AuthController) Logout(ctx *gin.Context) {
 	claims, exists := ctx.Get("token")

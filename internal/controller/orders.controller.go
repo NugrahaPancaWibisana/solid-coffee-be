@@ -36,7 +36,7 @@ func NewOrdersController(orderService *service.OrderService) *OrdersController {
 //	@Failure	404		{object}	dto.ResponseError
 //	@Failure	400		{object}	dto.ResponseError
 //	@Failure	401		{object}	dto.ResponseError
-//	@Router		/orders/ [post]
+//	@Router		/orders [post]
 //	@Security	BearerAuth
 func (o OrdersController) CreateOrder(c *gin.Context) {
 
@@ -91,7 +91,7 @@ func (o OrdersController) CreateOrder(c *gin.Context) {
 //	@Failure	404		{object}	dto.ResponseError
 //	@Failure	422		{object}	dto.ResponseError
 //	@Failure	500		{object}	dto.ResponseError
-//	@Router		/admin/orders/ [patch]
+//	@Router		/admin/orders [patch]
 //	@security	BearerAuth
 func (o OrdersController) UpdateStatusOrder(c *gin.Context) {
 	var updtStatus dto.UpdateStatusOrder
@@ -140,7 +140,7 @@ func (o OrdersController) UpdateStatusOrder(c *gin.Context) {
 //	@Failure	401		{object}	dto.ResponseError
 //	@Failure	403		{object}	dto.ResponseError
 //	@Failure	500		{object}	dto.ResponseError
-//	@Router		/orders/review/ [post]
+//	@Router		/orders/review [post]
 //	@Security	BearerAuth
 func (o OrdersController) AddReview(ctx *gin.Context) {
 	var req dto.AddReview
@@ -196,7 +196,7 @@ func (o OrdersController) AddReview(ctx *gin.Context) {
 //	@Success	200		{object}	[]dto.ProductType
 //	@Failure	401		{object}	dto.ResponseError
 //	@Failure	500		{object}	dto.ResponseError
-//	@Router		/admin/orders/ [get]
+//	@Router		/admin/orders [get]
 //	@Security	BearerAuth
 func (o *OrdersController) GetAllOrderByAdmin(c *gin.Context) {
 	var req dto.OrderQueries
