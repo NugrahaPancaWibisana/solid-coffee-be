@@ -117,7 +117,7 @@ func (o OrderService) CreateOrder(ctx context.Context, order dto.CreateOrder, us
 }
 
 func (o OrderService) UpdateStatusByOrderId(ctx context.Context, sts dto.UpdateStatusOrder) error {
-	status := []string{"pending, done, canceled"}
+	status := []string{"pending, done, cancelled"}
 	isAvailable := slices.Contains(status, sts.Status)
 
 	if !isAvailable {
