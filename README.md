@@ -261,7 +261,7 @@ swag init -g cmd/main.go -o docs
 
 ### API Endpoints
 
-**Authentication**
+_**Authentication**_
 
 - `POST /auth` - User login
 - `POST /auth/new` - Register new user
@@ -269,7 +269,7 @@ swag init -g cmd/main.go -o docs
 - `POST /auth/forgot-password` - Request password reset
 - `POST /auth/forgot-password/update` - Update password after reset
 
-**Users**
+_**Users**_
 
 - `GET /user` - Get current user profile (user/admin role required)
 - `PATCH /user` - Update user profile (user/admin role required)
@@ -279,7 +279,7 @@ swag init -g cmd/main.go -o docs
 - `PATCH /admin/user/:id` - Update user profile (admin role required)
 - `DELETE /admin/user/:id` - Delete user (admin role required)
 
-**Products**
+_**Products**_
 
 - `GET /products` - List all products
 - `GET /products/:id` - Get product by ID
@@ -291,7 +291,7 @@ swag init -g cmd/main.go -o docs
 - `DELETE /admin/products/:id` - Delete product (admin role required)
 - `DELETE /admin/products/image/:id` - Delete product image (admin role required)
 
-**Orders**
+_**Orders**_
 
 - `POST /orders` - Create new order (user role required)
 - `GET /orders/history` - List user order history (user role required)
@@ -300,7 +300,7 @@ swag init -g cmd/main.go -o docs
 - `GET /admin/orders` - List all orders (admin role required)
 - `PATCH /admin/orders` - Update order status (admin role required)
 
-**Menu**
+_**Menu**_
 
 - `GET /admin/menu` - List menu items (admin role required)
 - `GET /admin/menu/:id` - Get menu item details (admin role required)
