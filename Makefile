@@ -15,4 +15,9 @@ migrate-down:
 
 seeder:
 	psql -q -h $(DB_HOST) -p $(DB_PORT) -U $(DB_USERNAME) -d $(DB_NAME) -f $(SEEDER_PATH)
-	
+
+run:
+	go run ./cmd/main.go
+
+dev:
+	air

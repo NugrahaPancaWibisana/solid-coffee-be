@@ -9,6 +9,7 @@ import (
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/response"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/service"
+	jwtutil "github.com/NugrahaPancaWibisana/solid-coffee-be/pkg/jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 )
@@ -257,4 +258,62 @@ func (ac *AuthController) UpdateForgotPassword(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, http.StatusOK, "Password updated successfully", nil)
+}
+
+// Logout godoc
+//
+//	@Summary		User logout
+//	@Description	Logout user and invalidate token
+//	@Tags			Auth
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Success		200	{object}	dto.ResponseSuccess
+//	@Failure		401	{object}	dto.ResponseError
+//	@Failure		500	{object}	dto.ResponseError
+//	@Router			/auth/ [delete]
+//	@Security		BearerAuth
+func (ac *AuthController) Logout(ctx *gin.Context) {
+	claims, exists := ctx.Get("token")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, dto.ResponseError{
+			Status:  "error",
+			Error:   "Unauthorized",
+			Message: "Unauthorized. Access token is missing, invalid, audience is incorrect, or has expired.",
+		})
+		return
+	}
+
+	jwtClaims, ok := claims.(jwtutil.JwtClaims)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, dto.ResponseError{
+			Status:  "error",
+			Message: "Internal Server Error",
+			Error:   "internal server error",
+		})
+		return
+	}
+
+	err := ac.authService.Logout(ctx, jwtClaims.UserID)
+	if err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) || errors.Is(err, apperror.ErrLogoutFailed) {
+			ctx.JSON(http.StatusBadRequest, dto.ResponseError{
+				Error:   "Bad Request",
+				Message: err.Error(),
+				Status:  "error",
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, dto.ResponseError{
+			Status:  "error",
+			Message: "Internal Server Error",
+			Error:   "internal server error",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.ResponseSuccess{
+		Status:  "success",
+		Message: "Logout successful",
+	})
 }

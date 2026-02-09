@@ -989,6 +989,29 @@ paths:
       tags:
       - Admin User Management
   /auth/:
+    delete:
+      description: Logout user and invalidate token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseError'
+      security:
+      - BearerAuth: []
+      - BearerAuth: []
+      summary: User logout
+      tags:
+      - Auth
     post:
       consumes:
       - application/json

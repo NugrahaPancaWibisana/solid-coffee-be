@@ -1,15 +1,32 @@
+# HTTP test files
 *.http
 
-.env.production
-.env.staging
+# Environment files
 .env
 .env.local
+.env.production
+.env.staging
 
+# IDE
 .idea
 .vscode
 
+# Air live reload
 # .air.toml
-tmp
+tmp/
 
+# Debug binaries
 */__debug_bin*
-public
+__debug_bin*
+
+# Uploads
+public/products/*
+public/profile/*
+cmd/public/products/*
+cmd/public/profile/*
+
+# Keep directory structure
+!public/products/.gitkeep
+!public/profile/.gitkeep
+!cmd/public/products/.gitkeep
+!cmd/public/profile/.gitkeep
