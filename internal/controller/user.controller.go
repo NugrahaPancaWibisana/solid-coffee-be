@@ -44,7 +44,7 @@ func NewUserController(userService *service.UserService) *UserController {
 //	@Success		200			{object}	dto.ResponseSuccess
 //	@Failure		400			{object}	dto.ResponseError
 //	@Failure		401			{object}	dto.ResponseError
-//	@Router			/user/ [patch]
+//	@Router			/user [patch]
 //	@Security		BearerAuth
 func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 	var req dto.UpdateProfileRequest
@@ -271,7 +271,7 @@ func (uc *UserController) UpdateProfileAdmin(ctx *gin.Context) {
 //	@Success		200		{object}	dto.ResponseSuccess
 //	@Failure		400		{object}	dto.ResponseError
 //	@Failure		401		{object}	dto.ResponseError
-//	@Router			/user/password/ [patch]
+//	@Router			/user/password [patch]
 //	@Security		BearerAuth
 func (uc *UserController) UpdatePassword(ctx *gin.Context) {
 	var req dto.UpdatePasswordRequest
@@ -340,7 +340,7 @@ func (uc *UserController) UpdatePassword(ctx *gin.Context) {
 //	@Produce		json
 //	@Success		200	{object}	dto.UserProfileResponse
 //	@Failure		401	{object}	dto.ResponseError
-//	@Router			/user/ [get]
+//	@Router			/user [get]
 //	@Security		BearerAuth
 func (uc *UserController) GetProfile(ctx *gin.Context) {
 	token := strings.Split(ctx.GetHeader("Authorization"), " ")
@@ -381,7 +381,7 @@ func (uc *UserController) GetProfile(ctx *gin.Context) {
 //	@Success		201			{object}	dto.ResponseSuccess
 //	@Failure		400			{object}	dto.ResponseError
 //	@Failure		401			{object}	dto.ResponseError
-//	@Router			/admin/user/ [post]
+//	@Router			/admin/user [post]
 //	@Security		BearerAuth
 func (uc *UserController) InsertUser(ctx *gin.Context) {
 	var req dto.InsertUserRequest
@@ -556,7 +556,7 @@ func (uc *UserController) DeleteUser(ctx *gin.Context) {
 //	@Param			page	query		string	false	"Page number"
 //	@Success		200		{object}	dto.UserProfileResponse
 //	@Failure		401		{object}	dto.ResponseError
-//	@Router			/admin/user/ [get]
+//	@Router			/admin/user [get]
 //	@Security		BearerAuth
 func (uc *UserController) GetUsers(ctx *gin.Context) {
 	var req dto.UserQueries

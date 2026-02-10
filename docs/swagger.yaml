@@ -401,7 +401,7 @@ info:
   title: Solid Coffee Backend
   version: "1.0"
 paths:
-  /admin/menu/:
+  /admin/menu:
     get:
       description: Get all menu items with pagination
       parameters:
@@ -545,7 +545,7 @@ paths:
       summary: Update menu
       tags:
       - Admin Menu Management
-  /admin/orders/:
+  /admin/orders:
     get:
       parameters:
       - description: Page Start
@@ -616,7 +616,7 @@ paths:
       summary: Update status
       tags:
       - Admin Order Management
-  /admin/products/:
+  /admin/products:
     post:
       consumes:
       - multipart/form-data
@@ -835,7 +835,7 @@ paths:
       summary: Delete product image
       tags:
       - Admin Product Management
-  /admin/user/:
+  /admin/user:
     get:
       description: Get authenticated user's profile information
       parameters:
@@ -990,7 +990,7 @@ paths:
       summary: Update user profile
       tags:
       - Admin User Management
-  /auth/:
+  /auth:
     delete:
       description: Logout user and invalidate token
       produces:
@@ -1043,7 +1043,7 @@ paths:
       summary: User login
       tags:
       - Auth
-  /auth/forgot-password/:
+  /auth/forgot-password:
     post:
       consumes:
       - application/json
@@ -1103,7 +1103,7 @@ paths:
       summary: Update password using OTP
       tags:
       - Auth
-  /auth/new/:
+  /auth/new:
     post:
       consumes:
       - application/json
@@ -1133,7 +1133,7 @@ paths:
       summary: Register new user
       tags:
       - Auth
-  /orders/:
+  /orders:
     post:
       consumes:
       - application/json
@@ -1234,7 +1234,7 @@ paths:
       summary: Get detail history by id
       tags:
       - Orders
-  /orders/review/:
+  /orders/review:
     post:
       consumes:
       - application/json
@@ -1272,8 +1272,8 @@ paths:
       - BearerAuth: []
       summary: Add review to order
       tags:
-      - Admin Order Management
-  /products/:
+      - Orders
+  /products:
     get:
       parameters:
       - description: Blacklist id product
@@ -1351,7 +1351,7 @@ paths:
       summary: Get detail products by id
       tags:
       - Products
-  /products/product-sizes/:
+  /products/product-sizes:
     get:
       produces:
       - application/json
@@ -1369,7 +1369,7 @@ paths:
       summary: Get all product sizes
       tags:
       - Products
-  /products/product-types/:
+  /products/product-types:
     get:
       produces:
       - application/json
@@ -1387,7 +1387,7 @@ paths:
       summary: Get all product types
       tags:
       - Products
-  /user/:
+  /user:
     get:
       description: Get authenticated user's profile information
       produces:
@@ -1447,7 +1447,7 @@ paths:
       summary: Update user profile
       tags:
       - Users
-  /user/password/:
+  /user/password:
     patch:
       consumes:
       - application/json

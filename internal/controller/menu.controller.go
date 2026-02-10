@@ -35,7 +35,7 @@ func NewMenuController(menuService *service.MenuService) *MenuController {
 //	@Success		201		{object}	dto.ResponseSuccess
 //	@Failure		400		{object}	dto.ResponseError
 //	@Failure		401		{object}	dto.ResponseError
-//	@Router			/admin/menu/ [post]
+//	@Router			/admin/menu [post]
 //	@Security		BearerAuth
 func (mc *MenuController) CreateMenu(ctx *gin.Context) {
 	var req dto.MenuRequest
@@ -132,7 +132,7 @@ func (mc *MenuController) GetMenu(ctx *gin.Context) {
 //	@Param			page	query		string	false	"Page number"
 //	@Success		200		{object}	dto.ResponseSuccess
 //	@Failure		401		{object}	dto.ResponseError
-//	@Router			/admin/menu/ [get]
+//	@Router			/admin/menu [get]
 //	@Security		BearerAuth
 func (mc *MenuController) GetMenus(ctx *gin.Context) {
 	var req dto.MenuParams
