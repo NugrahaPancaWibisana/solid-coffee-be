@@ -78,6 +78,7 @@ type DetailOrderResponse struct {
 }
 
 type DetailItemResponse struct {
+	Detail_Id   int      `json:"detail_id"`
 	ItemName    string   `json:"item_name"`
 	Qty         int      `json:"qty"`
 	Images      []string `json:"image"`
