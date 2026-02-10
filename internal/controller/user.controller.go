@@ -338,7 +338,6 @@ func (uc *UserController) UpdatePassword(ctx *gin.Context) {
 //	@Description	Get authenticated user's profile information
 //	@Tags			Users
 //	@Produce		json
-//	@path
 //	@Success		200	{object}	dto.UserProfileResponse
 //	@Failure		401	{object}	dto.ResponseError
 //	@Router			/user/ [get]
