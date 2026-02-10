@@ -39,6 +39,8 @@ definitions:
     type: object
   dto.DetailItemResponse:
     properties:
+      detail_id:
+        type: integer
       image:
         items:
           type: string
