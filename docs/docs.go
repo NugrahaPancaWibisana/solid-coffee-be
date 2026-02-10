@@ -1762,6 +1762,9 @@ const docTemplate = `{
         "dto.DetailItemResponse": {
             "type": "object",
             "properties": {
+                "detail_id": {
+                    "type": "integer"
+                },
                 "image": {
                     "type": "array",
                     "items": {
