@@ -401,6 +401,10 @@ solid-coffee-be/
 - Nugraha Panca Wibisana - Backend Developer & Github Master
 - Ari Ramadhan - Backend Developer
 
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
 ## Acknowledgments
 
 - Go community for excellent tooling and libraries
