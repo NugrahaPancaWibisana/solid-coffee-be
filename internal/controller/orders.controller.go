@@ -131,7 +131,7 @@ func (o OrdersController) UpdateStatusOrder(c *gin.Context) {
 // AddReview godoc
 //
 //	@Summary	Add review to order
-//	@Tags		Admin Order Management
+//	@Tags		Orders
 //	@Accept		json
 //	@Produce	json
 //	@Param		request	body		dto.AddReview	true	"Add review"

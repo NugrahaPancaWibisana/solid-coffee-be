@@ -30,11 +30,44 @@ func NewProductService(productRepository *repository.ProductRepository, db *pgxp
 	}
 }
 
-func (p ProductService) GetAllProducts(ctx context.Context, req dto.ProductQueries) ([]dto.Products, int, error) {
+func (ps *ProductService) invalidateProductsCache(ctx context.Context) error {
+	pattern := fmt.Sprintf("%s:products:*", os.Getenv("RDB_KEY"))
+	
+	iter := ps.redis.Scan(ctx, 0, pattern, 0).Iterator()
+	for iter.Next(ctx) {
+		err := ps.redis.Del(ctx, iter.Val()).Err()
+		if err != nil {
+			log.Printf("failed to delete cache key %s: %v", iter.Val(), err)
+		}
+	}
+	
+	if err := iter.Err(); err != nil {
+		log.Printf("error during cache invalidation: %v", err)
+		return err
+	}
+	
+	return nil
+}
+
+func (ps *ProductService) invalidateCache(ctx context.Context, keys ...string) error {
+	if len(keys) == 0 {
+		return nil
+	}
+	
+	err := ps.redis.Del(ctx, keys...).Err()
+	if err != nil {
+		log.Printf("failed to invalidate cache: %v", err)
+		return err
+	}
+	
+	return nil
+}
+
+func (ps ProductService) GetAllProducts(ctx context.Context, req dto.ProductQueries) ([]dto.Products, int, error) {
 	rkey := fmt.Sprintf("%s:products:page=%s:title=%s:min=%s:max=%s:categories=%s",
 		os.Getenv("RDB_KEY"), req.Page, req.Title, req.Min, req.Max, strings.Join(req.Category, ","))
 
-	rsc := p.redis.Get(ctx, rkey)
+	rsc := ps.redis.Get(ctx, rkey)
 	if rsc.Err() == nil {
 		var result struct {
 			Products  []dto.Products `json:"products"`
@@ -56,12 +89,12 @@ func (p ProductService) GetAllProducts(ctx context.Context, req dto.ProductQueri
 		log.Println("products cache miss")
 	}
 
-	totalPage, err := p.productRepository.GetTotalPage(ctx, p.db, req)
+	totalPage, err := ps.productRepository.GetTotalPage(ctx, ps.db, req)
 	if err != nil {
 		return []dto.Products{}, 0, err
 	}
 
-	data, err := p.productRepository.GetProducts(ctx, p.db, req)
+	data, err := ps.productRepository.GetProducts(ctx, ps.db, req)
 	if err != nil {
 		return []dto.Products{}, 0, err
 	}
@@ -92,7 +125,7 @@ func (p ProductService) GetAllProducts(ctx context.Context, req dto.ProductQueri
 		log.Println("failed to marshal")
 	}
 
-	rdsStatus := p.redis.Set(ctx, rkey, string(cacheStr), time.Minute*10)
+	rdsStatus := ps.redis.Set(ctx, rkey, string(cacheStr), time.Minute*10)
 	if rdsStatus.Err() != nil {
 		log.Println("caching failed")
 		log.Println(rdsStatus.Err().Error())
@@ -101,21 +134,21 @@ func (p ProductService) GetAllProducts(ctx context.Context, req dto.ProductQueri
 	return response, totalPage, nil
 }
 
-func (p ProductService) PostProduct(ctx context.Context, post dto.PostProductsRequest, images dto.PostImagesRequest) (dto.PostProductResponse, error) {
-	tx, err := p.db.Begin(ctx)
+func (ps ProductService) PostProduct(ctx context.Context, post dto.PostProductsRequest, images dto.PostImagesRequest) (dto.PostProductResponse, error) {
+	tx, err := ps.db.Begin(ctx)
 	if err != nil {
 		log.Println(err)
 		return dto.PostProductResponse{}, err
 	}
 
-	data, err := p.productRepository.PostProduct(ctx, tx, post)
+	data, err := ps.productRepository.PostProduct(ctx, tx, post)
 	if err != nil {
 		return dto.PostProductResponse{}, err
 	}
 	defer tx.Rollback(ctx)
 
 	for i := range len(images.Images_Name) {
-		_, err := p.productRepository.PostImages(ctx, tx, data.Id, images.Images_Name[i])
+		_, err := ps.productRepository.PostImages(ctx, tx, data.Id, images.Images_Name[i])
 		if err != nil {
 			return dto.PostProductResponse{}, err
 		}
@@ -126,6 +159,11 @@ func (p ProductService) PostProduct(ctx context.Context, post dto.PostProductsRe
 		return dto.PostProductResponse{}, e
 	}
 
+	ps.invalidateProductsCache(ctx)
+	ps.invalidateCache(ctx, 
+		fmt.Sprintf("%s:product_admin", os.Getenv("RDB_KEY")),
+	)
+
 	response := dto.PostProductResponse{
 		Id: data.Id,
 	}
@@ -133,14 +171,14 @@ func (p ProductService) PostProduct(ctx context.Context, post dto.PostProductsRe
 	return response, nil
 }
 
-func (p ProductService) UpdateProduct(ctx context.Context, update dto.UpdateProductsRequest, images dto.PostImagesRequest, idProduct int) error {
-	tx, err := p.db.Begin(ctx)
+func (ps ProductService) UpdateProduct(ctx context.Context, update dto.UpdateProductsRequest, images dto.PostImagesRequest, idProduct int) error {
+	tx, err := ps.db.Begin(ctx)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 	if update.Description != "" || update.Price != 0 || update.ProductName != "" {
-		cmd, err := p.productRepository.UpdateProduct(ctx, tx, update, idProduct)
+		cmd, err := ps.productRepository.UpdateProduct(ctx, tx, update, idProduct)
 		if err != nil {
 			return err
 		}
@@ -152,7 +190,7 @@ func (p ProductService) UpdateProduct(ctx context.Context, update dto.UpdateProd
 	defer tx.Rollback(ctx)
 
 	for i := range len(images.Images_Name) {
-		cmd, err := p.productRepository.PostImages(ctx, tx, idProduct, images.Images_Name[i])
+		cmd, err := ps.productRepository.PostImages(ctx, tx, idProduct, images.Images_Name[i])
 		if err != nil {
 			return err
 		}
@@ -166,16 +204,21 @@ func (p ProductService) UpdateProduct(ctx context.Context, update dto.UpdateProd
 		return e
 	}
 
+	ps.invalidateProductsCache(ctx)
+	ps.invalidateCache(ctx, 
+		fmt.Sprintf("%s:product_admin", os.Getenv("RDB_KEY")),
+	)
+
 	return nil
 }
 
-func (p ProductService) DeleteProductById(ctx context.Context, idProduct int) error {
-	tx, err := p.db.Begin(ctx)
+func (ps ProductService) DeleteProductById(ctx context.Context, idProduct int) error {
+	tx, err := ps.db.Begin(ctx)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	cmd, err := p.productRepository.DeleteProductById(ctx, tx, idProduct)
+	cmd, err := ps.productRepository.DeleteProductById(ctx, tx, idProduct)
 	if err != nil {
 		return err
 	}
@@ -185,7 +228,7 @@ func (p ProductService) DeleteProductById(ctx context.Context, idProduct int) er
 
 	defer tx.Rollback(ctx)
 
-	cmdDel, errDel := p.productRepository.DeleteProductImage(ctx, tx, idProduct)
+	cmdDel, errDel := ps.productRepository.DeleteProductImage(ctx, tx, idProduct)
 	if errDel != nil {
 		return err
 	}
@@ -198,24 +241,35 @@ func (p ProductService) DeleteProductById(ctx context.Context, idProduct int) er
 		return e
 	}
 
+	ps.invalidateProductsCache(ctx)
+	ps.invalidateCache(ctx, 
+		fmt.Sprintf("%s:product_admin", os.Getenv("RDB_KEY")),
+	)
+
 	return nil
 }
 
-func (p ProductService) DeleteProductImageById(ctx context.Context, idImages int) error {
-	cmd, err := p.productRepository.DeleteProductImageById(ctx, p.db, idImages)
+func (ps ProductService) DeleteProductImageById(ctx context.Context, idImages int) error {
+	cmd, err := ps.productRepository.DeleteProductImageById(ctx, ps.db, idImages)
 	if err != nil {
 		return err
 	}
 	if cmd.RowsAffected() == 0 {
 		return errors.New("no data deleted")
 	}
+	
+	ps.invalidateProductsCache(ctx)
+	ps.invalidateCache(ctx, 
+		fmt.Sprintf("%s:product_admin", os.Getenv("RDB_KEY")),
+	)
+	
 	return nil
 }
 
-func (p ProductService) GetProductById(ctx context.Context, idProduct int) (dto.DetailProduct, error) {
+func (ps ProductService) GetProductById(ctx context.Context, idProduct int) (dto.DetailProduct, error) {
 	var response dto.DetailProduct
 
-	data, err := p.productRepository.GetProductById(ctx, p.db, idProduct)
+	data, err := ps.productRepository.GetProductById(ctx, ps.db, idProduct)
 	if err != nil {
 		return dto.DetailProduct{}, err
 	}
@@ -232,10 +286,10 @@ func (p ProductService) GetProductById(ctx context.Context, idProduct int) (dto.
 	return response, nil
 }
 
-func (p ProductService) GetDetailProductByUserWithId(ctx context.Context, idMenu int) (dto.DetailProductUser, error) {
+func (ps ProductService) GetDetailProductByUserWithId(ctx context.Context, idMenu int) (dto.DetailProductUser, error) {
 	var response dto.DetailProductUser
 
-	data, err := p.productRepository.GetDetailProductByUserWithId(ctx, p.db, idMenu)
+	data, err := ps.productRepository.GetDetailProductByUserWithId(ctx, ps.db, idMenu)
 	if err != nil {
 		return dto.DetailProductUser{}, err
 	}
@@ -374,7 +428,7 @@ func (ps *ProductService) GetAllProductByAdmin(ctx context.Context) ([]dto.Produ
 	}
 
 	if rsc.Err() == redis.Nil {
-		log.Println("product_size cache miss")
+		log.Println("product_admin cache miss")
 	}
 
 	data, err := ps.productRepository.GetAllProductSize(ctx, ps.db)
