@@ -299,6 +299,7 @@ func (o OrderRepository) GetOrderHistoryById(ctx context.Context, db DBTX, idOrd
 func (o OrderRepository) GetDetailOrderHistoryById(ctx context.Context, db DBTX, idOrder string) ([]model.DetailItem, error) {
 	sqlStr := `
 		SELECT
+		dt.id,
 		p.name,
 		dt.qty,
 		ARRAY_AGG(pi.image),
@@ -326,7 +327,7 @@ func (o OrderRepository) GetDetailOrderHistoryById(ctx context.Context, db DBTX,
 	var ordDetails []model.DetailItem
 	for rows.Next() {
 		var ord model.DetailItem
-		if err := rows.Scan(&ord.ItemName, &ord.Qty, &ord.Image, &ord.Subtotal, &ord.ProductSize, &ord.ProductType); err != nil {
+		if err := rows.Scan(&ord.Detail_Id, &ord.ItemName, &ord.Qty, &ord.Image, &ord.Subtotal, &ord.ProductSize, &ord.ProductType); err != nil {
 			return nil, err
 		}
 		ordDetails = append(ordDetails, ord)

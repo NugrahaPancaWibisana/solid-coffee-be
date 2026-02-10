@@ -117,7 +117,7 @@ func (o OrderService) CreateOrder(ctx context.Context, order dto.CreateOrder, us
 }
 
 func (o OrderService) UpdateStatusByOrderId(ctx context.Context, sts dto.UpdateStatusOrder) error {
-	status := []string{"pending, done, cancelled"}
+	status := []string{"pending", "done", "cancelled"}
 	isAvailable := slices.Contains(status, sts.Status)
 
 	if !isAvailable {
@@ -213,6 +213,7 @@ func (o *OrderService) GetDetailHistoryById(ctx context.Context, idOrder string)
 		}
 
 		resp = append(resp, dto.DetailItemResponse{
+			Detail_Id:   v.Detail_Id,
 			ItemName:    v.ItemName,
 			ProductSize: v.ProductSize,
 			ProductType: v.ProductType,

@@ -28,6 +28,7 @@ type DetailOrder struct {
 }
 
 type DetailItem struct {
+	Detail_Id   int      `db:"detail_id"`
 	ItemName    string   `db:"item_name"`
 	Qty         int      `db:"qty"`
 	Image       []string `db:"image"`
