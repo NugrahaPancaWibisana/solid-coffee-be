@@ -243,7 +243,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/orders/": {
+        "/admin/orders": {
             "get": {
                 "security": [
                     {
@@ -262,6 +262,18 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Page Start",
                         "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order Id",
+                        "name": "order_id",
                         "in": "query"
                     }
                 ],
@@ -1319,7 +1331,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/orders/review/": {
+        "/orders/review": {
             "post": {
                 "security": [
                     {

@@ -543,12 +543,20 @@ paths:
       summary: Update menu
       tags:
       - Admin Menu Management
-  /admin/orders/:
+  /admin/orders:
     get:
       parameters:
       - description: Page Start
         in: query
         name: page
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
+      - description: Order Id
+        in: query
+        name: order_id
         type: string
       produces:
       - application/json
@@ -1232,7 +1240,7 @@ paths:
       summary: Get detail history by id
       tags:
       - Orders
-  /orders/review/:
+  /orders/review:
     post:
       consumes:
       - application/json
