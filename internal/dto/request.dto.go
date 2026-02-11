@@ -133,7 +133,9 @@ type AddReview struct {
 }
 
 type OrderQueries struct {
-	Page string `json:"page"`
+	Order_Id string `json:"order_id"`
+	Status   string `json:"status"`
+	Page     string `json:"page"`
 }
 
 type HistoryQueries struct {

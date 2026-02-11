@@ -91,7 +91,7 @@ func (o OrdersController) CreateOrder(c *gin.Context) {
 //	@Failure	404		{object}	dto.ResponseError
 //	@Failure	422		{object}	dto.ResponseError
 //	@Failure	500		{object}	dto.ResponseError
-//	@Router		/admin/orders/ [patch]
+//	@Router		/admin/orders [patch]
 //	@security	BearerAuth
 func (o OrdersController) UpdateStatusOrder(c *gin.Context) {
 	var updtStatus dto.UpdateStatusOrder
@@ -140,7 +140,7 @@ func (o OrdersController) UpdateStatusOrder(c *gin.Context) {
 //	@Failure	401		{object}	dto.ResponseError
 //	@Failure	403		{object}	dto.ResponseError
 //	@Failure	500		{object}	dto.ResponseError
-//	@Router		/orders/review/ [post]
+//	@Router		/orders/review [post]
 //	@Security	BearerAuth
 func (o OrdersController) AddReview(ctx *gin.Context) {
 	var req dto.AddReview
@@ -193,28 +193,27 @@ func (o OrdersController) AddReview(ctx *gin.Context) {
 //	@Tags		Admin Order Management
 //	@Produce	json
 //	@Param		page	query		string	false	"Page Start"
+//	@Param		status	query		string	false	"Status"
+//	@Param		order_id	query		string	false	"Order Id"
 //	@Success	200		{object}	[]dto.ProductType
 //	@Failure	401		{object}	dto.ResponseError
 //	@Failure	500		{object}	dto.ResponseError
-//	@Router		/admin/orders/ [get]
+//	@Router		/admin/orders [get]
 //	@Security	BearerAuth
 func (o *OrdersController) GetAllOrderByAdmin(c *gin.Context) {
-	var req dto.OrderQueries
-
-	if err := c.ShouldBindQuery(&req); err != nil {
-		response.Error(c, http.StatusBadRequest, "Invalid query parameters")
-		return
-	}
+	pageParam := c.Query("page")
+	status := c.Query("status")
+	orderId := c.Query("order_id")
 
 	page := 1
-	if req.Page != "" {
-		page, _ = strconv.Atoi(req.Page)
+	if pageParam != "" {
+		page, _ = strconv.Atoi(pageParam)
 		if page < 1 {
 			page = 1
 		}
 	}
 
-	data, totalPage, err := o.orderService.GetAllOrderByAdmin(c, page)
+	data, totalPage, err := o.orderService.GetAllOrderByAdmin(c.Request.Context(), orderId, status, page)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return

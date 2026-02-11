@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math"
 	"strings"
@@ -133,7 +134,9 @@ func (or *OrderRepository) AddReview(ctx context.Context, db DBTX, req dto.AddRe
 	return nil
 }
 
-func (o *OrderRepository) GetAllOrderByAdmin(ctx context.Context, db DBTX, page int) ([]model.Order, error) {
+func (o *OrderRepository) GetAllOrderByAdmin(ctx context.Context, db DBTX, status string, orderId string, page int) ([]model.Order, error) {
+	var sql strings.Builder
+	values := []any{}
 
 	sqlStr := `
 		SELECT
@@ -146,15 +149,37 @@ func (o *OrderRepository) GetAllOrderByAdmin(ctx context.Context, db DBTX, page 
 		JOIN dt_order dt ON dt.order_id = o.id
 		JOIN menus m ON dt.menu_id = m.id
 		JOIN products p ON p.id = m.product_id
-		GROUP BY o.id LIMIT 5 OFFSET $1
 	`
+
+	sql.WriteString(sqlStr)
+
+	if status != "" && orderId == "" {
+		fmt.Fprintf(&sql, " WHERE o.status = $%d", len(values)+1)
+		values = append(values, status)
+	}
+
+	if orderId != "" && status == "" {
+		fmt.Fprintf(&sql, " WHERE o.id::text = $%d", len(values)+1)
+		values = append(values, orderId)
+	}
+
+	if orderId != "" && status != "" {
+		fmt.Fprintf(&sql, " WHERE o.id::text = $%d AND o.status=$%d", len(values)+1, len(values)+2)
+		values = append(values, orderId)
+		values = append(values, status)
+	}
 
 	offset := 0
 	if page > 0 {
 		offset = (page - 1) * 5
 	}
 
-	rows, err := db.Query(ctx, sqlStr, offset)
+	fmt.Fprintf(&sql, " GROUP BY o.id LIMIT 5 OFFSET $%d", len(values)+1)
+	values = append(values, offset)
+
+	mySql := sql.String()
+
+	rows, err := db.Query(ctx, mySql, values...)
 
 	if err != nil {
 		return nil, err
