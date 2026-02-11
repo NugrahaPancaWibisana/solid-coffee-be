@@ -1,12 +1,14 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/apperror"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/response"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/service"
@@ -62,6 +64,10 @@ func (o OrdersController) CreateOrder(c *gin.Context) {
 
 	if err != nil {
 		str := err.Error()
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(c, http.StatusUnauthorized, err.Error())
+			return
+		}
 		if err.Error() == "Stock Insufficient, Order Can't be Done !!" {
 			response.Error(c, http.StatusBadRequest, "Stock Insufficient !!")
 			return
@@ -110,6 +116,10 @@ func (o OrdersController) UpdateStatusOrder(c *gin.Context) {
 
 	if err := o.orderService.UpdateStatusByOrderId(c.Request.Context(), updtStatus); err != nil {
 		str := err.Error()
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(c, http.StatusUnauthorized, err.Error())
+			return
+		}
 		if str == "status is not valid" {
 			response.Error(c, http.StatusUnprocessableEntity, "Status Is Not Appropriate")
 			return
@@ -176,6 +186,10 @@ func (o OrdersController) AddReview(ctx *gin.Context) {
 	accessToken, _ := tokenData.(jwtutil.JwtClaims)
 
 	if err := o.orderService.AddReview(ctx.Request.Context(), req, accessToken.UserID, token[1]); err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(ctx, http.StatusUnauthorized, err.Error())
+			return
+		}
 		if err.Error() == "no rows in result set" {
 			response.Error(ctx, http.StatusNotFound, "Order Not Found")
 			return
@@ -215,6 +229,10 @@ func (o *OrdersController) GetAllOrderByAdmin(c *gin.Context) {
 
 	data, totalPage, err := o.orderService.GetAllOrderByAdmin(c.Request.Context(), orderId, status, page)
 	if err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(c, http.StatusUnauthorized, err.Error())
+			return
+		}
 		response.Error(c, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
@@ -278,6 +296,10 @@ func (o *OrdersController) GetHistoryByUser(c *gin.Context) {
 
 	data, totalPage, err := o.orderService.GetHistoryByUser(c, page, userId)
 	if err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(c, http.StatusUnauthorized, err.Error())
+			return
+		}
 		response.Error(c, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
@@ -322,6 +344,10 @@ func (o OrdersController) GetDetailHistoryById(c *gin.Context) {
 	data, err := o.orderService.GetDetailHistoryById(c.Request.Context(), id)
 
 	if err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(c, http.StatusUnauthorized, err.Error())
+			return
+		}
 		if err.Error() == "no rows in result set" {
 			response.Error(c, http.StatusNotFound, "Data Not Found")
 			return

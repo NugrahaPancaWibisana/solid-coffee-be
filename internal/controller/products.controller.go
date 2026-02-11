@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/apperror"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/dto"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/response"
 	"github.com/NugrahaPancaWibisana/solid-coffee-be/internal/service"
@@ -192,6 +194,10 @@ func (p ProductsController) PostProducts(c *gin.Context) {
 
 	if err != nil {
 		str := err.Error()
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(c, http.StatusUnauthorized, err.Error())
+			return
+		}
 		if strings.Contains(str, "empty") {
 			response.Error(c, http.StatusBadRequest, "Invalid Body")
 			return
@@ -270,6 +276,10 @@ func (p ProductsController) UpdateProduct(c *gin.Context) {
 
 	if err := c.ShouldBindWith(&updateProduct, binding.FormMultipart); err != nil {
 		str := err.Error()
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(c, http.StatusUnauthorized, err.Error())
+			return
+		}
 		if strings.Contains(str, "Field") {
 			response.Error(c, http.StatusBadRequest, "Invalid Body")
 			return
@@ -360,6 +370,10 @@ func (p ProductsController) DeleteProductImageById(c *gin.Context) {
 	}
 
 	if err := p.productService.DeleteProductImageById(c.Request.Context(), strId); err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(c, http.StatusUnauthorized, err.Error())
+			return
+		}
 		if err.Error() == "no data deleted" {
 			response.Error(c, http.StatusNotFound, "Data Not Found")
 			return
@@ -394,6 +408,10 @@ func (p ProductsController) GetDetailProductById(c *gin.Context) {
 	}
 
 	if err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(c, http.StatusUnauthorized, err.Error())
+			return
+		}
 		if err.Error() == "no rows in result set" {
 			response.Error(c, http.StatusNotFound, "Data Not Found")
 			return

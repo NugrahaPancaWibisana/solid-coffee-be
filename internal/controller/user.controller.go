@@ -119,6 +119,11 @@ func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 
 	oldPath, err := uc.userService.UpdateProfile(ctx, req, imagePath, accessToken.UserID, token[1])
 	if err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(ctx, http.StatusUnauthorized, err.Error())
+			return
+		}
+
 		if errors.Is(err, apperror.ErrNoFieldsToUpdate) {
 			response.Error(ctx, http.StatusBadRequest, err.Error())
 			return
@@ -241,6 +246,11 @@ func (uc *UserController) UpdateProfileAdmin(ctx *gin.Context) {
 
 	oldPath, err := uc.userService.UpdateProfileAdmin(ctx, reqChange, imagePath, param.ID, accessToken.UserID, token[1])
 	if err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(ctx, http.StatusUnauthorized, err.Error())
+			return
+		}
+
 		if errors.Is(err, apperror.ErrNoFieldsToUpdate) {
 			response.Error(ctx, http.StatusBadRequest, err.Error())
 			return
@@ -320,6 +330,11 @@ func (uc *UserController) UpdatePassword(ctx *gin.Context) {
 	tokenData, _ := ctx.Get("token")
 	accessToken, _ := tokenData.(jwtutil.JwtClaims)
 	if err := uc.userService.UpdatePassword(ctx, req, accessToken.UserID, token[1]); err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(ctx, http.StatusUnauthorized, err.Error())
+			return
+		}
+
 		if errors.Is(err, apperror.ErrGetPassword) || errors.Is(err, apperror.ErrUpdatePassword) || errors.Is(err, apperror.ErrVerifyPassword) {
 			response.Error(ctx, http.StatusBadRequest, err.Error())
 			return
@@ -357,6 +372,11 @@ func (uc *UserController) GetProfile(ctx *gin.Context) {
 	accessToken, _ := tokenData.(jwtutil.JwtClaims)
 	data, err := uc.userService.GetProfile(ctx, accessToken.UserID, token[1])
 	if err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(ctx, http.StatusUnauthorized, err.Error())
+			return
+		}
+
 		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
@@ -495,6 +515,11 @@ func (uc *UserController) InsertUser(ctx *gin.Context) {
 	}
 
 	if err := uc.userService.InsertUser(ctx, req, accessToken.UserID, imagePath, token[1]); err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(ctx, http.StatusUnauthorized, err.Error())
+			return
+		}
+
 		if errors.Is(err, apperror.ErrEmailAlreadyExists) || errors.Is(err, apperror.ErrInvalidEmailFormat) {
 			response.Error(ctx, http.StatusBadRequest, err.Error())
 			return
@@ -540,6 +565,11 @@ func (uc *UserController) DeleteUser(ctx *gin.Context) {
 	tokenData, _ := ctx.Get("token")
 	accessToken, _ := tokenData.(jwtutil.JwtClaims)
 	if err := uc.userService.DeleteUser(ctx, accessToken.UserID, param.ID, token[1]); err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(ctx, http.StatusUnauthorized, err.Error())
+			return
+		}
+
 		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
@@ -587,6 +617,11 @@ func (uc *UserController) GetUsers(ctx *gin.Context) {
 	accessToken, _ := tokenData.(jwtutil.JwtClaims)
 	data, totalPage, err := uc.userService.GetUsers(ctx, req, accessToken.UserID, token[1])
 	if err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(ctx, http.StatusUnauthorized, err.Error())
+			return
+		}
+		
 		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}

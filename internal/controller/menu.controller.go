@@ -75,6 +75,11 @@ func (mc *MenuController) CreateMenu(ctx *gin.Context) {
 	accessToken, _ := tokenData.(jwtutil.JwtClaims)
 
 	if err := mc.menuService.CreateMenu(ctx, req, accessToken.UserID, token[1]); err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(ctx, http.StatusUnauthorized, err.Error())
+			return
+		}
+
 		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
@@ -116,6 +121,10 @@ func (mc *MenuController) GetMenu(ctx *gin.Context) {
 
 	data, err := mc.menuService.GetMenu(ctx, accessToken.UserID, param.ID, token[1])
 	if err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(ctx, http.StatusUnauthorized, err.Error())
+			return
+		}
 		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
@@ -164,6 +173,11 @@ func (mc *MenuController) GetMenus(ctx *gin.Context) {
 
 	data, totalPage, err := mc.menuService.GetMenus(ctx, req, accessToken.UserID, 0, token[1])
 	if err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(ctx, http.StatusUnauthorized, err.Error())
+			return
+		}
+
 		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
@@ -242,6 +256,11 @@ func (mc *MenuController) UpdateMenu(ctx *gin.Context) {
 
 	if err := mc.menuService.UpdateMenu(ctx, req, accessToken.UserID, param.ID, token[1]); err != nil {
 		if errors.Is(err, apperror.ErrNoFieldsToUpdate) {
+			if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+				response.Error(ctx, http.StatusUnauthorized, err.Error())
+				return
+			}
+
 			response.Error(ctx, http.StatusBadRequest, err.Error())
 			return
 		}
@@ -285,6 +304,11 @@ func (mc *MenuController) DeleteMenu(ctx *gin.Context) {
 	accessToken, _ := tokenData.(jwtutil.JwtClaims)
 
 	if err := mc.menuService.DeleteMenu(ctx, accessToken.UserID, param.ID, token[1]); err != nil {
+		if errors.Is(err, apperror.ErrSessionExpired) || errors.Is(err, apperror.ErrInvalidSession) {
+			response.Error(ctx, http.StatusUnauthorized, err.Error())
+			return
+		}
+
 		response.Error(ctx, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
