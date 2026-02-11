@@ -36,7 +36,7 @@ func NewOrdersController(orderService *service.OrderService) *OrdersController {
 //	@Failure	404		{object}	dto.ResponseError
 //	@Failure	400		{object}	dto.ResponseError
 //	@Failure	401		{object}	dto.ResponseError
-//	@Router		/orders/ [post]
+//	@Router		/orders [post]
 //	@Security	BearerAuth
 func (o OrdersController) CreateOrder(c *gin.Context) {
 
@@ -131,7 +131,7 @@ func (o OrdersController) UpdateStatusOrder(c *gin.Context) {
 // AddReview godoc
 //
 //	@Summary	Add review to order
-//	@Tags		Admin Order Management
+//	@Tags		Orders
 //	@Accept		json
 //	@Produce	json
 //	@Param		request	body		dto.AddReview	true	"Add review"

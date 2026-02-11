@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/admin/menu/": {
+        "/admin/menu": {
             "get": {
                 "security": [
                     {
@@ -368,7 +368,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/products/": {
+        "/admin/products": {
             "post": {
                 "security": [
                     {
@@ -708,7 +708,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/user/": {
+        "/admin/user": {
             "get": {
                 "security": [
                     {
@@ -948,7 +948,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/": {
+        "/auth": {
             "post": {
                 "description": "Authenticate user with email and password",
                 "consumes": [
@@ -1032,7 +1032,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/forgot-password/": {
+        "/auth/forgot-password": {
             "post": {
                 "description": "Send OTP to registered email",
                 "consumes": [
@@ -1124,7 +1124,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/new/": {
+        "/auth/new": {
             "post": {
                 "description": "Create a new user account",
                 "consumes": [
@@ -1170,7 +1170,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/orders/": {
+        "/orders": {
             "post": {
                 "security": [
                     {
@@ -1345,7 +1345,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Admin Order Management"
+                    "Orders"
                 ],
                 "summary": "Add review to order",
                 "parameters": [
@@ -1393,7 +1393,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/": {
+        "/products": {
             "get": {
                 "produces": [
                     "application/json"
@@ -1466,7 +1466,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/product-sizes/": {
+        "/products/product-sizes": {
             "get": {
                 "produces": [
                     "application/json"
@@ -1494,7 +1494,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/product-types/": {
+        "/products/product-types": {
             "get": {
                 "produces": [
                     "application/json"
@@ -1568,7 +1568,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/": {
+        "/user": {
             "get": {
                 "security": [
                     {
@@ -1663,7 +1663,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/password/": {
+        "/user/password": {
             "patch": {
                 "security": [
                     {
@@ -1774,6 +1774,9 @@ const docTemplate = `{
         "dto.DetailItemResponse": {
             "type": "object",
             "properties": {
+                "detail_id": {
+                    "type": "integer"
+                },
                 "image": {
                     "type": "array",
                     "items": {

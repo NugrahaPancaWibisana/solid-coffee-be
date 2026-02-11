@@ -44,7 +44,7 @@ func NewProductsController(productService *service.ProductService) *ProductsCont
 //	@Success	200			{object}	dto.ProductResponse
 //	@Failure	401			{object}	dto.ResponseError
 //	@Failure	500			{object}	dto.ResponseError
-//	@Router		/products/ [get]
+//	@Router		/products [get]
 func (p ProductsController) GetAllProducts(c *gin.Context) {
 	var req dto.ProductQueries
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -123,7 +123,7 @@ func (p ProductsController) GetAllProducts(c *gin.Context) {
 //	@Failure	401				{object}	dto.ResponseError
 //	@Failure	404				{object}	dto.ResponseError
 //	@Failure	400				{object}	dto.ResponseError
-//	@Router		/admin/products/ [post]
+//	@Router		/admin/products [post]
 //	@Security	BearerAuth
 func (p ProductsController) PostProducts(c *gin.Context) {
 	const maxSize = 2 * 1024 * 1024
@@ -437,7 +437,7 @@ func (p ProductsController) GetDetailProductByUserWithId(c *gin.Context) {
 //	@Produce	json
 //	@Success	200	{object}	[]dto.ProductType
 //	@Failure	500	{object}	dto.ResponseError
-//	@Router		/products/product-types/ [get]
+//	@Router		/products/product-types [get]
 func (pc *ProductsController) GetAllProductType(c *gin.Context) {
 	data, err := pc.productService.GetAllProductType(c.Request.Context())
 	if err != nil {
@@ -454,7 +454,7 @@ func (pc *ProductsController) GetAllProductType(c *gin.Context) {
 //	@Produce	json
 //	@Success	200	{object}	[]dto.ProductSize
 //	@Failure	500	{object}	dto.ResponseError
-//	@Router		/products/product-sizes/ [get]
+//	@Router		/products/product-sizes [get]
 func (pc *ProductsController) GetAllProductSize(c *gin.Context) {
 	data, err := pc.productService.GetAllProductSize(c.Request.Context())
 	if err != nil {
@@ -464,53 +464,3 @@ func (pc *ProductsController) GetAllProductSize(c *gin.Context) {
 
 	response.Success(c, http.StatusOK, "Product Sizes Retrieved Successfully", data)
 }
-
-// Get Product Sizes godoc
-//
-//	@Summary	Get all product
-//	@Tags		Admin Product Management
-//	@Produce	json
-//	@Success	200	{object}	[]dto.Product
-//	@Failure	500	{object}	dto.ResponseError
-//	@Router		/products/product-sizes/ [get]
-// func (pc *ProductsController) GetAllProductByAdmin(c *gin.Context) {
-// 	var req dto.ProductAdminQueries
-
-// 	if err := c.ShouldBindQuery(&req); err != nil {
-// 		response.Error(c, http.StatusBadRequest, "Invalid query parameters")
-// 		return
-// 	}
-
-// 	page := 1
-// 	if req.Page != "" {
-// 		page, _ = strconv.Atoi(req.Page)
-// 		if page < 1 {
-// 			page = 1
-// 		}
-// 	}
-
-// 	data, totalPage, err := pc.productService.GetAllProductByAdmin(c, page)
-// 	if err != nil {
-// 		response.Error(c, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
-// 		return
-// 	}
-
-// 	var nextPage string
-// 	var prevPage string
-
-// 	if page < totalPage {
-// 		nextPage = fmt.Sprintf("/admin/products?page=%d", page+1)
-// 	}
-// 	if page > 1 {
-// 		prevPage = fmt.Sprintf("/admin/products?page=%d", page-1)
-// 	}
-
-// 	response.SuccessWithMeta(c, http.StatusOK, "Products Data Retrieved Successfully", data,
-// 		dto.PaginationMeta{
-// 			Page:      page,
-// 			TotalPage: totalPage,
-// 			NextPage:  nextPage,
-// 			PrevPage:  prevPage,
-// 		},
-// 	)
-// }

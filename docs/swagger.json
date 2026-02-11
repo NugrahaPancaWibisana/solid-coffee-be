@@ -9,7 +9,7 @@
     "host": "192.168.50.221:8080",
     "basePath": "/",
     "paths": {
-        "/admin/menu/": {
+        "/admin/menu": {
             "get": {
                 "security": [
                     {
@@ -362,7 +362,7 @@
                 }
             }
         },
-        "/admin/products/": {
+        "/admin/products": {
             "post": {
                 "security": [
                     {
@@ -702,7 +702,7 @@
                 }
             }
         },
-        "/admin/user/": {
+        "/admin/user": {
             "get": {
                 "security": [
                     {
@@ -942,7 +942,7 @@
                 }
             }
         },
-        "/auth/": {
+        "/auth": {
             "post": {
                 "description": "Authenticate user with email and password",
                 "consumes": [
@@ -1026,7 +1026,7 @@
                 }
             }
         },
-        "/auth/forgot-password/": {
+        "/auth/forgot-password": {
             "post": {
                 "description": "Send OTP to registered email",
                 "consumes": [
@@ -1118,7 +1118,7 @@
                 }
             }
         },
-        "/auth/new/": {
+        "/auth/new": {
             "post": {
                 "description": "Create a new user account",
                 "consumes": [
@@ -1164,7 +1164,7 @@
                 }
             }
         },
-        "/orders/": {
+        "/orders": {
             "post": {
                 "security": [
                     {
@@ -1339,7 +1339,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Admin Order Management"
+                    "Orders"
                 ],
                 "summary": "Add review to order",
                 "parameters": [
@@ -1387,7 +1387,7 @@
                 }
             }
         },
-        "/products/": {
+        "/products": {
             "get": {
                 "produces": [
                     "application/json"
@@ -1460,7 +1460,7 @@
                 }
             }
         },
-        "/products/product-sizes/": {
+        "/products/product-sizes": {
             "get": {
                 "produces": [
                     "application/json"
@@ -1488,7 +1488,7 @@
                 }
             }
         },
-        "/products/product-types/": {
+        "/products/product-types": {
             "get": {
                 "produces": [
                     "application/json"
@@ -1562,7 +1562,7 @@
                 }
             }
         },
-        "/user/": {
+        "/user": {
             "get": {
                 "security": [
                     {
@@ -1657,7 +1657,7 @@
                 }
             }
         },
-        "/user/password/": {
+        "/user/password": {
             "patch": {
                 "security": [
                     {
@@ -1768,6 +1768,9 @@
         "dto.DetailItemResponse": {
             "type": "object",
             "properties": {
+                "detail_id": {
+                    "type": "integer"
+                },
                 "image": {
                     "type": "array",
                     "items": {
