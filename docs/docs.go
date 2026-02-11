@@ -263,6 +263,18 @@ const docTemplate = `{
                         "description": "Page Start",
                         "name": "page",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order Id",
+                        "name": "order_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {

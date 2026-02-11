@@ -552,6 +552,14 @@ paths:
         in: query
         name: page
         type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
+      - description: Order Id
+        in: query
+        name: order_id
+        type: string
       produces:
       - application/json
       responses:

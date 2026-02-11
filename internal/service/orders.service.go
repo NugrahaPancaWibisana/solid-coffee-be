@@ -146,14 +146,14 @@ func (os *OrderService) AddReview(ctx context.Context, req dto.AddReview, id int
 	return nil
 }
 
-func (o *OrderService) GetAllOrderByAdmin(ctx context.Context, page int) ([]dto.Order, int, error) {
+func (o *OrderService) GetAllOrderByAdmin(ctx context.Context, orderId string, status string, page int) ([]dto.Order, int, error) {
 
 	totalPage, err := o.orderRepository.GetOrderTotalPages(ctx, o.db)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	data, err := o.orderRepository.GetAllOrderByAdmin(ctx, o.db, page)
+	data, err := o.orderRepository.GetAllOrderByAdmin(ctx, o.db, status, orderId, page)
 	if err != nil {
 		return []dto.Order{}, 0, err
 	}
